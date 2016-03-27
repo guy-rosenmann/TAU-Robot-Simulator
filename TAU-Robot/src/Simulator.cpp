@@ -85,7 +85,7 @@ void Simulator::simulate()
 			stepsCount++;
 		}
 		
-		cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl;
+		// cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl;
 
 		simulatios.insert(simulatios.end(), tempSoppedSimulatios.begin(), tempSoppedSimulatios.end());
 		tempSoppedSimulatios.clear();

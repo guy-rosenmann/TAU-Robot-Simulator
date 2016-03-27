@@ -24,8 +24,8 @@ House::House()
 		this->loadFromFile(House::defaultHouseFileName);
 	}
 
-	this->print(_docking);
-	cout << endl << "Docking station: " << _docking << endl << endl;
+	//this->print(_docking);
+	//cout << endl << "Docking station: " << _docking << endl << endl;
 }
 
 
@@ -42,8 +42,8 @@ House::House(string& path_)
 		}
 	}
 
-	this->print(_docking);
-	cout << endl << "Docking station: " << _docking << endl << endl;
+	//this->print(_docking);
+	//cout << endl << "Docking station: " << _docking << endl << endl;
 }
 
 
