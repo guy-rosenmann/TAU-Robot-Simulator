@@ -1,5 +1,5 @@
 #include "ParamsParser.h"
-
+#include <cstring>
 
 const char* const ParamsParser::_options[] = {
 	"-config"

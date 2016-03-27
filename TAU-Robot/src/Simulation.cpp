@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-Simulation::Simulation(const Configuration& config_, const House& house_, AbstractAlgorithm* algo_) : _house(house_), _algo(algo_), _config(config_)
+Simulation::Simulation(const Configuration& config_, const House& house_, AbstractAlgorithm* algo_) : _algo(algo_), _house(house_), _config(config_)
 {
 	_robot.battery = _config["BatteryCapacity"];
 	_robot.location = _house.getDocking();
