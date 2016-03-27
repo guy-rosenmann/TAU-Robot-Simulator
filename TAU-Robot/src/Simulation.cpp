@@ -24,59 +24,44 @@ Simulation::~Simulation()
 
 bool Simulation::step()
 {
+	if (_robot.battery <= 0)
+	{
+		cout << "[WARN] The robot is stuck with an empty battery. Terminating simulation..." << endl;
+		_robot.stuck = true;
+		return false;
+	}
+	
+	
 	int capacity = _config["BatteryCapacity"],
-		rechargeRate = _config["BatteryRachargeRate"],
+		rechargeRate = _config["BatteryRechargeRate"],
 		consumptionRate = _config["BatteryConsumptionRate"];	
 
 	Direction stepDirection = _algo->step();
+	_robot.location.move(stepDirection);
 	_robot.totalSteps++;
 
-	if (stepDirection == Direction::Stay)
-	{
-		if (_robot.location == _house.getDocking())
-		{
-			_robot.battery = std::min(capacity, _robot.battery + rechargeRate);
-		}
-		else
-		{
-			if (_robot.battery - consumptionRate < 0)
-			{
-				_robot.stuck = true;
-				return false;
-			}
+	char destType = _house.at(_robot.location);
 
-			_robot.cleanedDirt += _house.clean(_robot.location);
-			_robot.battery -= consumptionRate;
-		}
+	if (destType == House::DOCKING)
+	{
+		_robot.battery = std::min(capacity, _robot.battery + rechargeRate);
 	}
 	else
 	{
-		if (_robot.battery - consumptionRate >= 0)
-		{
-			Point destPoint = _robot.location;
-			destPoint.move(stepDirection);
-
-			char destType = _house.at(destPoint);
-			if (destType == House::ERR || destType == House::WALL)
-			{
-				_robot.goodBehavior = false;
-				return false; // outside the house / into a wall
-			}
-			else
-			{
-				_robot.cleanedDirt += _house.clean(_robot.location);
-				_robot.battery -= consumptionRate;
-				_robot.location.move(stepDirection);
-			}
-		}
-		else
-		{
-			_robot.stuck = true;
-			return false;
-		}
+		_robot.battery -= consumptionRate;
+	}
+	
+	if (destType == House::ERR || destType == House::WALL)
+	{
+		cout << "[WARN] The robot is trying to walk through a wall. Terminating simulation..." << endl;
+		_robot.goodBehavior = false;
+		return false; // outside the house / into a wall
 	}
 
+
+	_robot.cleanedDirt += _house.clean(_robot.location);
 	this->updateSensor();
+
 	return true;
 }
 
@@ -87,10 +72,8 @@ bool Simulation::isDone() const
 }
 
 
-int Simulation::score(int position_in_copmetition, int winner_num_steps, int SimulationSteps) const
+int Simulation::score(int position_in_competition, int winner_num_steps, int SimulationSteps) const
 {
-	std::cout << _house;
-	std::cout << "Clean = " << _robot.cleanedDirt << endl;
 	if (!_robot.goodBehavior)
 	{
 		return 0;
@@ -99,7 +82,7 @@ int Simulation::score(int position_in_copmetition, int winner_num_steps, int Sim
 	int this_num_steps = _robot.stuck ? SimulationSteps : this->getStepsCount();
 
 	int points = 2000;
-	points -= (position_in_copmetition - 1) * 50;
+	points -= (position_in_competition - 1) * 50;
 	points += (winner_num_steps - this_num_steps) * 10;
 	points -= (this->getTotalDirtCount() - this->getCleanedDirtCount()) * 3;
 	points += this->isRobotDocked() ? 50 : -200;

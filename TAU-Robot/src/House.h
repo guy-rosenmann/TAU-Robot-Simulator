@@ -1,9 +1,7 @@
 #ifndef __HOUSE__H_
 #define __HOUSE__H_
 
-#include <cmath>
 #include <iostream>
-#include <functional>
 
 #include "Point.h"
 
@@ -11,6 +9,9 @@ using namespace std;
 
 
 class House {
+
+	static string defaultHouseFileName;
+
 	size_t	_rows;
 	size_t	_cols;
 	char**	_house = nullptr;
@@ -28,6 +29,7 @@ public:
 	enum { DUST1 = '1', DUST2, DUST3, DUST4, DUST5, DUST6, DUST7, DUST8, DUST9 };
 
 	House();
+	House::House(string& path_);
 	House(const House& other);
 	virtual ~House();
 
@@ -45,6 +47,7 @@ public:
 
 
 	void print(ostream& out = cout) const;
+	void print(const Point& robot, ostream& out = cout);
 	friend ostream& operator<<(ostream& out, const House& h) { h.print(out); return out; }
 
 private:
@@ -52,10 +55,13 @@ private:
 	void freeHouse();
 	void setHouse(const House& other);
 
+	void createDefaultHouse();
+	bool loadFromFile(string& path_);
+
 	const char operator[](const Point& p) const;
 	char& operator[](const Point& p);
-	bool isInside(const Point& p) const { return (p.getX() < (int)_cols) && (p.getY() < (int)_rows); }
-	void updateDirtCount();
+	bool isInside(const Point& p) const { return (p.getX() < (int)_cols) && (p.getX() >= 0) && (p.getY() < (int)_rows) && (p.getY() >= 0); }
+	bool House::validateHouse();
 };
 
 

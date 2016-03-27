@@ -7,7 +7,16 @@
 Simulator::Simulator(const Configuration& conf_)
 {
 	_config = conf_;
-	_houses.push_back(new House());
+	
+	try
+	{
+		_houses.push_back(new House());
+	}
+	catch (...)
+	{
+		cout << "[ERROR] The house is not valid. Terminating..." << endl;
+	}
+	
 	
 	// create Algorithms
 	_algos.push_back(std::make_pair(new Algorithm(), new std::vector<int>()));
@@ -34,7 +43,6 @@ void Simulator::simulate()
 	for (vector<House*>::iterator h_it = _houses.begin(); h_it != _houses.end(); ++h_it)
 	{
 		House& house = **h_it;
-		cout << house;
 		vector<Simulation*> simulatios;
 		for (AlgoVector::iterator a_it = _algos.begin(); a_it != _algos.end(); ++a_it)
 		{
@@ -49,8 +57,7 @@ void Simulator::simulate()
 		vector<Simulation*> tempSoppedSimulatios;
 		bool atLeastOneDone = false;
 		int stepsCount = 0, afterStepsCount = -1;
-		while ((simulatios.size() > 0) &&
-			(atLeastOneDone ? ((stepsCount < maxSteps) && (afterStepsCount < maxStepsAfterWinner)) : (stepsCount < maxSteps)))
+		while ((simulatios.size() > 0) && (stepsCount < maxSteps) && (atLeastOneDone ? (afterStepsCount < maxStepsAfterWinner) : true) )
 		{
 			vector<Simulation*>::iterator it = simulatios.begin();
 			while (it != simulatios.end())
@@ -78,6 +85,8 @@ void Simulator::simulate()
 			stepsCount++;
 		}
 		
+		cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl;
+
 		simulatios.insert(simulatios.end(), tempSoppedSimulatios.begin(), tempSoppedSimulatios.end());
 		tempSoppedSimulatios.clear();
 		this->score(stepsCount, simulatios);
@@ -110,8 +119,8 @@ void Simulator::score(int simulationSteps, vector<Simulation*>& simulatios_)
 		Simulation& currentSim = **it;
 		int index = it - simulatios_.begin();
 		
-		int position_in_copmetition = 10;
-		int actual_position_in_copmetition = 1;
+		int position_in_competition = 10;
+		int actual_position_in_competition = 1;
 		if (currentSim.isDone())
 		{
 			// find actual position
@@ -122,7 +131,7 @@ void Simulator::score(int simulationSteps, vector<Simulation*>& simulatios_)
 				{
 					if (tempSim.getStepsCount() < currentSim.getStepsCount())
 					{
-						actual_position_in_copmetition++;
+						actual_position_in_competition++;
 					}
 					else
 					{
@@ -133,8 +142,8 @@ void Simulator::score(int simulationSteps, vector<Simulation*>& simulatios_)
 				{
 					if (tempSim.getStepsCount() != (*(p_it - 1))->getStepsCount())
 					{
-						actual_position_in_copmetition++;
-						if (actual_position_in_copmetition >= 4)
+						actual_position_in_competition++;
+						if (actual_position_in_competition >= 4)
 						{
 							break;
 						}
@@ -142,10 +151,10 @@ void Simulator::score(int simulationSteps, vector<Simulation*>& simulatios_)
 				}
 			}
 
-			position_in_copmetition = std::min(actual_position_in_copmetition, 4);
+			position_in_competition = std::min(actual_position_in_competition, 4);
 		}
 
-		_algos[index].second->push_back(currentSim.score(position_in_copmetition, winner_num_steps, simulationSteps)); // save score
+		_algos[index].second->push_back(currentSim.score(position_in_competition, winner_num_steps, simulationSteps)); // save score
 	}
 }
 

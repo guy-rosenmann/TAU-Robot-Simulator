@@ -16,11 +16,18 @@ int main(int argc, char* argv[])
 	{
 		conf_path = params["-config"];
 	}
-	Configuration config(conf_path);
-	Simulator simulator(config);
 
-	simulator.simulate();
-	
+	Configuration config(conf_path);
+	if (config.isReady())
+	{
+		Simulator simulator(config);
+		simulator.simulate();
+	}
+	else
+	{
+		cout << "[ERROR] Failed to load configuration from file. Terminating..." << endl;
+	}
+
 	getchar();
 	return 0;
 }

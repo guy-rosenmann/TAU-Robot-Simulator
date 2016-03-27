@@ -16,17 +16,20 @@ class Configuration
 {
 	static string configFileName;
 	
-	map<string, int> _params;
+	map<string, int>	_params;
+	bool				_successful; // did last loading of config was OK
 
 public:
-	Configuration() : Configuration(Configuration::configFileName) { };
-	Configuration(const Configuration& other) : _params(other._params) { };
-	Configuration(const string& iniPath_) { this->loadFromFile(iniPath_); };
+	Configuration() : _successful(true) { this->loadDefaultConfig(); }
+	Configuration(const string& iniPath_);
+	Configuration(const Configuration& other) : _params(other._params), _successful(true) {}
 
-	void loadFromFile(const string& iniPath_);
+	bool isReady() { return _successful; }
+	void loadDefaultConfig();
+	bool loadFromFile(const string& iniPath_);
 	void writeConfigFile(const string& iniPath_) const;
 
-	map<string, int> getParams() const { return _params; };
+	map<string, int> getParams() const { return _params; }
 
 	int& operator[](const string& key) { return _params[key]; }
 	int& operator[](const char* key) { return _params[key]; }
@@ -44,6 +47,7 @@ private:
 	static std::string trim(std::string& str);
 
 	void processLine(const string& line);
+	void resetConfiguration();
 	
 };
 

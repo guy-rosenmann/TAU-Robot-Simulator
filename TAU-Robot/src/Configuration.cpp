@@ -7,34 +7,49 @@
 string Configuration::configFileName = "config.ini";
 
 
-void Configuration::loadFromFile(const string& iniPath_)
+Configuration::Configuration(const string& iniPath_) : _successful(true)
+{ 
+	if (iniPath_.size() == 0)
+	{
+		this->loadDefaultConfig();
+
+	}
+	else if (!this->loadFromFile(iniPath_))
+	{
+		_successful = false;
+	}
+}
+
+
+void Configuration::loadDefaultConfig()
 {
-	_params.clear();
-	
-	// defaults
-	_params["MaxSteps"] = 1200;
-	_params["MaxStepsAfterWinner"] = 200;
-	_params["BatteryCapacity"] = 400;
-	_params["BatteryConsumptionRate"] = 1;
-	_params["BatteryRechargeRate"] = 20;
+	if (!this->loadFromFile(Configuration::configFileName))
+	{
+		this->resetConfiguration();
+		this->writeConfigFile(Configuration::configFileName); // create the default config file
+	}
+}
+
+
+bool Configuration::loadFromFile(const string& iniPath_)
+{
+	this->resetConfiguration();
 
 	ifstream fin(iniPath_.c_str());
-	if (fin.good())
+	if (!fin.good())
 	{
-		// the file exists and readable
-		string line;
-		while (getline(fin, line))
-		{
-			this->processLine(line);
-		}
+		return false;
 	}
-	else
+
+	// the file exists and readable
+	string line;
+	while (getline(fin, line))
 	{
-		// use defaults (and create config file)
-		this->writeConfigFile(Configuration::configFileName); // create the default config file
+		this->processLine(line);
 	}
 	
 	fin.close();
+	return true;
 }
 
 void Configuration::writeConfigFile(const string& iniPath_) const
@@ -48,6 +63,19 @@ void Configuration::writeConfigFile(const string& iniPath_) const
 
 	fout.close();
 }
+
+void Configuration::resetConfiguration()
+{
+	_params.clear();
+
+	// defaults
+	_params["MaxSteps"] = 1200;
+	_params["MaxStepsAfterWinner"] = 200;
+	_params["BatteryCapacity"] = 400;
+	_params["BatteryConsumptionRate"] = 1;
+	_params["BatteryRechargeRate"] = 20;
+}
+
 
 string Configuration::toString() const
 {

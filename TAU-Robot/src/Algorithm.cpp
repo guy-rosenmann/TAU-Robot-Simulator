@@ -2,28 +2,28 @@
 
 Direction Algorithm::step()
 {
+	vector<Direction> moves;
+	this->getPossibleMoves(moves);
+
+	return moves[std::rand() % moves.size()];
+}
+
+
+void Algorithm::getPossibleMoves(vector<Direction>& moves_)
+{
 	SensorInformation info = _sensor->sense(); // info.isWall = { East, West, South, North }
-	
-	// check if stuck
-	unsigned int j;
-	for (j = 0; info.isWall[j] && j < sizeof(info.isWall); ++j);
-	if (j == sizeof(info.isWall)/sizeof(bool))
+
+	for (int i = 0; i < sizeof(info.isWall) / sizeof(bool); ++i)
 	{
-		return Direction::Stay;
+		if (!info.isWall[i])
+		{
+			moves_.push_back((Direction)i);
+		}
 	}
 
-	int move = std::rand() % 5; // random move
-	if (move == (int)Direction::Stay)
+	if (info.dirtLevel > 0 || moves_.size() == 0)
 	{
-		return (Direction)move;
+		// add Stay option only if needed
+		moves_.push_back(Direction::Stay);
 	}
-	
-	// find first matched direction (not a wall)
-	j = 0;
-	for (int i = 0; i <= move; ++i)
-	{
-		j++;
-		while (info.isWall[j % 4]) j++;
-	}
-	return (Direction)(j % 4);
 }

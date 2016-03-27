@@ -1,6 +1,7 @@
 #ifndef __ALGORITHM__H_
 #define __ALGORITHM__H_
 
+#include <vector>
 #include <map>
 using namespace std;
 
@@ -25,6 +26,9 @@ public:
 	void aboutToFinish(int stepsTillFinishing) {} // TODO: implement for EX2
 
 	Direction step();
+
+private:
+	void getPossibleMoves(vector<Direction>& moves_);
 
 };
 

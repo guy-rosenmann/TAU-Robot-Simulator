@@ -1,51 +1,141 @@
 #include "House.h"
 
-#include <algorithm>
+
+#include <string>
 #include <cstring>
+#include <cmath>
+#include <functional>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+
+
+string House::defaultHouseFileName = "simple1.house";
+
 
 House::House()
 {
-	enum { rows = 19, cols = 80 }; // this is an example for an hard coded house...
+	cout << "[INFO] Using default house: " << House::defaultHouseFileName << endl;
 
-	_rows = rows;
-	_cols = cols;
-	_name = "Example House";
-	_description = "Example house from recitation";
+	if (!this->loadFromFile(House::defaultHouseFileName))
+	{
+		cout << "[INFO] No default house - creating one." << endl;
+		createDefaultHouse();
+		this->loadFromFile(House::defaultHouseFileName);
+	}
+
+	this->print(_docking);
+	cout << endl << "Docking station: " << _docking << endl << endl;
+}
+
+
+House::House(string& path_)
+{
+	if (!this->loadFromFile(path_))
+	{
+		cout << "[ERROR] Failed to load house from: " << path_ << ". Checking for default house: " << House::defaultHouseFileName << endl;
+		if (!this->loadFromFile(House::defaultHouseFileName))
+		{
+			cout << "[INFO] No default house. Creating one at: " << House::defaultHouseFileName << endl;
+			createDefaultHouse();
+			this->loadFromFile(House::defaultHouseFileName);
+		}
+	}
+
+	this->print(_docking);
+	cout << endl << "Docking station: " << _docking << endl << endl;
+}
+
+
+void House::createDefaultHouse()
+{
+	ofstream fout(House::defaultHouseFileName);
+
+	if (fout.good())
+	{
+		fout << "Simple1" << endl;
+
+#if 0
+		fout << "Really big house" << endl;
+		fout << 19 << endl;
+		fout << 80 << endl;
+		fout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << endl;
+		fout << "W  99   D              1234321                                                 W" << endl;
+		fout << "W  99      WWWWWWW     1234321                     W                       1   W" << endl;
+		fout << "W              W                                   W   555                 2   W" << endl;
+		fout << "W              W                                   W   555                 3   W" << endl;
+		fout << "W              W           WWWWWWWWWWWWWWWWWWWWWWWWW                       4   W" << endl;
+		fout << "W              W                                                           5   W" << endl;
+		fout << "W              W                                                           6   W" << endl;
+		fout << "W                          WWWWWWWWWWWWWWWWWWWWWW  WWWWWWW                 7   W" << endl;
+		fout << "W         1         2         3         4         5W 999 W  6         7        W" << endl;
+		fout << "W              W           444                     W 999 W                 9   W" << endl;
+		fout << "W              W           444                     W 999 W                 8   W" << endl;
+		fout << "W              W                                   W     W                 7   W" << endl;
+		fout << "W              W                                   WW   WW                 6   W" << endl;
+		fout << "W              W                                    W   W                  5   W" << endl;
+		fout << "W              W                                                           4   W" << endl;
+		fout << "W              W                                                           3   W" << endl;
+		fout << "W              W                                                               W" << endl;
+		fout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << endl;
+#else
+		fout << "2 Bedrooms + Kitchen Isle" << endl;
+		fout << 8 << endl;
+		fout << 10 << endl;
+		fout << "WWWWWWWWWW" << endl;
+		fout << "W22  DW59W" << endl;
+		fout << "W  W 1119W" << endl;
+		fout << "W WWW3WW W" << endl;
+		fout << "W6   3W  W" << endl;
+		fout << "W78W  W  W" << endl;
+		fout << "W99W  W  W" << endl;
+		fout << "WWWWWWWWWW" << endl;
+#endif
+
+	}
+
+	fout.close();
+}
+
+
+bool House::loadFromFile(string& path_)
+{
+	ifstream fin(path_.c_str());
+
+	if (!fin.good())
+	{
+		fin.close();
+		return false;
+	}
+
+	freeHouse();
 	
-	char house[rows][cols + 1] = {
-	//             1         2         3         4         5         6         7        
-	//   01234567890123456789012345678901234567890123456789012345678901234567890123456789
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW", // 0
-		"W  99   D              1234321                                                 W", // 1
-		"W  99      WWWWWWW     1234321                     W                       1   W", // 2
-		"W              W                                   W   555                 2   W", // 3
-		"W              W                                   W   555                 3   W", // 4
-		"W              W           WWWWWWWWWWWWWWWWWWWWWWWWW                       4   W", // 5
-		"W              W                                                           5   W", // 6
-		"W              W                                                           6   W", // 7
-		"W                          WWWWWWWWWWWWWWWWWWWWWW  WWWWWWW                 7   W", // 8
-		"W         1         2         3         4         5W 999 W  6         7        W", // 9
-		"W              W           444                     W 999 W                 9   W", // 10
-		"W              W           444                     W 999 W                 8   W", // 11
-		"W              W                                   W     W                 7   W", // 12
-		"W              W                                   WW   WW                 6   W", // 13
-		"W              W                                    W   W                  5   W", // 14
-		"W              W                                                           4   W", // 15
-		"W              W                                                           3   W", // 16
-		"W              W                                                               W", // 17
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"	// 18
-	};
+	std::getline(fin, _name);
+	std::getline(fin, _description);
+	fin >> _rows;
+	fin >> _cols;
+	fin.ignore();	//skip newline and go the begining of matrix
 
 	_house = new char*[_rows];
 	for (size_t i = 0; i < _rows; i++)
 	{
 		_house[i] = new char[_cols + 1];
-		std::memcpy(_house[i], house[i], _cols + 1);
+		_house[i][_cols] = '\0';
+		std::memset(_house[i], House::EMPTY, _cols); // fill in all places with spaces
+
+		string houseRow;
+		std::getline(fin, houseRow);
+		std::memcpy(_house[i], houseRow.c_str(), std::min(houseRow.size(), _cols));
 	}
 
-	_docking = this->findDocking();
-	this->updateDirtCount();
-	_totalDirt = _currentDirt;
+	fin.close();
+
+	if (!this->validateHouse())
+	{
+		throw House::ERR;
+	}
+
+	return true;
 }
 
 
@@ -58,6 +148,42 @@ House::House(const House& other)
 House::~House()
 {
 	freeHouse();
+}
+
+
+void House::setHouse(const House& other)
+{
+	freeHouse();
+
+	_rows = other._rows;
+	_cols = other._cols;
+	_docking = other._docking;
+	_totalDirt = other._totalDirt;
+	_currentDirt = other._currentDirt;
+
+	_house = new char*[_rows];
+	for (size_t i = 0; i < _rows; i++)
+	{
+		_house[i] = new char[_cols + 1];
+		std::memcpy(_house[i], other._house[i], _cols + 1);
+	}
+
+	this->validateHouse();
+}
+
+
+void House::freeHouse()
+{
+	if (_house != nullptr)
+	{
+		for (size_t i = 0; i < _rows; i++)
+		{
+			delete[] _house[i];
+		}
+
+		delete[] _house;
+		_house = nullptr;
+	}
 }
 
 
@@ -92,47 +218,49 @@ char& House::operator[](const Point& p)
 void House::print(ostream& out) const
 {
 	out << endl;
-	out << "          1         2         3         4         5         6         7         " << endl;
-	out << "01234567890123456789012345678901234567890123456789012345678901234567890123456789" << endl;
+
+	string colMajor, colMinor;
+	for (size_t i = 0; i < _cols; ++i)
+	{
+		if (i != 0 && i % 10 == 0)
+		{
+			colMajor += std::to_string(i / 10);
+		}
+		else
+		{
+			colMajor += " ";
+		}
+		colMinor += std::to_string(i % 10);
+	}
+	
+	if (_cols > 10)
+	{
+		out << colMajor << endl;
+	}
+	out << colMinor << endl;
+
 	for (size_t row = 0; row < _rows; ++row)
 	{
 		out << _house[row] << " " << row << endl;
 	}
-	out << endl << "docking station at: " << _docking << endl;
+	
+	//out << endl << "Docking station at: " << _docking << endl;
 }
 
-void House::freeHouse()
+
+void House::print(const Point& robot, ostream& out)
 {
-	if (_house != nullptr)
+	if (this->isInside(robot))
 	{
-		for (size_t i = 0; i < _rows; i++)
-		{
-			delete[] _house[i];
-		}
-
-		delete[] _house;
-		_house = nullptr;
+		char last = (*this)[robot];
+		(*this)[robot] = 'R';
+		this->print(out);
+		(*this)[robot] = last;
 	}
-}
-
-void House::setHouse(const House& other)
-{
-	freeHouse();
-
-	_rows = other._rows;
-	_cols = other._cols;
-	_docking = other._docking;
-	_totalDirt = other._totalDirt;
-	_currentDirt = other._currentDirt;
-
-	_house = new char*[_rows];
-	for (size_t i = 0; i < _rows; i++)
+	else
 	{
-		_house[i] = new char[_cols + 1];
-		std::memcpy(_house[i], other._house[i], _cols + 1);
+		this->print(out);
 	}
-
-	this->updateDirtCount();
 }
 
 
@@ -154,20 +282,22 @@ Point House::findDocking()
 
 int House::clean(Point& spot_, int amout_)
 {
-	if (!this->isInside(spot_) || (*this)[spot_] == House::WALL)
+	House& house = *this;
+	
+	if (!this->isInside(spot_))
 	{
 		return 0;
 	}
 
-	if ((*this)[spot_] >= House::DUST1 && (*this)[spot_] <= House::DUST9)
+	if (house[spot_] >= House::DUST1 && house[spot_] <= House::DUST9)
 	{
-		int dirt = (*this)[spot_] - House::CLEAN;
+		int dirt = house[spot_] - House::CLEAN;
 		int cleaned = (char)std::min(dirt, amout_);
 
-		(*this)[spot_] -= cleaned;
-		if ((*this)[spot_] <= House::CLEAN)
+		house[spot_] -= cleaned;
+		if (house[spot_] <= House::CLEAN)
 		{
-			(*this)[spot_] = House::EMPTY;
+			house[spot_] = House::EMPTY;
 		}
 		
 		_currentDirt -= cleaned;
@@ -177,32 +307,59 @@ int House::clean(Point& spot_, int amout_)
 	return 0;
 }
 
-void House::updateDirtCount()
+
+// Update dirt count
+// Add surronding wall if missing
+bool House::validateHouse()
 {
-	_currentDirt = 0;
+	bool fixedWalls = false;
+	int dockingCount = 0;
+
+	_currentDirt = 0; // update current dirt count
+
 	for (size_t i = 0; i < _rows; ++i)
 	{
 		for (size_t j = 0; j < _cols; ++j)
 		{
-			switch (_house[i][j])
+			char& curr = _house[i][j];
+
+			if (i == 0 || i == _rows - 1 || j == 0 || j == _cols - 1)
 			{
-			case House::CLEAN:
-				_house[i][j] = House::EMPTY; // convert '0' dirt chars to space chars
-				break;
-			case House::DUST1:
-			case House::DUST2:
-			case House::DUST3:
-			case House::DUST4:
-			case House::DUST5:
-			case House::DUST6:
-			case House::DUST7:
-			case House::DUST8:
-			case House::DUST9:
-				_currentDirt += _house[i][j] - House::CLEAN;
-				break;
-			default:
-				break;
+				// fix surronding wall if needed
+				if (curr != House::WALL)
+				{
+					curr = House::WALL;
+					fixedWalls = true;
+				}
+			}
+			else if (curr == House::CLEAN)
+			{
+				curr = House::EMPTY; // convert '0' dirt chars into ' ' chars
+			}
+			else if (curr >= House::DUST1 && curr <= House::DUST9)
+			{
+				_currentDirt += curr - House::CLEAN; // update current dirt count
+			}
+			else if (curr == House::DOCKING)
+			{
+				dockingCount++;
+				_docking = Point(j,i);
 			}
 		}
 	}
+
+	if (fixedWalls)
+	{
+		cout << "[WARN] House did not have a full surronding wall ! Missing walls were added." << endl;
+	}
+
+	if (dockingCount != 1)
+	{
+		cout << "[WARN] House does not have exactly 1 docking station. Skipping the house..." << endl;
+		return false;
+	}
+
+	_totalDirt = _currentDirt;
+
+	return true;
 }

@@ -29,7 +29,7 @@ public:
 	bool isRobotDocked() const { return (_robot.location == _house.getDocking()); }
 	bool isDone() const;
 
-	int score(int position_in_copmetition, int winner_num_steps, int SimulationSteps) const;
+	int score(int position_in_competition, int winner_num_steps, int SimulationSteps) const;
 
 	RobotInformation getRobotInfo() const { return _robot; }
 
