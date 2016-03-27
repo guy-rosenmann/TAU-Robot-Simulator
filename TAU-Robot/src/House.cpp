@@ -10,37 +10,34 @@
 #include <sstream>
 
 
-string House::defaultHouseFileName = "simple1.house";
+const char* House::defaultHouseFileName = "simple1.house";
 
 
-House::House()
+
+House::House(const char* path_)
 {
-	cout << "[INFO] Using default house: " << House::defaultHouseFileName << endl;
-
-	if (!this->loadFromFile(House::defaultHouseFileName))
+	if (path_ == NULL)
 	{
-		cout << "[INFO] No default house - creating one." << endl;
-		createDefaultHouse();
-		this->loadFromFile(House::defaultHouseFileName);
-	}
+		cout << "[INFO] Using default house: " << House::defaultHouseFileName << endl;
 
-	//this->print(_docking);
-	//cout << endl << "Docking station: " << _docking << endl << endl;
-}
-
-
-House::House(string& path_)
-{
-	if (!this->loadFromFile(path_))
-	{
-		cout << "[ERROR] Failed to load house from: " << path_ << ". Checking for default house: " << House::defaultHouseFileName << endl;
 		if (!this->loadFromFile(House::defaultHouseFileName))
 		{
-			cout << "[INFO] No default house. Creating one at: " << House::defaultHouseFileName << endl;
+			cout << "[INFO] No default house - creating one." << endl;
 			createDefaultHouse();
 			this->loadFromFile(House::defaultHouseFileName);
 		}
 	}
+	else
+	{
+		if (!this->loadFromFile(path_))
+		{
+			cout << "[ERROR] Failed to load house from: " << path_ << endl;
+			throw House::ERR;
+		}
+	}
+
+	
+
 
 	//this->print(_docking);
 	//cout << endl << "Docking station: " << _docking << endl << endl;
@@ -98,9 +95,9 @@ void House::createDefaultHouse()
 }
 
 
-bool House::loadFromFile(string& path_)
+bool House::loadFromFile(const char* path_)
 {
-	ifstream fin(path_.c_str());
+	ifstream fin(path_);
 
 	if (!fin.good())
 	{

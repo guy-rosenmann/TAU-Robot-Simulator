@@ -20,8 +20,8 @@ class Configuration
 	bool				_successful; // did last loading of config was OK
 
 public:
-	Configuration() : _successful(true) { this->loadDefaultConfig(); }
-	Configuration(const string& iniPath_);
+
+	Configuration(const char* iniPath_ = NULL);
 	Configuration(const Configuration& other) : _params(other._params), _successful(true) {}
 
 	bool isReady() { return _successful; }

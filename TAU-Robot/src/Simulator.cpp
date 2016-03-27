@@ -4,17 +4,18 @@
 #include <algorithm>
 
 
-Simulator::Simulator(const Configuration& conf_)
+Simulator::Simulator(const Configuration& conf_, const char* housePath_)
 {
 	_config = conf_;
 	
 	try
 	{
-		_houses.push_back(new House());
+		House* h = new House(housePath_);
+		_houses.push_back(h);
 	}
 	catch (...)
 	{
-		cout << "[ERROR] The house is not valid. Terminating..." << endl;
+		cout << "[ERROR] The given house is not valid. Terminating..." << endl;
 	}
 	
 	
@@ -36,6 +37,8 @@ Simulator::~Simulator()
 
 void Simulator::simulate()
 {
+	if (_houses.size() == 0) return;
+	
 	int maxSteps = _config["MaxSteps"],
 		maxStepsAfterWinner = _config["MaxStepsAfterWinner"];
 

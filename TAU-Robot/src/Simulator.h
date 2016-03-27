@@ -21,7 +21,7 @@ class Simulator
 
 public:
 	Simulator() = delete;
-	Simulator(const Configuration& conf_);
+	Simulator(const Configuration& conf_, const char* housePath_ = NULL);
 	~Simulator();
 
 	void simulate();

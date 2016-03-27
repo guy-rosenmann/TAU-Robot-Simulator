@@ -7,12 +7,11 @@
 string Configuration::configFileName = "config.ini";
 
 
-Configuration::Configuration(const string& iniPath_) : _successful(true)
+Configuration::Configuration(const char* iniPath_) : _successful(true)
 { 
-	if (iniPath_.size() == 0)
+	if (iniPath_ == NULL)
 	{
 		this->loadDefaultConfig();
-
 	}
 	else if (!this->loadFromFile(iniPath_))
 	{

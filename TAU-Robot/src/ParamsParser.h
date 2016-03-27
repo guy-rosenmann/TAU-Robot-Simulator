@@ -19,8 +19,8 @@ public:
 
 	bool has_key(const string& key);
 
-	const string operator[](const string& key) const { return _params.at(key); }
-	const string operator[](const char* key) const { return _params.at(key); }
+	const char* operator[](const string& key) const { return _params.at(key).c_str(); }
+	const char* operator[](const char* key) const { return _params.at(key).c_str(); }
 };
 
 

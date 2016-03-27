@@ -10,7 +10,7 @@ using namespace std;
 
 class House {
 
-	static string defaultHouseFileName;
+	static const char* defaultHouseFileName;
 
 	size_t	_rows;
 	size_t	_cols;
@@ -28,8 +28,7 @@ public:
 	enum { DOCKING = 'D', WALL = 'W', CLEAN = '0', EMPTY = ' ', ERR = 0 };
 	enum { DUST1 = '1', DUST2, DUST3, DUST4, DUST5, DUST6, DUST7, DUST8, DUST9 };
 
-	House();
-	House(string& path_);
+	House(const char* path_ = NULL);
 	House(const House& other) { setHouse(other); }
 	virtual ~House() { freeHouse(); }
 
@@ -56,7 +55,7 @@ private:
 	void setHouse(const House& other);
 
 	void createDefaultHouse();
-	bool loadFromFile(string& path_);
+	bool loadFromFile(const char* path_);
 
 	const char operator[](const Point& p) const;
 	char& operator[](const Point& p);

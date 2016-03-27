@@ -11,22 +11,26 @@ int main(int argc, char* argv[])
 	
 	ParamsParser params(argc, argv);
 	
-	string conf_path = "";
+	const char* conf_path = NULL, * house_path = NULL;
 	if (params.has_key("-config"))
 	{
 		conf_path = params["-config"];
+	}
+	if (params.has_key("-house_path"))
+	{
+		house_path = params["-house_path"];
 	}
 
 	Configuration config(conf_path);
 	if (config.isReady())
 	{
-		Simulator simulator(config);
+		Simulator simulator(config, house_path);
 		simulator.simulate();
 	}
 	else
 	{
-		cout << "[ERROR] Failed to load configuration from file. Terminating..." << endl;
+		cout << "[ERROR] Failed to load configuration file. Terminating..." << endl;
 	}
-
+	
 	return 0;
 }

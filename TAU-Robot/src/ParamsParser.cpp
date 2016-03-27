@@ -7,7 +7,8 @@ using namespace std;
 
 
 const char* const ParamsParser::_options[] = {
-	"-config"
+	"-config",
+	"-house_path"
 };
 
 
