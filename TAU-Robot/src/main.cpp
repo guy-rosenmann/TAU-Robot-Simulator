@@ -28,6 +28,5 @@ int main(int argc, char* argv[])
 		cout << "[ERROR] Failed to load configuration from file. Terminating..." << endl;
 	}
 
-	getchar();
 	return 0;
 }

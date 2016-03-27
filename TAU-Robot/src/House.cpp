@@ -139,18 +139,6 @@ bool House::loadFromFile(string& path_)
 }
 
 
-House::House(const House& other)
-{
-	setHouse(other);
-}
-
-
-House::~House()
-{
-	freeHouse();
-}
-
-
 void House::setHouse(const House& other)
 {
 	freeHouse();

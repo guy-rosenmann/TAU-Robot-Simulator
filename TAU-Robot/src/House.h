@@ -29,9 +29,9 @@ public:
 	enum { DUST1 = '1', DUST2, DUST3, DUST4, DUST5, DUST6, DUST7, DUST8, DUST9 };
 
 	House();
-	House::House(string& path_);
-	House(const House& other);
-	virtual ~House();
+	House(string& path_);
+	House(const House& other) { setHouse(other); }
+	virtual ~House() { freeHouse(); }
 
 	House& operator=(const House& other);
 	
@@ -61,7 +61,7 @@ private:
 	const char operator[](const Point& p) const;
 	char& operator[](const Point& p);
 	bool isInside(const Point& p) const { return (p.getX() < (int)_cols) && (p.getX() >= 0) && (p.getY() < (int)_rows) && (p.getY() >= 0); }
-	bool House::validateHouse();
+	bool validateHouse();
 };
 
 

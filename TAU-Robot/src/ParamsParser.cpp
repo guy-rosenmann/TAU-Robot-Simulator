@@ -17,7 +17,7 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 
 	for (int i = 1; i < argc; ++i)
 	{
-		unsigned int j, optionsSize = _countof(_options);
+		unsigned int j, optionsSize = sizeof(_options) / sizeof(*_options);
 		for (j = 0; j < optionsSize; ++j)
 		{
 			if (!strcmp(argv[i], _options[j]) && (i+1 < argc))

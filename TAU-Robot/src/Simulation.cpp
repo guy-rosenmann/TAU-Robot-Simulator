@@ -35,14 +35,10 @@ bool Simulation::step()
 	int capacity = _config["BatteryCapacity"],
 		rechargeRate = _config["BatteryRechargeRate"],
 		consumptionRate = _config["BatteryConsumptionRate"];	
-
-	Direction stepDirection = _algo->step();
-	_robot.location.move(stepDirection);
-	_robot.totalSteps++;
-
-	char destType = _house.at(_robot.location);
-
-	if (destType == House::DOCKING)
+	
+	
+	// if the robot starts from docking station - charge battery (even if leaves)
+	if (_house.at(_robot.location) == House::DOCKING)
 	{
 		_robot.battery = std::min(capacity, _robot.battery + rechargeRate);
 	}
@@ -50,14 +46,19 @@ bool Simulation::step()
 	{
 		_robot.battery -= consumptionRate;
 	}
-	
-	if (destType == House::ERR || destType == House::WALL)
+
+	// always make a move if battery is larger than 0 at the beggining
+	Direction stepDirection = _algo->step();
+	_robot.location.move(stepDirection);
+	_robot.totalSteps++;
+
+	char nextType = _house.at(_robot.location);
+	if (nextType == House::ERR || nextType == House::WALL)
 	{
 		cout << "[WARN] The robot is trying to walk through a wall. Terminating simulation..." << endl;
 		_robot.goodBehavior = false;
 		return false; // outside the house / into a wall
 	}
-
 
 	_robot.cleanedDirt += _house.clean(_robot.location);
 	this->updateSensor();

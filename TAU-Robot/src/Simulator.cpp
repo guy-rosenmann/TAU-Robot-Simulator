@@ -95,6 +95,7 @@ void Simulator::simulate()
 	}
 
 	// print results
+	cout << endl;
 	for (AlgoVector::iterator it = _algos.begin(); it != _algos.end(); ++it)
 	{
 		std::vector<int>& scores = *it->second;
