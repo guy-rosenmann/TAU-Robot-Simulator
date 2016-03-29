@@ -27,6 +27,8 @@ public:
 	int getTotalDirtCount() const { return _house.getTotalDirtAmount(); }
 	int getCleanedDirtCount() const { return _robot.cleanedDirt; }
 	bool isRobotDocked() const { return (_robot.location == _house.getDocking()); }
+	bool isRobotOutOfBattery() const { return _robot.stuck; }
+	bool didRobotMisbehave() const { return !_robot.goodBehavior; }
 	bool isDone() const;
 	void printStatus();
 

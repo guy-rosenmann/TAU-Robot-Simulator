@@ -30,7 +30,9 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 		}
 		if (j == optionsSize)
 		{
+#ifdef _DEBUG_
 			cout << "[WARN] Incompatible argument: " << argv[i] << endl;
+#endif
 			printUsage = true;
 		}
 	}

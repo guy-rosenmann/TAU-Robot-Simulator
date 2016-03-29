@@ -13,9 +13,21 @@ Configuration::Configuration(const char* iniPath_) : _successful(true)
 	{
 		this->loadDefaultConfig();
 	}
-	else if (!this->loadFromFile(iniPath_))
+	else
 	{
-		_successful = false;
+		string fullPath = iniPath_;
+		
+		// fix for missing back slash
+		if (!fullPath.empty() && *fullPath.rbegin() != '/' && *fullPath.rbegin() != '\\')
+		{
+			fullPath += '/';
+		}
+		fullPath += Configuration::configFileName; // add config file name to path
+
+		if (!this->loadFromFile(fullPath))
+		{
+			_successful = false;
+		}
 	}
 }
 

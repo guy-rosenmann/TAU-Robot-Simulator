@@ -106,10 +106,28 @@ void Simulator::simulate()
 		tempSoppedSimulatios.clear();
 		this->score(stepsCount, simulatios);
 
+		////////////////////////////////////////////////////////////////////////////////////////////
+		// print here for EX1 only! (need to print score before any warnings!)
+		this->printScores();
+		for (vector<Simulation*>::iterator it = simulatios.begin(); it != simulatios.end(); ++it)
+		{
+			Simulation& curr = **it;
+			if (curr.isRobotOutOfBattery())
+			{
+				cout << "[INFO] The robot was stuck with an empty battery." << endl;
+			}
+			if (curr.didRobotMisbehave())
+			{
+				cout << "[INFO] The robot was trying to walk through a wall." << endl;
+			}
+		}
+		////////////////////////////////////////////////////////////////////////////////////////////
+
+		
 		Simulator::clearPointersVector(simulatios);
 	}
 
-	this->printScores();
+	//this->printScores(); // TODO: uncomment after EX1, and remove prints above
 }
 
 

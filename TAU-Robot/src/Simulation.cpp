@@ -27,7 +27,8 @@ bool Simulation::step()
 	if (_robot.battery <= 0)
 	{
 #ifdef _DEBUG_
-		cout << "[WARN] The robot is stuck with an empty battery. Terminating simulation..." << endl;
+		// for EX1: printing after score!
+		// cout << "[INFO] The robot is stuck with an empty battery." << endl;
 #endif
 		_robot.stuck = true;
 		return false;
@@ -58,7 +59,8 @@ bool Simulation::step()
 	if (nextType == House::ERR || nextType == House::WALL)
 	{
 #ifdef _DEBUG_
-		cout << "[WARN] The robot is trying to walk through a wall. Terminating simulation..." << endl;
+		// for EX1: printing after score!
+		// cout << "[INFO] The robot is trying to walk through a wall." << endl;
 #endif
 		_robot.goodBehavior = false;
 		return false; // outside the house / into a wall
