@@ -28,8 +28,8 @@ public:
 
 private:
 	void score(int simulationSteps, vector<Simulation*>& simulatios_);
-	int getPosition(const Simulation& sim_) const { return 1; }
-
+	int getActualPosition(vector<Simulation*>& allSimulatios_, Simulation& currSimulation_) const;
+	void printScores() const;
 	
 	template <class T>
 	static void clearPointersVector(vector<T*>& vec);

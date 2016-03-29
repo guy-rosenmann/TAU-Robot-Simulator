@@ -56,11 +56,9 @@ void Simulator::simulate()
 			simulatios.push_back(new Simulation(_config, house, algo));
 		}
 
-
 #ifdef _DEBUG_
 		cout << house << endl;
 #endif
-
 		// Simulate all algorithms on current house
 		vector<Simulation*> tempSoppedSimulatios;
 		bool atLeastOneDone = false;
@@ -79,7 +77,6 @@ void Simulator::simulate()
 					}
 					tempSoppedSimulatios.push_back(*it);
 					it = simulatios.erase(it);
-
 #ifdef _DEBUG_
 					cout << "Simulation is done!" << endl;
 					currentSimulation.printStatus();
@@ -112,22 +109,13 @@ void Simulator::simulate()
 		Simulator::clearPointersVector(simulatios);
 	}
 
-	// print results
-	for (AlgoVector::iterator it = _algos.begin(); it != _algos.end(); ++it)
-	{
-		std::vector<int>& scores = *it->second;
-		for (std::vector<int>::iterator s_it = scores.begin(); s_it != scores.end(); ++s_it)
-		{
-			int houseIndex = s_it - scores.begin();
-			printf("[%s]\t%d\n", _houses[houseIndex]->getName().c_str(), *s_it);
-		}
-	}
+	this->printScores();
 }
 
 
 void Simulator::score(int simulationSteps, vector<Simulation*>& simulatios_)
 {
-	std::sort(simulatios_.begin(), simulatios_.end()); // sort by winner score (done && less steps)
+	std::sort(simulatios_.begin(), simulatios_.end()); // sort by winner score (done && less steps are first)
 
 	Simulation& firstSim = *simulatios_.at(0);
 	int winner_num_steps = firstSim.isDone() ? firstSim.getStepsCount() : simulationSteps;
@@ -138,41 +126,62 @@ void Simulator::score(int simulationSteps, vector<Simulation*>& simulatios_)
 		int index = it - simulatios_.begin();
 		
 		int position_in_competition = 10;
-		int actual_position_in_competition = 1;
 		if (currentSim.isDone())
 		{
-			// find actual position
-			for (vector<Simulation*>::iterator p_it = simulatios_.begin(); p_it != it; ++p_it)
-			{
-				Simulation& tempSim = **p_it;
-				if (p_it == simulatios_.begin())
-				{
-					if (tempSim.getStepsCount() < currentSim.getStepsCount())
-					{
-						actual_position_in_competition++;
-					}
-					else
-					{
-						break; // have the same score -> all until current have the same score
-					}
-				}
-				else
-				{
-					if (tempSim.getStepsCount() != (*(p_it - 1))->getStepsCount())
-					{
-						actual_position_in_competition++;
-						if (actual_position_in_competition >= 4)
-						{
-							break;
-						}
-					}
-				}
-			}
-
-			position_in_competition = std::min(actual_position_in_competition, 4);
+			position_in_competition = this->getActualPosition(simulatios_, currentSim);
 		}
 
 		_algos[index].second->push_back(currentSim.score(position_in_competition, winner_num_steps, simulationSteps)); // save score
+	}
+}
+
+
+int Simulator::getActualPosition(vector<Simulation*>& allSimulatios_, Simulation& currSimulation_) const
+{
+	int actual_position_in_competition = 1;
+	
+	// find actual position
+	for (vector<Simulation*>::iterator p_it = allSimulatios_.begin(); *p_it != &currSimulation_; ++p_it)
+	{
+		Simulation& tempSim = **p_it;
+		if (p_it == allSimulatios_.begin())
+		{
+			if (tempSim.getStepsCount() < currSimulation_.getStepsCount())
+			{
+				actual_position_in_competition++;
+			}
+			else
+			{
+				break; // have the same score -> all until current have the same score
+			}
+		}
+		else
+		{
+			if (tempSim.getStepsCount() != (*(p_it - 1))->getStepsCount())
+			{
+				actual_position_in_competition++;
+				if (actual_position_in_competition >= 4)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	return std::min(actual_position_in_competition, 4);
+}
+
+
+void Simulator::printScores() const
+{
+	for (AlgoVector::const_iterator it = _algos.begin(); it != _algos.end(); ++it)
+	{
+		std::vector<int>& scores = *it->second;
+		for (std::vector<int>::iterator s_it = scores.begin(); s_it != scores.end(); ++s_it)
+		{
+			int houseIndex = s_it - scores.begin();
+			printf("[%s]\t%d\n", _houses[houseIndex]->getName().c_str(), *s_it);
+		}
 	}
 }
 
