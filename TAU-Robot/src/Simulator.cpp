@@ -13,9 +13,16 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_)
 		House* h = new House(housePath_);
 		_houses.push_back(h);
 	}
-	catch (...)
+	catch (int e)
 	{
-		cout << "[ERROR] The given house is not valid. Terminating..." << endl;
+		if (e == House::ERR)
+		{
+			cout << "[ERROR] The given house is not valid. Terminating..." << endl;
+		}
+		else if (e == House::FILE_ERR)
+		{
+			cout << "[ERROR] Failed to load the house from given file. Terminating..." << endl;
+		}
 	}
 	
 	

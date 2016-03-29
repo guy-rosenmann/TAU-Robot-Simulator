@@ -25,8 +25,9 @@ class House {
 
 
 public:
-	enum { DOCKING = 'D', WALL = 'W', CLEAN = '0', EMPTY = ' ', ERR = 0 };
+	enum { DOCKING = 'D', WALL = 'W', CLEAN = '0', EMPTY = ' ' };
 	enum { DUST1 = '1', DUST2, DUST3, DUST4, DUST5, DUST6, DUST7, DUST8, DUST9 };
+	enum { ERR = 0, FILE_ERR };
 
 	House(const char* path_ = NULL);
 	House(const House& other) { setHouse(other); }

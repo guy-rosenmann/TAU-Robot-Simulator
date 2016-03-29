@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[])
 {
-	std::srand((unsigned int)std::time(0)); // initialize random seed
+	std::srand((unsigned int)std::time(0)); // initialize random seed for algorithm
 	
 	ParamsParser params(argc, argv);
 	

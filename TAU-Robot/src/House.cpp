@@ -36,7 +36,7 @@ House::House(const char* path_)
 		if (!this->loadFromFile(path_))
 		{
 			cout << "[ERROR] Failed to load house from: " << path_ << endl;
-			throw House::ERR;
+			throw (int)House::FILE_ERR;
 		}
 	}
 
@@ -133,7 +133,7 @@ bool House::loadFromFile(const char* path_)
 
 	if (!this->validateHouse())
 	{
-		throw House::ERR;
+		throw (int)House::ERR;
 	}
 
 	return true;
@@ -198,7 +198,7 @@ char& House::operator[](const Point& p)
 {
 	if (!this->isInside(p))
 	{
-		throw House::ERR;
+		throw (int)House::ERR;
 	}
 
 	return _house[p.getY()][p.getX()];
@@ -265,7 +265,7 @@ Point House::findDocking()
 		}
 	}
 	
-	throw House::ERR; // couldn't find docking
+	throw (int)House::ERR; // couldn't find docking
 }
 
 
