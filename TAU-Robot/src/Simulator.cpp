@@ -81,12 +81,16 @@ void Simulator::simulate()
 					it = simulatios.erase(it);
 
 #ifdef _DEBUG_
+					cout << "Simulation is done!" << endl;
 					currentSimulation.printStatus();
 #endif
 				}
 				else
 				{
 					++it;
+#ifdef _DEBUG_
+					// currentSimulation.printStatus();
+#endif
 				}
 			}
 

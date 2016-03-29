@@ -37,10 +37,10 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 
 	if (printUsage)
 	{
-		cout << "USAGE: simulator [-config <path>] [-house_path <path>]" << endl;
-		cout << "       - config:\tconfiguration file location path" << endl;
-		cout << "       - house_path:\thouse files directory path" << endl;
-		cout << "		Default paths: current working directory" << endl;
+		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>]" << endl;
+		cout << "\t- config:\tconfiguration file location path" << endl;
+		cout << "\t- house_path:\thouse files directory path" << endl;
+		cout << "\tDefault paths = current working directory" << endl;
 		cout << endl;
 	}
 }
