@@ -18,11 +18,15 @@ House::House(const char* path_)
 {
 	if (path_ == NULL)
 	{
+#ifdef _DEBUG_
 		cout << "[INFO] Using default house: " << House::defaultHouseFileName << endl;
+#endif
 
 		if (!this->loadFromFile(House::defaultHouseFileName))
 		{
+#ifdef _DEBUG_
 			cout << "[INFO] No default house - creating one." << endl;
+#endif
 			createDefaultHouse();
 			this->loadFromFile(House::defaultHouseFileName);
 		}
@@ -335,12 +339,14 @@ bool House::validateHouse()
 
 	if (fixedWalls)
 	{
+#ifdef _DEBUG_
 		cout << "[WARN] House did not have a full surronding wall ! Missing walls were added." << endl;
+#endif
 	}
 
 	if (dockingCount != 1)
 	{
-		cout << "[WARN] House does not have exactly 1 docking station. Skipping the house..." << endl;
+		cout << "[WARN] House does not have exactly 1 docking station." << endl;
 		return false;
 	}
 

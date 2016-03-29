@@ -26,7 +26,9 @@ bool Simulation::step()
 {
 	if (_robot.battery <= 0)
 	{
+#ifdef _DEBUG_
 		cout << "[WARN] The robot is stuck with an empty battery. Terminating simulation..." << endl;
+#endif
 		_robot.stuck = true;
 		return false;
 	}
@@ -55,7 +57,9 @@ bool Simulation::step()
 	char nextType = _house.at(_robot.location);
 	if (nextType == House::ERR || nextType == House::WALL)
 	{
+#ifdef _DEBUG_
 		cout << "[WARN] The robot is trying to walk through a wall. Terminating simulation..." << endl;
+#endif
 		_robot.goodBehavior = false;
 		return false; // outside the house / into a wall
 	}
@@ -70,6 +74,24 @@ bool Simulation::step()
 bool Simulation::isDone() const
 {
 	return _house.isClean() && (_robot.location == _house.getDocking());
+}
+
+
+void Simulation::printStatus()
+{
+	for (int i = 0; i < 100; ++i) cout << "#";
+	cout << endl << endl;;
+
+	cout << "Steps count: " << _robot.totalSteps << endl;
+	cout << "Robot status:" << endl;
+	cout << "- Battery: " << _robot.battery << endl;
+	cout << "- Dirt Collected: " << _robot.cleanedDirt << endl << endl;
+	cout << "House: " << endl;
+	_house.print(_robot.location);
+	cout << endl;
+
+	for (int i = 0; i < 100; ++i) cout << "#";
+	cout << endl;
 }
 
 

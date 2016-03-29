@@ -34,17 +34,23 @@ public:
 
 	House& operator=(const House& other);
 	
-	char at(const Point& p) const { return (*this)[p]; }
-	Point getDocking() const { return _docking; }
-	int getTotalDirtAmount() const { return _totalDirt; }
-	int getDirtAmount() const { return _currentDirt; }
-	bool isClean() const { return _currentDirt == 0; }
+	
 	int clean(Point& spot_, int amout_ = 1);
+	bool isClean() const { return _currentDirt == 0; }
+	char at(const Point& p) const { return (*this)[p]; }
 
+	
+	// getters
 	string getName() const { return _name; }
 	string getDescription() const { return _description; }
+	size_t getXSize() const { return _cols; }
+	size_t getYSize() const { return _rows; }
+	int getTotalDirtAmount() const { return _totalDirt; }
+	int getDirtAmount() const { return _currentDirt; }
+	Point getDocking() const { return _docking; }
 
 
+	// prints
 	void print(ostream& out = cout) const;
 	void print(const Point& robot, ostream& out = cout);
 	friend ostream& operator<<(ostream& out, const House& h) { h.print(out); return out; }

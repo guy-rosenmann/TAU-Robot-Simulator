@@ -31,6 +31,10 @@ int main(int argc, char* argv[])
 	{
 		cout << "[ERROR] Failed to load configuration file. Terminating..." << endl;
 	}
+
+#if defined(_DEBUG_) || defined(_RELEASE_)
+	getchar();
+#endif
 	
 	return 0;
 }

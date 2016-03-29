@@ -56,6 +56,11 @@ void Simulator::simulate()
 			simulatios.push_back(new Simulation(_config, house, algo));
 		}
 
+
+#ifdef _DEBUG_
+		cout << house << endl;
+#endif
+
 		// Simulate all algorithms on current house
 		vector<Simulation*> tempSoppedSimulatios;
 		bool atLeastOneDone = false;
@@ -74,6 +79,10 @@ void Simulator::simulate()
 					}
 					tempSoppedSimulatios.push_back(*it);
 					it = simulatios.erase(it);
+
+#ifdef _DEBUG_
+					currentSimulation.printStatus();
+#endif
 				}
 				else
 				{
@@ -88,7 +97,9 @@ void Simulator::simulate()
 			stepsCount++;
 		}
 		
-		// cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl;
+#ifdef _DEBUG_
+		cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl << endl;
+#endif
 
 		simulatios.insert(simulatios.end(), tempSoppedSimulatios.begin(), tempSoppedSimulatios.end());
 		tempSoppedSimulatios.clear();
@@ -98,7 +109,6 @@ void Simulator::simulate()
 	}
 
 	// print results
-	cout << endl;
 	for (AlgoVector::iterator it = _algos.begin(); it != _algos.end(); ++it)
 	{
 		std::vector<int>& scores = *it->second;

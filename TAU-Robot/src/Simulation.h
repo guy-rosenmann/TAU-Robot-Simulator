@@ -28,6 +28,7 @@ public:
 	int getCleanedDirtCount() const { return _robot.cleanedDirt; }
 	bool isRobotDocked() const { return (_robot.location == _house.getDocking()); }
 	bool isDone() const;
+	void printStatus();
 
 	int score(int position_in_competition, int winner_num_steps, int SimulationSteps) const;
 
