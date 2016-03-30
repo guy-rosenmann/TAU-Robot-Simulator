@@ -19,7 +19,7 @@ Simulation::Simulation(const Configuration& config_, const House& house_, Abstra
 
 Simulation::~Simulation()
 {
-	//delete _algo; // currently freed by Simulator
+	//delete _algo; // currently (for EX1 only!) freed by Simulator
 }
 
 bool Simulation::step()

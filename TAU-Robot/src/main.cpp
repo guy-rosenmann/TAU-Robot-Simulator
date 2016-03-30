@@ -10,16 +10,9 @@ int main(int argc, char* argv[])
 	std::srand((unsigned int)std::time(0)); // initialize random seed for algorithm
 	
 	ParamsParser params(argc, argv);
-	
-	const char* conf_path = NULL, * house_path = NULL;
-	if (params.has_key("-config"))
-	{
-		conf_path = params["-config"];
-	}
-	if (params.has_key("-house_path"))
-	{
-		house_path = params["-house_path"];
-	}
+	const char* conf_path, * house_path;
+	conf_path = params["-config"];
+	house_path = params["-house_path"];
 
 	Configuration config(conf_path);
 	if (config.isReady())

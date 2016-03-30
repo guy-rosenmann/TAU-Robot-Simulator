@@ -9,12 +9,14 @@ using namespace std;
 #include "Direction.h"
 #include "AbstractAlgorithm.h"
 #include "Configuration.h"
+#include "RobotInformation.h"
 
 class Algorithm : public AbstractAlgorithm
 {
 	
 	const AbstractSensor*	_sensor = nullptr;
 	map<string, int>		_config;
+	RobotInformation		_robot;
 	
 public:
 

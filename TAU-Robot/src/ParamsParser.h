@@ -17,10 +17,10 @@ public:
 	ParamsParser() = delete;
 	ParamsParser(int argc, char* argv[]);
 
-	bool has_key(const string& key);
+	bool has_key(const string& key) const;
 
-	const char* operator[](const string& key) const { return _params.at(key).c_str(); }
-	const char* operator[](const char* key) const { return _params.at(key).c_str(); }
+	const char* operator[](const string& key) const;
+	const char* operator[](const char* key) const;
 };
 
 

@@ -48,8 +48,25 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 }
 
 
-bool ParamsParser::has_key(const string& key)
+bool ParamsParser::has_key(const string& key) const
 {
-	map<string, string>::iterator it = _params.find(key);
+	map<string, string>::const_iterator it = _params.find(key);
 	return (it != _params.end());
+}
+
+
+const char* ParamsParser::operator[](const string& key) const
+{
+	if (this->has_key(key))
+	{
+		return _params.at(key).c_str();
+	}
+	return NULL;
+}
+
+
+const char* ParamsParser::operator[](const char* key) const
+{
+	string strKey = key;
+	return this->operator[](strKey);
 }

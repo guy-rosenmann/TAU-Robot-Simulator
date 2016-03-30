@@ -5,7 +5,13 @@ Direction Algorithm::step()
 	vector<Direction> moves;
 	this->getPossibleMoves(moves);
 
-	return moves[std::rand() % moves.size()];
+	Direction next = moves[std::rand() % moves.size()];
+	
+	// update robot info
+	_robot.location.move(next);
+	_robot.totalSteps++;
+
+	return next;
 }
 
 
@@ -21,9 +27,10 @@ void Algorithm::getPossibleMoves(vector<Direction>& moves_)
 		}
 	}
 
-	if (info.dirtLevel > 0 || moves_.size() == 0)
+	if (info.dirtLevel > 0 || moves_.size() == 0 || _robot.location == Point())
 	{
 		// add Stay option only if needed
+		// For the algorithm, the docking station is at the point (0,0)
 		moves_.push_back(Direction::Stay);
 	}
 }

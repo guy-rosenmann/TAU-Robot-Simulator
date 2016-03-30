@@ -1,14 +1,13 @@
 .DEFAULT_GOAL := simulator
 
-# place here your source files
+# source files and object files
 src = main.cpp Simulator.cpp Simulation.cpp ParamsParser.cpp House.cpp Configuration.cpp Algorithm.cpp
 obj = $(src:.cpp=.o)
 
+# flags
 CC_FLAGS = -c -O2 -Wall -pthread -std=c++11 -pedantic -g
-CC = g++
-
-# may add boost libraries here
 LD_FLAGS = -lm
+CC = g++
 
 all: simulator
 

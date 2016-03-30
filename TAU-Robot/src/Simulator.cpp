@@ -94,6 +94,11 @@ void Simulator::simulate()
 					++it;
 #ifdef _DEBUG_
 					// currentSimulation.printStatus();
+					if (stepsCount == maxSteps - 1)
+					{
+						cout << "Simulation is stoped!" << endl;
+						currentSimulation.printStatus();
+					}
 #endif
 				}
 			}
