@@ -103,7 +103,7 @@ bool House::loadFromFile(const char* path_)
 {
 	ifstream fin(path_);
 
-	if (!fin.good())
+	if (!fin.is_open() || !fin.good())
 	{
 		fin.close();
 		return false;
