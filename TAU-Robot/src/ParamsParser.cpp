@@ -8,7 +8,8 @@ using namespace std;
 
 const char* const ParamsParser::_options[] = {
 	"-config",
-	"-house_path"
+	"-house_path",
+	"-algorithm_path"
 };
 
 
@@ -39,9 +40,10 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 
 	if (printUsage)
 	{
-		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>]" << endl;
+		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
 		cout << "\t- config:\tconfiguration file location path" << endl;
-		cout << "\t- house_path:\thouse file path" << endl;
+		cout << "\t- house_path:\thouse dir path" << endl;
+		cout << "\t- algorithm_path:\talgorithm dir path" << endl;
 		//cout << "\t- house_path:\thouse files directory path" << endl; // for Ex1 it is a house file path
 		cout << "\tDefault paths = current working directory" << endl;
 		cout << endl;

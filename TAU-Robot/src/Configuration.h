@@ -15,7 +15,8 @@ using namespace std;
 class Configuration
 {
 	static string configFileName;
-	
+	static const char* const _mandatoryParams[];
+
 	map<string, int>	_params;
 	bool				_successful; // did last loading of config was OK
 
@@ -25,9 +26,10 @@ public:
 	Configuration(const Configuration& other) : _params(other._params), _successful(true) {}
 
 	bool isReady() { return _successful; }
-	void loadDefaultConfig();
+
+	//	void loadDefaultConfig();
 	bool loadFromFile(const string& iniPath_);
-	void writeConfigFile(const string& iniPath_) const;
+//	void writeConfigFile(const string& iniPath_) const;
 
 	map<string, int> getParams() const { return _params; }
 
@@ -46,8 +48,8 @@ private:
 	static std::vector<std::string> split(const std::string& s, char delim);
 	static std::string trim(std::string& str);
 
+	bool checkAllParamsExistence();
 	void processLine(const string& line);
-	void resetConfiguration();
 	
 };
 

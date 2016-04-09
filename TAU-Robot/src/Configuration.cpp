@@ -1,5 +1,6 @@
 #include "Configuration.h"
 
+#include <sys/stat.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -7,48 +8,61 @@
 string Configuration::configFileName = "config.ini";
 
 
+const char* const Configuration::_mandatoryParams[] = {
+	"MaxStepsAfterWinner",
+	"BatteryCapacity",
+	"BatteryConsumptionRate",
+	"BatteryRechargeRate"
+};
+
+
 Configuration::Configuration(const char* iniPath_) : _successful(true)
 { 
-	if (iniPath_ == NULL)
+	string fullPath = iniPath_;
+	if (iniPath_ != NULL)
 	{
-		this->loadDefaultConfig();
-	}
-	else
-	{
-		string fullPath = iniPath_;
-		
 		// fix for missing back slash
 		if (!fullPath.empty() && *fullPath.rbegin() != '/' && *fullPath.rbegin() != '\\')
 		{
 			fullPath += '/';
 		}
 		fullPath += Configuration::configFileName; // add config file name to path
-
-		if (!this->loadFromFile(fullPath))
-		{
-			_successful = false;
-		}
 	}
-}
-
-
-void Configuration::loadDefaultConfig()
-{
-	if (!this->loadFromFile(Configuration::configFileName))
+	else
 	{
-		this->resetConfiguration();
-		this->writeConfigFile(Configuration::configFileName); // create the default config file
+		fullPath = Configuration::configFileName;
 	}
+
+	_successful = loadFromFile(fullPath);
 }
+
+
+//void Configuration::loadDefaultConfig()
+//{
+//	if (!this->loadFromFile(Configuration::configFileName))
+//	{
+//		this->writeConfigFile(Configuration::configFileName); // create the default config file
+//	}
+//}
 
 
 bool Configuration::loadFromFile(const string& iniPath_)
 {
-	this->resetConfiguration();
+	struct stat buf;
+	if (stat(iniPath_.c_str(), &buf) != 0)
+	{
+		// ini file is missing
+		cout << "[ERROR] File:" << iniPath_ << "doesn't exist." << endl;
+		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
+		cout << "\t- config:\tconfiguration file dir path" << endl;
+
+		return false;
+	}
 
 	ifstream fin(iniPath_.c_str());
 	if (!fin.good())
 	{
+		cout << "config.ini exists in " << iniPath_ << " but cannot be opened" << endl;
 		return false;
 	}
 
@@ -58,35 +72,22 @@ bool Configuration::loadFromFile(const string& iniPath_)
 	{
 		this->processLine(line);
 	}
-	
 	fin.close();
-	return true;
+
+	return checkAllParamsExistence();
 }
 
-void Configuration::writeConfigFile(const string& iniPath_) const
-{
-	ofstream fout(iniPath_.c_str());
-
-	for (map<string, int>::const_iterator itr = _params.begin(); itr != _params.end(); ++itr)
-	{
-		fout << itr->first << "=" << itr->second << endl;
-	}
-
-	fout.close();
-}
-
-void Configuration::resetConfiguration()
-{
-	_params.clear();
-
-	// defaults
-	_params["MaxSteps"] = 1200;
-	_params["MaxStepsAfterWinner"] = 200;
-	_params["BatteryCapacity"] = 400;
-	_params["BatteryConsumptionRate"] = 1;
-	_params["BatteryRechargeRate"] = 20;
-}
-
+//void Configuration::writeConfigFile(const string& iniPath_) const
+//{
+//	ofstream fout(iniPath_.c_str());
+//
+//	for (map<string, int>::const_iterator itr = _params.begin(); itr != _params.end(); ++itr)
+//	{
+//		fout << itr->first << "=" << itr->second << endl;
+//	}
+//
+//	fout.close();
+//}
 
 string Configuration::toString() const
 {
@@ -117,6 +118,30 @@ std::string Configuration::trim(std::string& str)
 	str.erase(0, str.find_first_not_of(' '));       //prefixing spaces
 	str.erase(str.find_last_not_of(' ') + 1);       //surfixing spaces
 	return str;
+}
+
+bool Configuration::checkAllParamsExistence()
+{
+	string missingParams;
+	unsigned int i, missingCount = 0, _mandatoryParamsSize = sizeof(_mandatoryParams) / sizeof(*_mandatoryParams);
+	for (i = 0; i < _mandatoryParamsSize; ++i)
+	{
+		map<string, int>::const_iterator it = _params.find(_mandatoryParams[i]);
+		if (it == _params.end())
+		{
+			missingCount++;
+			missingParams += string(_mandatoryParams[i]) + string(", ");
+		}
+	}
+
+	if (missingCount != 0)
+	{
+		cout << "config.ini missing " << missingCount << " parameter(s) : " << missingParams.substr(0, missingParams.size() - 2) << endl;
+
+		return false;
+	}
+
+	return true;
 }
 
 void Configuration::processLine(const string& line)
