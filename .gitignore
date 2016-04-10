@@ -1,5 +1,7 @@
 TAU-Robot/bin/
 TAU-Robot/build/
+TAU-Robot/lib/
+TAU-Robot/include/boost
 TAU-Robot.sdf
 TAU-Robot.opensdf
 TAU-Robot/partners.txt
