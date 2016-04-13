@@ -12,16 +12,20 @@ class House {
 
 	static const char* defaultHouseFileName;
 
+	size_t _maxSteps;
 	size_t	_rows;
 	size_t	_cols;
 	char**	_house = nullptr;
 
 	string	_name;
-	string	_description;
 	
 	Point	_docking;
 	int		_totalDirt;
 	int		_currentDirt;
+
+	string _houseFilename;
+	bool	_isValid;
+	string	_errorLine;
 
 
 public:
@@ -43,13 +47,15 @@ public:
 	
 	// getters
 	string getName() const { return _name; }
-	string getDescription() const { return _description; }
+	size_t getMaxSteps() const { return _maxSteps; }
 	size_t getXSize() const { return _cols; }
 	size_t getYSize() const { return _rows; }
 	int getTotalDirtAmount() const { return _totalDirt; }
 	int getDirtAmount() const { return _currentDirt; }
 	Point getDocking() const { return _docking; }
-
+	bool isValid() const { return _isValid; }
+	string getErrorLine() const { return _errorLine; }
+	string getFileName() const { return _houseFilename; }
 
 	// prints
 	void print(ostream& out = cout) const;
@@ -62,12 +68,13 @@ private:
 	void setHouse(const House& other);
 
 	void createDefaultHouse();
-	bool loadFromFile(const char* path_);
+	void loadFromFile(const char* path_);
 
 	const char operator[](const Point& p) const;
 	char& operator[](const Point& p);
 	bool isInside(const Point& p) const { return (p.getX() < (int)_cols) && (p.getX() >= 0) && (p.getY() < (int)_rows) && (p.getY() >= 0); }
-	bool validateHouse();
+	void validateHouse();
+	bool GetUnsignedIntFromStream(ifstream& fin_, size_t* argPointer_, unsigned int rowNumber_);
 };
 
 

@@ -16,15 +16,20 @@ int main(int argc, char* argv[])
 	algorithm_path = params["-algorithm_path"];
 
 	Configuration config(conf_path);
-	if (config.isReady())
-	{
-		Simulator simulator(config, house_path);
-		simulator.simulate();
-	}
-	else
+	if (!config.isReady())
 	{
 		cout << "[ERROR] Failed to load configuration file. Terminating..." << endl;
+		return -1;
+
 	}
+
+	Simulator simulator(config, house_path, algorithm_path);
+	if (!simulator.isReady())
+	{
+		return -1;
+	}
+
+	simulator.simulate();
 
 #if defined(_DEBUG_) || defined(_RELEASE_)
 	getchar();

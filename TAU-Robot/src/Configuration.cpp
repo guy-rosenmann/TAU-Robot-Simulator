@@ -18,9 +18,10 @@ const char* const Configuration::_mandatoryParams[] = {
 
 Configuration::Configuration(const char* iniPath_) : _successful(true)
 { 
-	string fullPath = iniPath_;
+	string fullPath;
 	if (iniPath_ != NULL)
 	{
+		fullPath = iniPath_;
 		// fix for missing back slash
 		if (!fullPath.empty() && *fullPath.rbegin() != '/' && *fullPath.rbegin() != '\\')
 		{
@@ -52,7 +53,7 @@ bool Configuration::loadFromFile(const string& iniPath_)
 	if (stat(iniPath_.c_str(), &buf) != 0)
 	{
 		// ini file is missing
-		cout << "[ERROR] File:" << iniPath_ << "doesn't exist." << endl;
+		cout << "[ERROR] File:" << iniPath_ << " doesn't exist." << endl;
 		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
 		cout << "\t- config:\tconfiguration file dir path" << endl;
 

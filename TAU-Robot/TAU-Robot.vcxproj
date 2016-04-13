@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Algorithm.cpp" />
+    <ClCompile Include="src\AlgorithmContainer.cpp" />
     <ClCompile Include="src\Configuration.cpp" />
     <ClCompile Include="src\House.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -25,6 +26,7 @@
     <ClInclude Include="include\interface\Direction.h" />
     <ClInclude Include="include\interface\SensorInformation.h" />
     <ClInclude Include="src\Algorithm.h" />
+    <ClInclude Include="src\AlgorithmContainer.h" />
     <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\House.h" />
     <ClInclude Include="src\ParamsParser.h" />
@@ -82,7 +84,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -99,7 +101,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

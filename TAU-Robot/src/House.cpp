@@ -1,6 +1,5 @@
 #include "House.h"
 
-
 #include <string>
 #include <cstring>
 #include <cmath>
@@ -8,6 +7,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <boost/filesystem.hpp>
 
 
 const char* House::defaultHouseFileName = "simple1.house";
@@ -18,31 +18,27 @@ House::House(const char* path_)
 {
 	if (path_ == NULL)
 	{
-#ifdef _DEBUG_
-		cout << "[INFO] Using default house: " << House::defaultHouseFileName << endl;
-#endif
-
-		if (!this->loadFromFile(House::defaultHouseFileName))
-		{
-#ifdef _DEBUG_
-			cout << "[INFO] No default house - creating one." << endl;
-#endif
-			createDefaultHouse();
-			this->loadFromFile(House::defaultHouseFileName);
-		}
+//#ifdef _DEBUG_
+//		cout << "[INFO] Using default house: " << House::defaultHouseFileName << endl;
+//#endif
+//
+//		if (!this->loadFromFile(House::defaultHouseFileName))
+//		{
+//#ifdef _DEBUG_
+//			cout << "[INFO] No default house - creating one." << endl;
+//#endif
+//			createDefaultHouse();
+//			this->loadFromFile(House::defaultHouseFileName);
+//		}
 	}
 	else
 	{
-		if (!this->loadFromFile(path_))
-		{
-			cout << "[ERROR] Failed to load house from: " << path_ << endl;
-			throw (int)House::FILE_ERR;
-		}
+		boost::filesystem::path path(path_);
+		_houseFilename = path.filename().generic_string();
+		this->loadFromFile(path_);
 	}
 
 	
-
-
 	//this->print(_docking);
 	//cout << endl << "Docking station: " << _docking << endl << endl;
 }
@@ -99,22 +95,31 @@ void House::createDefaultHouse()
 }
 
 
-bool House::loadFromFile(const char* path_)
+void House::loadFromFile(const char* path_)
 {
+	_isValid = true;
 	ifstream fin(path_);
 
 	if (!fin.is_open() || !fin.good())
 	{
-		fin.close();
-		return false;
+
+#ifdef _DEBUG_
+		cout << "[ERROR] Failed to load house from: " << path_ << endl;
+#endif
+		_isValid = false;
+		_errorLine = _houseFilename + ": cannot open file";
+		return;
 	}
 
 	freeHouse();
 	
 	std::getline(fin, _name);
-	std::getline(fin, _description);
-	fin >> _rows;
-	fin >> _cols;
+	if (!GetUnsignedIntFromStream(fin, &_maxSteps, 2) || !GetUnsignedIntFromStream(fin, &_rows, 3) || !GetUnsignedIntFromStream(fin, &_cols, 4))
+	{
+		fin.close();
+		return;
+	}
+	
 	fin.ignore();	//skip newline and go the begining of matrix
 
 	_house = new char*[_rows];
@@ -131,19 +136,53 @@ bool House::loadFromFile(const char* path_)
 
 	fin.close();
 
-	if (!this->validateHouse())
-	{
-		throw (int)House::ERR;
-	}
-
-	return true;
+	this->validateHouse();
 }
 
+bool House::GetUnsignedIntFromStream(ifstream& fin_, size_t* argPointer_, unsigned int rowNumber_)
+{
+	string line;
+	bool validLine = true;
+	int num = 0;
+
+	std::getline(fin_, line);
+	try
+	{
+		num = stoi(line);
+	}
+	catch (std::invalid_argument e)
+	{
+		validLine = false;
+	}
+	catch (std::out_of_range e)
+	{
+		validLine = false;
+	}
+
+	if (num <= 0)
+	{
+		validLine = false;
+	}
+
+	if (!validLine)
+	{
+#ifdef _DEBUG_
+		cout << "[ERROR] Invalid line " << rowNumber_ << " " << line << endl;
+#endif
+		_isValid = false;
+		_errorLine = _houseFilename + ": line number " + std::to_string(rowNumber_) + " in house file shall be a positive number, found: " + line;
+		return false;
+	}
+
+	*argPointer_ = num;
+	return true;
+}
 
 void House::setHouse(const House& other)
 {
 	freeHouse();
 
+	_maxSteps = other._maxSteps;
 	_rows = other._rows;
 	_cols = other._cols;
 	_docking = other._docking;
@@ -299,13 +338,13 @@ int House::clean(Point& spot_, int amout_)
 
 // Update dirt count
 // Add surronding wall if missing
-bool House::validateHouse()
+void House::validateHouse()
 {
 	bool fixedWalls = false;
 	int dockingCount = 0;
 
 	_currentDirt = 0; // update current dirt count
-
+	_isValid = true; 
 	for (size_t i = 0; i < _rows; ++i)
 	{
 		for (size_t j = 0; j < _cols; ++j)
@@ -344,13 +383,22 @@ bool House::validateHouse()
 #endif
 	}
 
-	if (dockingCount != 1)
+	if (dockingCount == 0)
 	{
-		cout << "[WARN] House does not have exactly 1 docking station." << endl;
-		return false;
+#ifdef _DEBUG_
+		cout << "[WARN] House does not have a docking station." << endl;
+#endif
+		_isValid = false;
+		_errorLine = _houseFilename + ": missing docking station (no D in house)";
+	}
+	else if (dockingCount != 1)
+	{
+#ifdef _DEBUG_
+		cout << "[WARN] House has more than 1 docking station." << endl;
+#endif
+		_isValid = false;
+		_errorLine = _houseFilename + ": too many docking stations (more than one D in house)";
 	}
 
 	_totalDirt = _currentDirt;
-
-	return true;
 }
