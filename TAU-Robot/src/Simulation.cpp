@@ -96,6 +96,10 @@ void Simulation::printStatus()
 	cout << endl;
 }
 
+void Simulation::CallAboutToFinish(int stepsTillFinishing)
+{
+	_algo->aboutToFinish(stepsTillFinishing);
+}
 
 int Simulation::score(int position_in_competition, int winner_num_steps, int SimulationSteps) const
 {

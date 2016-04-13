@@ -31,6 +31,7 @@ public:
 	bool didRobotMisbehave() const { return !_robot.goodBehavior; }
 	bool isDone() const;
 	void printStatus();
+	void CallAboutToFinish(int stepsTillFinishing);
 
 	int score(int position_in_competition, int winner_num_steps, int SimulationSteps) const;
 

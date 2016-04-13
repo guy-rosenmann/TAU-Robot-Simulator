@@ -36,8 +36,11 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 
 	if (_algos.size() == 0)
 	{
-		cout << "All algorithm files in target folder " << boost::filesystem::absolute(algoPath) << " cannot be opened or are invalid : " << endl;		// Only algorithms errors should be printed
-		for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)		{
+		cout << "All algorithm files in target folder " << boost::filesystem::canonical(algoPath) << " cannot be opened or are invalid : " << endl;
+
+		// Only algorithms errors should be printed
+		for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
+		{
 			cout << (*it) << endl;
 		}
 		return;
@@ -67,12 +70,14 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 
 	if (_houses.size() == 0)
 	{
-		cout << "All house files in target folder " << boost::filesystem::absolute(housePath) << " cannot be opened or are invalid : " << endl;		printErrors();
+		cout << "All house files in target folder " << boost::filesystem::canonical(housePath) << " cannot be opened or are invalid : " << endl;
+		printErrors();
 		return;
 	}
 
 	// Concatenate algo errors to house errors
-	for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)	{
+	for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
+	{
 		_errors.push_back(*it);
 	}
 
@@ -106,7 +111,6 @@ void Simulator::simulate()
 		// We need to set MaxSteps for each house sepreratly
 		Configuration config(_config);
 		int maxSteps = house.getMaxSteps();
-		config.setMaxSteps(maxSteps);
 
 		for (AlgoVector::iterator a_it = _algos.begin(); a_it != _algos.end(); ++a_it)
 		{
@@ -121,8 +125,8 @@ void Simulator::simulate()
 		cout << house << endl;
 #endif
 		// Simulate all algorithms on current house
-		vector<Simulation*> tempSoppedSimulatios;
-		bool atLeastOneDone = false;
+		vector<Simulation*> tempStoppedSimulatios;
+		bool atLeastOneDone = false, aboutToFinishCalled = false;
 		int stepsCount = 0, afterStepsCount = -1;
 		while ((simulations.size() > 0) && (stepsCount < maxSteps) && (atLeastOneDone ? (afterStepsCount < maxStepsAfterWinner) : true) )
 		{
@@ -136,7 +140,7 @@ void Simulator::simulate()
 					{
 						atLeastOneDone = true;
 					}
-					tempSoppedSimulatios.push_back(*it);
+					tempStoppedSimulatios.push_back(*it);
 					it = simulations.erase(it);
 #ifdef _DEBUG_
 					cout << "Simulation is done!" << endl;
@@ -150,7 +154,7 @@ void Simulator::simulate()
 					// currentSimulation.printStatus();
 					if (stepsCount == maxSteps - 1)
 					{
-						cout << "Simulation is stoped!" << endl;
+						cout << "Simulation is stopped!" << endl;
 						currentSimulation.printStatus();
 					}
 #endif
@@ -162,14 +166,28 @@ void Simulator::simulate()
 				afterStepsCount++;
 			}
 			stepsCount++;
+
+			// Calling aboutToFinish only once per algorithm
+			if (!aboutToFinishCalled && (atLeastOneDone || (maxSteps - stepsCount >= maxStepsAfterWinner)))
+			{
+				aboutToFinishCalled = true;
+
+				// Iterating on all active simulations and calling aboutToFinish()
+				vector<Simulation*>::iterator iterator = simulations.begin();
+				while (iterator != simulations.end())
+				{
+					(*iterator)->CallAboutToFinish(maxSteps - stepsCount);
+					++iterator;
+				}
+			}
 		}
 		
 #ifdef _DEBUG_
 		cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl << endl;
 #endif
 
-		simulations.insert(simulations.end(), tempSoppedSimulatios.begin(), tempSoppedSimulatios.end());
-		tempSoppedSimulatios.clear();
+		simulations.insert(simulations.end(), tempStoppedSimulatios.begin(), tempStoppedSimulatios.end());
+		tempStoppedSimulatios.clear();
 		this->score(stepsCount, simulations);
 
 //		////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,22 +221,22 @@ void Simulator::simulate()
 }
 
 
-void Simulator::score(int simulationSteps, vector<Simulation*>& simulatios_)
+void Simulator::score(int simulationSteps, vector<Simulation*>& simulations_)
 {
-	std::sort(simulatios_.begin(), simulatios_.end()); // sort by winner score (done && less steps are first)
+	std::sort(simulations_.begin(), simulations_.end()); // sort by winner score (done && less steps are first)
 
-	Simulation& firstSim = *simulatios_.at(0);
+	Simulation& firstSim = *simulations_.at(0);
 	int winner_num_steps = firstSim.isDone() ? firstSim.getStepsCount() : simulationSteps;
 
-	for (vector<Simulation*>::iterator it = simulatios_.begin(); it != simulatios_.end(); ++it)
+	for (vector<Simulation*>::iterator it = simulations_.begin(); it != simulations_.end(); ++it)
 	{
 		Simulation& currentSim = **it;
-		int index = it - simulatios_.begin();
+		int index = it - simulations_.begin();
 		
 		int position_in_competition = 10;
 		if (currentSim.isDone())
 		{
-			position_in_competition = this->getActualPosition(simulatios_, currentSim);
+			position_in_competition = this->getActualPosition(simulations_, currentSim);
 		}
 
 		_algos[index].second->push_back(currentSim.score(position_in_competition, winner_num_steps, simulationSteps)); // save score
@@ -226,15 +244,15 @@ void Simulator::score(int simulationSteps, vector<Simulation*>& simulatios_)
 }
 
 
-int Simulator::getActualPosition(vector<Simulation*>& allSimulatios_, Simulation& currSimulation_) const
+int Simulator::getActualPosition(vector<Simulation*>& allSimulations_, Simulation& currSimulation_) const
 {
 	int actual_position_in_competition = 1;
 	
 	// find actual position
-	for (vector<Simulation*>::iterator p_it = allSimulatios_.begin(); *p_it != &currSimulation_; ++p_it)
+	for (vector<Simulation*>::iterator p_it = allSimulations_.begin(); *p_it != &currSimulation_; ++p_it)
 	{
 		Simulation& tempSim = **p_it;
-		if (p_it == allSimulatios_.begin())
+		if (p_it == allSimulations_.begin())
 		{
 			if (tempSim.getStepsCount() < currSimulation_.getStepsCount())
 			{

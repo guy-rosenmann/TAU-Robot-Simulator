@@ -36,7 +36,7 @@ public:
 	const int operator[](const char* key) const { return _params.at(key); }
 	Configuration& operator=(const Configuration& other) { _params = other._params; _successful = other._successful; return *this; }
 
-	void setMaxSteps(int maxsteps_){ _params["MaxSteps"] = maxsteps_; }
+//	void setMaxSteps(int maxsteps_){ _params["MaxSteps"] = maxsteps_; }
 	string toString() const;
 	void print(ostream& out = cout) const { out << this->toString(); }
 	friend ostream& operator<<(ostream& out, const Configuration& p) { p.print(out); return out; }
