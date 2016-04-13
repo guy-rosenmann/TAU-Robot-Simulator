@@ -1,11 +1,9 @@
 TAU-Robot/bin/
 TAU-Robot/build/
 TAU-Robot/lib/
-TAU-Robot/include/boost
+TAU-Robot/include/boost/
+TAU-Robot/readme/
 TAU-Robot.sdf
 TAU-Robot.opensdf
-TAU-Robot/partners.txt
 TAU-Robot.v12.suo
-TAU-Robot/Design/
-TAU-Robot/design.pdf
-boost_1_60_0/
+

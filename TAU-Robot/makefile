@@ -5,7 +5,7 @@ target = simulator
 
 # flags
 CC_FLAGS = -c -O2 -Wall -pthread -std=c++11 -pedantic -g
-LD_FLAGS = -lm
+LD_FLAGS = -lm -lboost_system -lboost_filesystem
 CC = g++
 
 .DEFAULT_GOAL := all
