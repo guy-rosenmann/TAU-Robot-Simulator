@@ -19,8 +19,9 @@ class Configuration
 
 public:
 
-	Configuration(const char* iniPath_ = NULL);
-	Configuration(const Configuration& other) : _params(other._params), _successful(true) {}
+	Configuration() :_successful(false){}
+	Configuration(const char* iniPath_);
+	Configuration(const Configuration& other) : _params(other._params), _successful(other._successful) {}
 
 	bool isReady() { return _successful; }
 

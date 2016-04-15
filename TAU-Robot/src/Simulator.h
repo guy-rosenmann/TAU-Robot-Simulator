@@ -11,12 +11,10 @@ using namespace std;
 #include "AlgorithmContainer.h"
 
 #define ALGO_NAME_CELL_SIZE 13
-#define CELL_SIZE 13
+#define CELL_SIZE 10
 
 class Simulator
 {
-
-
 	Configuration				_config;
 	vector<House*>				_houses;
 	bool						_successful;

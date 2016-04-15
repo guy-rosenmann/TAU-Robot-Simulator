@@ -4,48 +4,55 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <sstream>
+#include "Algorithm_A.h"
+#include "Algorithm_B.h"
+#include "Algorithm_C.h"
 
 
 Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_)
 {
-	_config = conf_;
+//	_config = conf_;
+//	
+//	// Handle Alogs
+//	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
+//	vector<AlgorithmContainer*> allAlgos = loadAllAlgos(algoPath.c_str());
+//	vector<string>	algoErrors;
+//
+//	if (allAlgos.size() == 0)
+//	{
+//		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
+//		cout << "\t- algorithm_path:\talgorithm dir path" << endl;
+//		return;
+//	}
+//
+//	for (AlgorithmContainer* algo : allAlgos)
+//	{
+//		if (algo->isValid())
+//		{
+//			_algos.push_back(std::make_pair(algo, new std::vector<int>()));
+//		}
+//		else
+//		{
+//			algoErrors.push_back(algo->getErrorLine());
+//		}
+//	}
+//
+//	if (_algos.size() == 0)
+//	{
+//		cout << "All algorithm files in target folder " << boost::filesystem::canonical(algoPath) << " cannot be opened or are invalid : " << endl;
+//
+//		// Only algorithms errors should be printed
+//		for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
+//		{
+//			cout << (*it) << endl;
+//		}
+//		return;
+//	}
+
+	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_A()), new std::vector<int>()));
+	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_B()), new std::vector<int>()));
+	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_C()), new std::vector<int>()));
 	
-	// Handle Alogs
-	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
-	vector<AlgorithmContainer*> allAlgos = loadAllAlgos(algoPath.c_str());
-	vector<string>	algoErrors;
-
-	if (allAlgos.size() == 0)
-	{
-		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
-		cout << "\t- algorithm_path:\talgorithm dir path" << endl;
-		return;
-	}
-
-	for (AlgorithmContainer* algo : allAlgos)
-	{
-		if (algo->isValid())
-		{
-			_algos.push_back(std::make_pair(algo, new std::vector<int>()));
-		}
-		else
-		{
-			algoErrors.push_back(algo->getErrorLine());
-		}
-	}
-
-	if (_algos.size() == 0)
-	{
-		cout << "All algorithm files in target folder " << boost::filesystem::canonical(algoPath) << " cannot be opened or are invalid : " << endl;
-
-		// Only algorithms errors should be printed
-		for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
-		{
-			cout << (*it) << endl;
-		}
-		return;
-	}
-
 	// Handle Houses
 	string housePath = string(housePath_ != NULL ? housePath_ : ".");
 	vector<House*> allHouses = loadAllHouses(housePath.c_str());
@@ -75,11 +82,11 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		return;
 	}
 
-	// Concatenate algo errors to house errors
-	for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
-	{
-		_errors.push_back(*it);
-	}
+//	// Concatenate algo errors to house errors
+//	for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
+//	{
+//		_errors.push_back(*it);
+//	}
 
 	_successful = true;
 }
@@ -282,11 +289,11 @@ int Simulator::getActualPosition(vector<Simulation*>& allSimulations_, Simulatio
 
 int Simulator::CountSpaces(double avg)
 {
-	int leadingSpaces = 0, num = (int) avg;
+	int leadingSpaces = 7, num = (int) avg;
 	do
 	{
 		num /= 10;
-		leadingSpaces++;
+		leadingSpaces--;
 	} while (num != 0);
 
 	return leadingSpaces;
@@ -360,10 +367,10 @@ void Simulator::printScores() const
 	cout << '|' << string(ALGO_NAME_CELL_SIZE, ' ') << '|';
 	for (vector<House*>::const_iterator it = _houses.begin(); it != _houses.end(); ++it)
 	{
-		string filename = boost::filesystem::path((*it)->getFileName()).stem().generic_string().substr(CELL_SIZE - 1);
+		string filename = boost::filesystem::path((*it)->getFileName()).stem().generic_string();
 		cout << filename << string(CELL_SIZE - filename.size(), ' ') << '|';
 	}
-	cout << "AVG" << string(CELL_SIZE, ' ') << '|' << endl;
+	cout << "AVG" << string(CELL_SIZE - 3, ' ') << '|' << endl;
 	cout << string(rowLength, '-') << endl;
 
 	//////////////////////////////////////
@@ -372,12 +379,12 @@ void Simulator::printScores() const
 	for (AlgoVector::const_iterator it = _algos.begin(); it != _algos.end(); ++it)
 	{
 		cout << '|';
-		string filename = boost::filesystem::path((*it).first->getFileName()).stem().generic_string().substr(ALGO_NAME_CELL_SIZE - 1);
+		string filename = (*it).first->GetAlgorithmName();
 		cout << filename << string(ALGO_NAME_CELL_SIZE - filename.size(), ' ') << '|';
 		
-		std::vector<int>& scores = *it->second;
+		vector<int>& scores = *it->second;
 		double avg = 0.0;
-		for (std::vector<int>::iterator s_it = scores.begin(); s_it != scores.end(); ++s_it)
+		for (vector<int>::iterator s_it = scores.begin(); s_it != scores.end(); ++s_it)
 		{
 			int score = *s_it;
 			avg += score;
@@ -389,12 +396,11 @@ void Simulator::printScores() const
 		avg /= (scores.size());
 		int leadingSpaces = CountSpaces(avg);
 
-		printf("%s%.2f|", string(leadingSpaces + 2, ' ').c_str(), avg);
+		printf("%s%.2f|", string(leadingSpaces, ' ').c_str(), avg);
 
 		cout << endl;
+		cout << string(rowLength, '-') << endl;
 	}
-
-	cout << string(rowLength, '-') << endl;
 }
 
 

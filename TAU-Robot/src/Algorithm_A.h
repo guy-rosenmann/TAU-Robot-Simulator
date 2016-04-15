@@ -5,9 +5,8 @@
 #include <map>
 using namespace std;
 
-
 #include "Direction.h"
-#include "AbstractAlgorithm.h"
+#include "AlgorithmRegistrar.h"
 #include "Configuration.h"
 #include "RobotInformation.h"
 

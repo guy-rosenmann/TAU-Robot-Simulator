@@ -14,6 +14,8 @@
     <ClCompile Include="src\Algorithm.cpp" />
     <ClCompile Include="src\AlgorithmContainer.cpp" />
     <ClCompile Include="src\Algorithm_A.cpp" />
+    <ClCompile Include="src\Algorithm_B.cpp" />
+    <ClCompile Include="src\Algorithm_C.cpp" />
     <ClCompile Include="src\Configuration.cpp" />
     <ClCompile Include="src\House.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -28,6 +30,7 @@
     <ClInclude Include="include\interface\SensorInformation.h" />
     <ClInclude Include="src\Algorithm.h" />
     <ClInclude Include="src\AlgorithmContainer.h" />
+    <ClInclude Include="src\AlgorithmRegistrar.h" />
     <ClInclude Include="src\Algorithm_A.h" />
     <ClInclude Include="src\Algorithm_B.h" />
     <ClInclude Include="src\Algorithm_C.h" />

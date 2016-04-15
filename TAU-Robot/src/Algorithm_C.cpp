@@ -1,6 +1,6 @@
-#include "Algorithm_A.h"
+#include "Algorithm_C.h"
 
-Direction Algorithm_A::step()
+Direction Algorithm_C::step()
 {
 	vector<Direction> moves;
 	this->getPossibleMoves(moves);
@@ -14,7 +14,7 @@ Direction Algorithm_A::step()
 	return next;
 }
 
-void Algorithm_A::getPossibleMoves(vector<Direction>& moves_)
+void Algorithm_C::getPossibleMoves(vector<Direction>& moves_)
 {
 	SensorInformation info = _sensor->sense(); // info.isWall = { East, West, South, North }
 
@@ -39,7 +39,7 @@ extern "C"
 {
 	AbstractAlgorithm *maker()
 	{
-		return new Algorithm_A;
+		return new Algorithm_C;
 	}
 
 	class proxy 
@@ -47,7 +47,7 @@ extern "C"
 		public:
 			proxy(){
 				// register the maker with the factory 
-				factory["201445681_A_"] = maker;
+				factory["201445681_C_"] = maker;
 			}
 	};
 	// our one instance of the proxy

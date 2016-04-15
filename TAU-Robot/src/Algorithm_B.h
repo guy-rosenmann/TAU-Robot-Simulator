@@ -15,6 +15,7 @@ class Algorithm_B : public AbstractAlgorithm
 {
 
 	const AbstractSensor*	_sensor = nullptr;
+	const unsigned int		_psuedoRand = 30;
 	map<string, int>		_config;
 	RobotInformation		_robot;
 
