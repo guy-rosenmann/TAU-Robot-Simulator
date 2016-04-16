@@ -4,9 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <boost/filesystem.hpp>
 
 string Configuration::configFileName = "config.ini";
-
 
 const char* const Configuration::_mandatoryParams[] = {
 	"MaxStepsAfterWinner",
@@ -25,7 +25,7 @@ Configuration::Configuration(const char* iniPath_) : _successful(true)
 		// fix for missing back slash
 		if (!fullPath.empty() && *fullPath.rbegin() != '/' && *fullPath.rbegin() != '\\')
 		{
-			fullPath += '/';
+			fullPath += "\\";
 		}
 		fullPath += Configuration::configFileName; // add config file name to path
 	}
@@ -53,7 +53,8 @@ bool Configuration::loadFromFile(const string& iniPath_)
 	if (stat(iniPath_.c_str(), &buf) != 0)
 	{
 		// ini file is missing
-		cout << "[ERROR] File:" << iniPath_ << " doesn't exist." << endl;
+		boost::filesystem::path path(iniPath_);
+		cout << "[ERROR] File:" << boost::filesystem::absolute(path) << " doesn't exist." << endl;
 		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
 		cout << "\t- config:\tconfiguration file dir path" << endl;
 

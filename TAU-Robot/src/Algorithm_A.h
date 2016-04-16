@@ -7,31 +7,20 @@ using namespace std;
 
 #include "Direction.h"
 #include "AlgorithmRegistrar.h"
+#include "AlgorithmBase.h"
 #include "Configuration.h"
 #include "RobotInformation.h"
 
-class Algorithm_A : public AbstractAlgorithm
+class Algorithm_A : public AlgorithmBase
 {
-	const unsigned int _psuedoRand = 29;
-	bool _returnHome = false;
-	const AbstractSensor*	_sensor = nullptr;
-	map<string, int>		_config;
-	RobotInformation		_robot;
+	unsigned int _psuedoRand = 29;
 
 public:
 
 	Algorithm_A() {}
-	Algorithm_A(const AbstractSensor& sensor, const Configuration& conf) { setSensor(sensor); setConfiguration(conf.getParams()); }
-
-	void setSensor(const AbstractSensor& sensor) { _sensor = &sensor; }
-	void setConfiguration(map<string, int> config) { _config = config; }
-	void aboutToFinish(int stepsTillFinishing) {} // TODO: implement for EX2
+	Algorithm_A(const AbstractSensor& sensor, const Configuration& conf) : AlgorithmBase(sensor, conf){}
 
 	Direction step();
-
-private:
-	void getPossibleMoves(vector<Direction>& moves_);
-
 };
 
 

@@ -18,7 +18,7 @@ public:
 	AlgorithmContainer() = delete;
 	AlgorithmContainer(const char* algorithmPath_);
 	// TODO: remove the name
-	AlgorithmContainer(AbstractAlgorithm* algorithm_) : _algorithm(algorithm_), _algoName("201445681_A_"){}
+	AlgorithmContainer(AbstractAlgorithm* algorithm_, const char* algoName_) : _algorithm(algorithm_), _algoName(algoName_){}
 
 	bool isValid() const { return _isValid; }
 	string getFileName() const { return _fileName; }

@@ -3,7 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)bin\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-config D:\Git\DummySimulator\TAU-Robot -house_path ..\houses -algorithm_path Debug\</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-config ..\ -house_path ..\houses -algorithm_path Debug\</LocalDebuggerCommandArguments>
     <LocalDebuggerEnvironment>
     </LocalDebuggerEnvironment>
   </PropertyGroup>

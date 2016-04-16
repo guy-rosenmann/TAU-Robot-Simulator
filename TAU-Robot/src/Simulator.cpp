@@ -11,8 +11,8 @@
 
 Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_)
 {
-//	_config = conf_;
-//	
+	_config = conf_;
+	
 //	// Handle Alogs
 //	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
 //	vector<AlgorithmContainer*> allAlgos = loadAllAlgos(algoPath.c_str());
@@ -49,9 +49,9 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 //		return;
 //	}
 
-	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_A()), new std::vector<int>()));
-	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_B()), new std::vector<int>()));
-	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_C()), new std::vector<int>()));
+	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_A(), "201445681_A_"), new std::vector<int>()));
+	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_B(), "201445681_B_"), new std::vector<int>()));
+	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_C(), "201445681_C_"), new std::vector<int>()));
 	
 	// Handle Houses
 	string housePath = string(housePath_ != NULL ? housePath_ : ".");
@@ -151,7 +151,10 @@ void Simulator::simulate()
 					it = simulations.erase(it);
 #ifdef _DEBUG_
 					cout << "Simulation is done!" << endl;
-					currentSimulation.printStatus();
+					if (stepsCount % 5 == 0)
+					{
+						currentSimulation.printStatus();
+					}
 #endif
 				}
 				else
@@ -162,8 +165,9 @@ void Simulator::simulate()
 					if (stepsCount == maxSteps - 1)
 					{
 						cout << "Simulation is stopped!" << endl;
-						currentSimulation.printStatus();
 					}
+					currentSimulation.printStatus();
+
 #endif
 				}
 			}
@@ -175,7 +179,10 @@ void Simulator::simulate()
 			stepsCount++;
 
 			// Calling aboutToFinish only once per algorithm
-			if (!aboutToFinishCalled && (atLeastOneDone || (maxSteps - stepsCount >= maxStepsAfterWinner)))
+			// According to the forum there are 2 scenarios for our call to aboutToFinish()
+			//		1. No winner and (stepsCount >= maxSteps - maxStepsAfterWinner)
+			//		2. Winner finished and aboutToFinish() was not called
+			if (!aboutToFinishCalled && (atLeastOneDone || (stepsCount >= maxSteps - maxStepsAfterWinner)))
 			{
 				aboutToFinishCalled = true;
 
@@ -183,7 +190,7 @@ void Simulator::simulate()
 				vector<Simulation*>::iterator iterator = simulations.begin();
 				while (iterator != simulations.end())
 				{
-					(*iterator)->CallAboutToFinish(maxSteps - stepsCount);
+					(*iterator)->CallAboutToFinish(maxStepsAfterWinner);
 					++iterator;
 				}
 			}
