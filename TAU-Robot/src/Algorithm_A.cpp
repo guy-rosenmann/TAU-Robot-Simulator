@@ -28,21 +28,30 @@ Direction Algorithm_A::step()
 	return next;
 }
 
-extern "C" 
-{
-	AbstractAlgorithm *maker_A()
-	{
-		return new Algorithm_A;
-	}
+//extern "C" 
+//{
+//	AbstractAlgorithm *maker_A()
+//	{
+//		return new Algorithm_A;
+//	}
+//
+//	class proxy 
+//	{
+//		public:
+//			proxy(){
+//				// register the maker with the factory 
+//				cout << "Before messing with factory" << endl << std::flush;
+//				factory["201445681_A_"] = maker_A;
+//				cout << "After messing with factory" << endl << std::flush;
+//			}
+//	};
+//	// our one instance of the proxy
+//	proxy p_A;
+//}
 
-	class proxy 
-	{
-		public:
-			proxy(){
-				// register the maker with the factory 
-				factory["201445681_A_"] = maker_A;
-			}
-	};
-	// our one instance of the proxy
-	proxy p_A;
+extern "C" AbstractAlgorithm* getAbstractAlgorithmPointer()
+{
+	cout << "in getAbstractFunctionPointer" << endl << std::flush;
+
+	return new Algorithm_A();
 }

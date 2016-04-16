@@ -1,11 +1,11 @@
 # source files and object files
-src = main.cpp Simulator.cpp Simulation.cpp ParamsParser.cpp House.cpp Configuration.cpp Algorithm_A.cpp Algorithm_C.cpp Algorithm_B.cpp AlgorithmContainer.cpp AlgorithmBase.cpp
+src = main.cpp Simulator.cpp Simulation.cpp ParamsParser.cpp House.cpp Configuration.cpp Algorithm_C.cpp Algorithm_B.cpp AlgorithmContainer.cpp AlgorithmBase.cpp
 obj = $(src:.cpp=.o)
 target = simulator
 
 # flags
 CC_FLAGS = -c -O2 -Wall -pthread -std=c++11 -pedantic -g
-LD_FLAGS = -lm -lboost_system -lboost_filesystem
+LD_FLAGS = -lm -lboost_system -lboost_filesystem -ldl
 CC = g++
 
 .DEFAULT_GOAL := all
@@ -19,6 +19,6 @@ $(target): $(obj)
 
 $(obj): %.o: %.cpp
 	$(CC) $(CC_FLAGS) $< -o $@
-
+	
 clean:
 	rm -f $(obj) $(target)

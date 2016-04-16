@@ -25,7 +25,8 @@ public:
 	string GetAlgorithmName() const { return _algoName; }
 	string getErrorLine() const { return _errorLine; }
 	AbstractAlgorithm* getAlgorithm() const { return _algorithm; }
-
+		
+//	static map<string, maker_t*> createFactory();
 };
 
 

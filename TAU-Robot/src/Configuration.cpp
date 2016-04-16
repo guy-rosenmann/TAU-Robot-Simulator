@@ -57,6 +57,7 @@ bool Configuration::loadFromFile(const string& iniPath_)
 		cout << "[ERROR] File:" << boost::filesystem::absolute(path) << " doesn't exist." << endl;
 		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
 		cout << "\t- config:\tconfiguration file dir path" << endl;
+		cout << "\t- default value:\tcurrent dir" << endl;
 
 		return false;
 	}

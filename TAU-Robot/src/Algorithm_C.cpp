@@ -28,21 +28,21 @@ Direction Algorithm_C::step()
 	return next;
 }
 
-extern "C" 
-{
-	AbstractAlgorithm *maker_C()
-	{
-		return new Algorithm_C;
-	}
-
-	class proxy 
-	{
-		public:
-			proxy(){
-				// register the maker with the factory 
-				factory["201445681_C_"] = maker_C;
-			}
-	};
-	// our one instance of the proxy
-	proxy p_C;
-}
+//extern "C" 
+//{
+//	AbstractAlgorithm *maker_C()
+//	{
+//		return new Algorithm_C;
+//	}
+//
+//	class proxy 
+//	{
+//		public:
+//			proxy(){
+//				// register the maker with the factory 
+//				factory["201445681_C_"] = maker_C;
+//			}
+//	};
+//	// our one instance of the proxy
+//	proxy p_C;
+//}

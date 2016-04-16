@@ -13,43 +13,45 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 {
 	_config = conf_;
 	
-//	// Handle Alogs
-//	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
-//	vector<AlgorithmContainer*> allAlgos = loadAllAlgos(algoPath.c_str());
-//	vector<string>	algoErrors;
-//
-//	if (allAlgos.size() == 0)
-//	{
-//		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
-//		cout << "\t- algorithm_path:\talgorithm dir path" << endl;
-//		return;
-//	}
-//
-//	for (AlgorithmContainer* algo : allAlgos)
-//	{
-//		if (algo->isValid())
-//		{
-//			_algos.push_back(std::make_pair(algo, new std::vector<int>()));
-//		}
-//		else
-//		{
-//			algoErrors.push_back(algo->getErrorLine());
-//		}
-//	}
-//
-//	if (_algos.size() == 0)
-//	{
-//		cout << "All algorithm files in target folder " << boost::filesystem::canonical(algoPath) << " cannot be opened or are invalid : " << endl;
-//
-//		// Only algorithms errors should be printed
-//		for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
-//		{
-//			cout << (*it) << endl;
-//		}
-//		return;
-//	}
+	// Handle Alogs
+	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
+	vector<AlgorithmContainer*> allAlgos = loadAllAlgos(algoPath.c_str());
+	vector<string>	algoErrors;
 
-	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_A(), "201445681_A_"), new std::vector<int>()));
+	if (allAlgos.size() == 0)
+	{
+		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
+		cout << "\t- algorithm_path:\talgorithm dir path" << endl;
+		cout << "\t- default value:\tcurrent dir" << endl;
+		return;
+	}
+
+	for (AlgorithmContainer* algo : allAlgos)
+	{
+		if (algo->isValid())
+		{
+			_algos.push_back(std::make_pair(algo, new std::vector<int>()));
+		}
+		else
+		{
+			cout << "New Alg Error: " << algo->getErrorLine() << endl;
+			algoErrors.push_back(algo->getErrorLine());
+		}
+	}
+
+	if (_algos.size() == 0)
+	{
+		cout << "All algorithm files in target folder " << boost::filesystem::canonical(algoPath) << " cannot be opened or are invalid : " << endl;
+
+		// Only algorithms errors should be printed
+		for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
+		{
+			cout << (*it) << endl;
+		}
+		return;
+	}
+
+//	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_A(), "201445681_A_"), new std::vector<int>()));
 	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_B(), "201445681_B_"), new std::vector<int>()));
 	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_C(), "201445681_C_"), new std::vector<int>()));
 	
@@ -60,6 +62,7 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 	{
 		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
 		cout << "\t- house_path:\thouse dir path" << endl;
+		cout << "\t- default value:\tcurrent dir" << endl;
 		return;
 	}
 
@@ -82,11 +85,11 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		return;
 	}
 
-//	// Concatenate algo errors to house errors
-//	for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
-//	{
-//		_errors.push_back(*it);
-//	}
+	// Concatenate algo errors to house errors
+	for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
+	{
+		_errors.push_back(*it);
+	}
 
 	_successful = true;
 }
