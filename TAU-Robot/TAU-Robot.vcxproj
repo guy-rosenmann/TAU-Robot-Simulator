@@ -14,9 +14,9 @@
     <ClCompile Include="src\Algorithm.cpp" />
     <ClCompile Include="src\AlgorithmBase.cpp" />
     <ClCompile Include="src\AlgorithmContainer.cpp" />
-    <ClCompile Include="src\Algorithm_A.cpp" />
-    <ClCompile Include="src\Algorithm_B.cpp" />
-    <ClCompile Include="src\Algorithm_C.cpp" />
+    <ClCompile Include="src\_201445681_A.cpp" />
+    <ClCompile Include="src\_201445681_B.cpp" />
+    <ClCompile Include="src\_201445681_C.cpp" />
     <ClCompile Include="src\Configuration.cpp" />
     <ClCompile Include="src\House.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -32,9 +32,9 @@
     <ClInclude Include="src\Algorithm.h" />
     <ClInclude Include="src\AlgorithmBase.h" />
     <ClInclude Include="src\AlgorithmContainer.h" />
-    <ClInclude Include="src\Algorithm_A.h" />
-    <ClInclude Include="src\Algorithm_B.h" />
-    <ClInclude Include="src\Algorithm_C.h" />
+    <ClInclude Include="src\_201445681_A.h" />
+    <ClInclude Include="src\_201445681_B.h" />
+    <ClInclude Include="src\_201445681_C.h" />
     <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\House.h" />
     <ClInclude Include="src\ParamsParser.h" />
