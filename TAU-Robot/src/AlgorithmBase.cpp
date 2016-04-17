@@ -1,8 +1,10 @@
 #include "AlgorithmBase.h"
+#include <algorithm>
 
 void AlgorithmBase::aboutToFinish(int stepsTillFinishing)
 {
 	_returnHome = true;
+	_movesUntilFinish = stepsTillFinishing;
 }
 
 void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
@@ -16,27 +18,18 @@ void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
 			return;
 		}
 
-		// If it will take too long to return the same way, we'll have to improvise..
-		// No need for a flag here, as 
-		if ((int)_movesDone.size() > abs(_eastLocation) + abs(_southLocation))
+		vector<Direction>::reverse_iterator rit = _movesDone.rbegin();
+		while (rit != _movesDone.rend())
 		{
-//			returnQuick = true;
-		}
-		else
-		{
-			vector<Direction>::reverse_iterator rit = _movesDone.rbegin();
-			while (rit != _movesDone.rend())
+			if ((*rit) == Direction::Stay)
 			{
-				if ((*rit) == Direction::Stay)
-				{
-					_movesDone.erase((++rit).base());
-				}
-				else
-				{
-					moves_.push_back(oppositeDirection(*rit));
-					_movesDone.erase((++rit).base());
-					return;
-				}
+				_movesDone.erase((++rit).base());
+			}
+			else
+			{
+				moves_.push_back(oppositeDirection(*rit));
+				_movesDone.erase((++rit).base());
+				return;
 			}
 		}
 	}
@@ -51,15 +44,6 @@ void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
 		}
 	}
 
-	// skipping return quick (difficult and buggy as hell), letting the robot do his thing, maybe we'll get lucky
-//	if (returnQuick)
-//	{
-//		if (returnQuicklyMoves(moves_))
-//		{
-//			return;
-//		}
-//	}
-
 	// Bigger than one because we'll go back the same way
 	if (info.dirtLevel > 1 || moves_.size() == 0 || _robot.location == Point())
 	{
@@ -68,7 +52,7 @@ void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
 		moves_.push_back(Direction::Stay);
 	}
 
-	// No need to go back
+	// No need to go back if we don't have to
 	if (!_returnHome && moves_.size() > 1)
 	{
 		removeBackwardDirection(moves_);
@@ -169,3 +153,61 @@ void AlgorithmBase::updateLocation(Direction direction_)
 	}
 }
 
+void AlgorithmBase::updateBeforeMove()
+{
+	updateBattery();
+	updateRemainingMoves();
+}
+
+void AlgorithmBase::updateAfterMove(Direction direction_)
+{
+	// update robot info
+	_robot.location.move(direction_);
+	_robot.totalSteps++;
+	updateLocation(direction_);
+
+	// Save moves
+	if (!_returnHome)
+	{
+		_lastMove = direction_;
+
+		// No need to store stay moves
+		if (_lastMove != Direction::Stay)
+		{
+			_movesDone.push_back(_lastMove);
+		}
+	}
+}
+
+void AlgorithmBase::updateRemainingMoves()
+{
+	_movesUntilFinish--;
+}
+
+void AlgorithmBase::updateBattery()
+{
+	int consumptionRate = _config["BatteryConsumptionRate"];
+	unsigned int rechargeRate = _config["BatteryRechargeRate"];
+	unsigned int capacity = _config["BatteryCapacity"];
+
+	if (isDocking())
+	{
+		_robotBattery = std::max(_robotBattery + rechargeRate, capacity);
+	}
+	else
+	{
+		_robotBattery -= - consumptionRate;
+	}
+
+	// Next were figuring out if we have enough battery to return home
+	if (_returnHome)
+	{
+		return;
+	}
+
+	int returnMoves = _movesDone.size(), returnBatteryConsumption = returnMoves*consumptionRate;
+	if ((_robotBattery >= returnBatteryConsumption) && (_robotBattery - consumptionRate <= returnBatteryConsumption))
+	{
+		_returnHome = true;
+	}
+}

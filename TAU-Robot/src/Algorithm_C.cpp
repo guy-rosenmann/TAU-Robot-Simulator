@@ -2,47 +2,34 @@
 
 Direction Algorithm_C::step()
 {
+	updateBeforeMove();
+
 	vector<Direction> moves;
 	this->getPossibleMoves(moves);
 
-	Direction next = moves[_psuedoRand++ % moves.size()];
+	// Choose "randomly"
+	Direction next = moves[_psuedoRand % moves.size()];
 
-	// Adding more randomness
-	if (_psuedoRand % 11 == 0)
-	{
-		_psuedoRand+=2;
-	}
-
-	// update robot info
-	_robot.location.move(next);
-	_robot.totalSteps++;
-	updateLocation(next);
-
-	// Save moves
-	if (!_returnHome)
-	{
-		_lastMove = next;
-		_movesDone.push_back(_lastMove);
-	}
+	updatePseudoRandom();
+	updateAfterMove(next);
 
 	return next;
 }
 
-//extern "C" 
-//{
-//	AbstractAlgorithm *maker_C()
-//	{
-//		return new Algorithm_C;
-//	}
-//
-//	class proxy 
-//	{
-//		public:
-//			proxy(){
-//				// register the maker with the factory 
-//				factory["201445681_C_"] = maker_C;
-//			}
-//	};
-//	// our one instance of the proxy
-//	proxy p_C;
-//}
+void Algorithm_C::updatePseudoRandom()
+{
+	_psuedoRand++;
+
+	// Adding more randomness
+	if (_psuedoRand % 11 == 0)
+	{
+		_psuedoRand += 2;
+	}
+}
+
+extern "C" AbstractAlgorithm* getAbstractAlgorithmPointer()
+{
+	//	cout << "in getAbstractFunctionPointer" << endl << std::flush;
+
+	return new Algorithm_C();
+}

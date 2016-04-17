@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <limits.h>
 using namespace std;
 
 
@@ -20,11 +21,12 @@ public:
 	AlgorithmBase(const AbstractSensor& sensor, const Configuration& conf) { setSensor(sensor); setConfiguration(conf.getParams()); }
 
 	void setSensor(const AbstractSensor& sensor) { _sensor = &sensor; }
-	void setConfiguration(map<string, int> config) { _config = config; }
+	void setConfiguration(map<string, int> config) { _config = config; _robotBattery = _config["BatteryConsumptionRate"]; }
 
 	virtual Direction step() = 0;
-
 	void aboutToFinish(int stepsTillFinishing);
+
+	void updateBattery();
 
 protected:
 	const AbstractSensor*	_sensor = nullptr;
@@ -37,12 +39,17 @@ protected:
 	int _southLocation = 0;
 	int _eastLocation = 0;
 
+	int _robotBattery = 0;
+	unsigned int _movesUntilFinish = UINT_MAX;
+	
 	bool isDocking();
-//	bool returnQuicklyMoves(vector<Direction>& moves_);
 	void getPossibleMoves(vector<Direction>& moves_);
 	static Direction oppositeDirection(Direction direction_);
 	void removeBackwardDirection(vector<Direction>& moves_);
 	void updateLocation(Direction direction_);
+	void updateRemainingMoves();
+	void updateBeforeMove();
+	void updateAfterMove(Direction direction_);
 };
 
 

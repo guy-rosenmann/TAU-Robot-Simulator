@@ -4,10 +4,6 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <sstream>
-#include "Algorithm_A.h"
-#include "Algorithm_B.h"
-#include "Algorithm_C.h"
-
 
 Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_)
 {
@@ -34,8 +30,8 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		}
 		else
 		{
-			cout << "New Alg Error: " << algo->getErrorLine() << endl;
 			algoErrors.push_back(algo->getErrorLine());
+			delete algo;
 		}
 	}
 
@@ -48,12 +44,13 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		{
 			cout << (*it) << endl;
 		}
+
 		return;
 	}
 
 //	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_A(), "201445681_A_"), new std::vector<int>()));
-	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_B(), "201445681_B_"), new std::vector<int>()));
-	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_C(), "201445681_C_"), new std::vector<int>()));
+//	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_B(), "201445681_B_"), new std::vector<int>()));
+//	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_C(), "201445681_C_"), new std::vector<int>()));
 	
 	// Handle Houses
 	string housePath = string(housePath_ != NULL ? housePath_ : ".");
@@ -75,6 +72,7 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		else
 		{
 			_errors.push_back(house->getErrorLine());
+			delete house;
 		}
 	}
 
@@ -427,7 +425,6 @@ void Simulator::printErrors()
 		cout << error << endl;
 	}
 }
-
 
 template <typename T>
 void Simulator::clearPointersVector(vector<T*>& vec_)

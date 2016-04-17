@@ -21,6 +21,7 @@ public:
 	Algorithm_A(const AbstractSensor& sensor, const Configuration& conf) : AlgorithmBase(sensor, conf){}
 
 	Direction step();
+	void updatePseudoRandom();
 };
 
 

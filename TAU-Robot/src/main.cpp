@@ -7,9 +7,6 @@
 
 int main(int argc, char* argv[])
 {
-	// REMOVE
-	cout << "Starting Main" << endl << std::flush;
-	
 	std::srand((unsigned int)std::time(0)); // initialize random seed for algorithm
 	
 	ParamsParser params(argc, argv);
@@ -38,6 +35,5 @@ int main(int argc, char* argv[])
 #if defined(_DEBUG_) || defined(_RELEASE_)
 	getchar();
 #endif
-	
 	return 0;
 }
