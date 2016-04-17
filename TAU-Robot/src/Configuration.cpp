@@ -25,7 +25,7 @@ Configuration::Configuration(const char* iniPath_) : _successful(true)
 		// fix for missing back slash
 		if (!fullPath.empty() && *fullPath.rbegin() != '/' && *fullPath.rbegin() != '\\')
 		{
-			fullPath += "\\";
+			fullPath += "/";
 		}
 		fullPath += Configuration::configFileName; // add config file name to path
 	}
@@ -54,7 +54,7 @@ bool Configuration::loadFromFile(const string& iniPath_)
 	{
 		// ini file is missing
 		boost::filesystem::path path(iniPath_);
-		cout << "[ERROR] File:" << boost::filesystem::absolute(path) << " doesn't exist." << endl;
+//		cout << "[ERROR] File:" << boost::filesystem::absolute(path) << " doesn't exist." << endl;
 		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
 		cout << "\t- config:\tconfiguration file dir path" << endl;
 		cout << "\t- default value:\tcurrent dir" << endl;
@@ -154,5 +154,19 @@ void Configuration::processLine(const string& line)
 	{
 		return;
 	}
-	_params[Configuration::trim(tokens[0])] = stoi(tokens[1]);
+
+	int num;
+	try
+	{
+		num = stoi(tokens[1]);
+	}
+	catch (std::invalid_argument e)
+	{
+		return;
+	}
+	catch (std::out_of_range e)
+	{
+		return;
+	}
+	_params[Configuration::trim(tokens[0])] = num;
 }

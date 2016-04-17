@@ -11,6 +11,7 @@
 class Simulation
 {
 	AbstractAlgorithm*	_algo = nullptr;
+	string				_algoName;
 	House				_house;
 	Sensor				_sensor;
 	RobotInformation	_robot;
@@ -19,13 +20,14 @@ class Simulation
 public:
 
 	Simulation() = delete;
-	Simulation(const Configuration& config_, const House& house_, AbstractAlgorithm* algo_);
+	Simulation(const Configuration& config_, const House& house_, AbstractAlgorithm* algo_, string algoName_);
 	virtual ~Simulation();
 
 	bool step();
 	int getStepsCount() const { return _robot.totalSteps; }
 	int getTotalDirtCount() const { return _house.getTotalDirtAmount(); }
 	int getCleanedDirtCount() const { return _robot.cleanedDirt; }
+	string getAlgoName() const { return _algoName; }
 	bool isRobotDocked() const { return (_robot.location == _house.getDocking()); }
 	bool isRobotOutOfBattery() const { return _robot.stuck; }
 	bool didRobotMisbehave() const { return !_robot.goodBehavior; }
@@ -40,7 +42,7 @@ public:
 	// smaller = done with less steps
 	bool operator<(const Simulation& other) const;
 	bool operator>(const Simulation& other) const;
-
+	static bool Compare(const Simulation* simu, const Simulation* other);
 private:
 	void updateSensor();
 };

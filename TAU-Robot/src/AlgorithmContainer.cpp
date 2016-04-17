@@ -3,10 +3,11 @@
 #include <dlfcn.h> 
 #include <boost/filesystem/path.hpp>
 
-map<string, maker_t*> factory;
-
 AlgorithmContainer::AlgorithmContainer(const char* algorithmPath_)
 {
+	// REMOVE
+//	cout << "Starting AlgorithmContainer" << endl;
+
 	boost::filesystem::path path(algorithmPath_);
 	_fileName = path.filename().generic_string();
 	_algoName = path.stem().generic_string();
@@ -40,7 +41,13 @@ AlgorithmContainer::AlgorithmContainer(const char* algorithmPath_)
 
 AlgorithmContainer::~AlgorithmContainer()
 {
+	// REMOVE
+//	cout << "Starting ~AlgorithmContainer" << endl;
+
 	delete _algorithm;
+
+	// REMOVE
+//	cout << "Finishing ~AlgorithmContainer" << endl;
 }
 
 

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-Simulation::Simulation(const Configuration& config_, const House& house_, AbstractAlgorithm* algo_) : _algo(algo_), _house(house_), _config(config_)
+Simulation::Simulation(const Configuration& config_, const House& house_, AbstractAlgorithm* algo_, string algoName_) : _algo(algo_), _algoName(algoName_), _house(house_), _config(config_)
 {
 	_robot.battery = _config["BatteryCapacity"];
 	_robot.location = _house.getDocking();
@@ -24,6 +24,9 @@ Simulation::~Simulation()
 
 bool Simulation::step()
 {
+	//REMOVE
+//	_house.print(cout);
+
 	if (_robot.battery <= 0)
 	{
 #ifdef _DEBUG_
@@ -60,7 +63,7 @@ bool Simulation::step()
 	{
 #ifdef _DEBUG_
 		// for EX1: printing after score!
-		// cout << "[INFO] The robot is trying to walk through a wall." << endl;
+//		 cout << "[INFO] The robot is trying to walk through a wall." << endl;
 #endif
 		_robot.goodBehavior = false;
 		return false; // outside the house / into a wall
@@ -116,6 +119,15 @@ int Simulation::score(int position_in_competition, int winner_num_steps, int Sim
 	points -= (this->getTotalDirtCount() - this->getCleanedDirtCount()) * 3;
 	points += this->isRobotDocked() ? 50 : -200;
 
+	//REMOVE
+//	cout << "(position_in_competition - 1) * 50: " << (position_in_competition - 1) * 50 << endl;
+//	cout << "(winner_num_steps - this_num_steps) * 10: " << (winner_num_steps - this_num_steps) * 10 << endl;
+//	cout << "winner_num_steps: " << winner_num_steps << endl;
+//	cout << "this_num_steps: " << this_num_steps<< endl;
+//	cout << "(this->getTotalDirtCount() - this->getCleanedDirtCount()) * 3: " << (this->getTotalDirtCount() - this->getCleanedDirtCount()) * 3 << endl;
+//	cout << "this->isRobotDocked() ? 50 : -200: " << (this->isRobotDocked() ? 50 : -200) << endl;
+//	cout << "points: " << points << endl;
+
 	return std::max(0, points);
 }
 
@@ -139,6 +151,11 @@ bool Simulation::operator>(const Simulation& other) const
 		return (_robot.totalSteps > other._robot.totalSteps);
 	}
 	return (!thisDone && otherDone);
+}
+
+bool Simulation::Compare(const Simulation* simu, const Simulation* other)
+{
+	return (*simu)<(*other);
 }
 
 void Simulation::updateSensor()

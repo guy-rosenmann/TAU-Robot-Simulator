@@ -107,9 +107,6 @@
     <ClInclude Include="src\Algorithm_C.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\AlgorithmRegistrar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\AlgorithmBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>

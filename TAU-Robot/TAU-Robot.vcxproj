@@ -32,7 +32,6 @@
     <ClInclude Include="src\Algorithm.h" />
     <ClInclude Include="src\AlgorithmBase.h" />
     <ClInclude Include="src\AlgorithmContainer.h" />
-    <ClInclude Include="src\AlgorithmRegistrar.h" />
     <ClInclude Include="src\Algorithm_A.h" />
     <ClInclude Include="src\Algorithm_B.h" />
     <ClInclude Include="src\Algorithm_C.h" />

@@ -1,6 +1,6 @@
-#include "Algorithm_B.h"
+#include "_201445681_B.h"
 
-Direction Algorithm_B::step()
+Direction _201445681_B::step()
 {
 	updateBeforeMove();
 
@@ -16,7 +16,13 @@ Direction Algorithm_B::step()
 	return next;
 }
 
-void Algorithm_B::updatePseudoRandom()
+void _201445681_B::resetValues()
+{
+	AlgorithmBase::resetValues();
+	_psuedoRand = pseudoDefaultValue;
+}
+
+void _201445681_B::updatePseudoRandom()
 {
 	_psuedoRand++;
 
@@ -31,5 +37,5 @@ extern "C" AbstractAlgorithm* getAbstractAlgorithmPointer()
 {
 	//	cout << "in getAbstractFunctionPointer" << endl << std::flush;
 
-	return new Algorithm_B();
+	return new _201445681_B();
 }

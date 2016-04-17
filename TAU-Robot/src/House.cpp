@@ -16,29 +16,11 @@ const char* House::defaultHouseFileName = "simple1.house";
 
 House::House(const char* path_)
 {
-	if (path_ == NULL)
-	{
-//#ifdef _DEBUG_
-//		cout << "[INFO] Using default house: " << House::defaultHouseFileName << endl;
-//#endif
-//
-//		if (!this->loadFromFile(House::defaultHouseFileName))
-//		{
-//#ifdef _DEBUG_
-//			cout << "[INFO] No default house - creating one." << endl;
-//#endif
-//			createDefaultHouse();
-//			this->loadFromFile(House::defaultHouseFileName);
-//		}
-	}
-	else
-	{
-		boost::filesystem::path path(path_);
-		_houseFilename = path.filename().generic_string();
-		this->loadFromFile(path_);
-	}
 
-	
+	boost::filesystem::path path(path_);
+	_houseFilename = path.filename().generic_string();
+	this->loadFromFile(path_);
+
 	//this->print(_docking);
 	//cout << endl << "Docking station: " << _docking << endl << endl;
 }

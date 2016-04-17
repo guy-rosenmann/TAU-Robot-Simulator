@@ -7,6 +7,9 @@
 
 Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_)
 {
+	// REMOVE
+//	cout << "Starting Simulator" << endl;
+
 	_config = conf_;
 	
 	// Handle Alogs
@@ -48,9 +51,9 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		return;
 	}
 
-//	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_A(), "201445681_A_"), new std::vector<int>()));
-//	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_B(), "201445681_B_"), new std::vector<int>()));
-//	_algos.push_back(make_pair(new AlgorithmContainer(new Algorithm_C(), "201445681_C_"), new std::vector<int>()));
+//	_algos.push_back(make_pair(new AlgorithmContainer(new _201445681_A(), "201445681_A_"), new std::vector<int>()));
+//	_algos.push_back(make_pair(new AlgorithmContainer(new _201445681_B(), "201445681_B_"), new std::vector<int>()));
+//	_algos.push_back(make_pair(new AlgorithmContainer(new _201445681_C(), "201445681_C_"), new std::vector<int>()));
 	
 	// Handle Houses
 	string housePath = string(housePath_ != NULL ? housePath_ : ".");
@@ -124,9 +127,10 @@ void Simulator::simulate()
 		{
 			AlgoPair& algoPair = *a_it;
 			AbstractAlgorithm* algo = algoPair.first->getAlgorithm();
+			string algoName = algoPair.first->GetAlgorithmName();
 			//std::vector<int>* algo_scores = algoPair.second;
 
-			simulations.push_back(new Simulation(config, house, algo));
+			simulations.push_back(new Simulation(config, house, algo, algoName));
 		}
 
 #ifdef _DEBUG_
@@ -183,15 +187,22 @@ void Simulator::simulate()
 			// According to the forum there are 2 scenarios for our call to aboutToFinish()
 			//		1. No winner and (stepsCount >= maxSteps - maxStepsAfterWinner)
 			//		2. Winner finished and aboutToFinish() was not called
-			if (!aboutToFinishCalled && (atLeastOneDone || (stepsCount >= maxSteps - maxStepsAfterWinner)))
+			if (!aboutToFinishCalled && (atLeastOneDone || (stepsCount == maxSteps - maxStepsAfterWinner)))
 			{
+				//REMOVE
+//				cout << "aboutToFinishCalled: " << aboutToFinishCalled <<endl;
+//				cout << "atLeastOneDone: " << atLeastOneDone << endl;
+//				cout << "stepsCount: " << stepsCount << endl;
+//				cout << "maxSteps: " << maxSteps << endl;
+//				cout << "maxStepsAfterWinner: " << maxStepsAfterWinner << endl;
+
 				aboutToFinishCalled = true;
 
 				// Iterating on all active simulations and calling aboutToFinish()
 				vector<Simulation*>::iterator iterator = simulations.begin();
 				while (iterator != simulations.end())
 				{
-					(*iterator)->CallAboutToFinish(maxStepsAfterWinner);
+					(*iterator)->CallAboutToFinish(min(maxSteps-stepsCount, maxStepsAfterWinner));
 					++iterator;
 				}
 			}
@@ -205,24 +216,6 @@ void Simulator::simulate()
 		tempStoppedSimulatios.clear();
 		this->score(stepsCount, simulations);
 
-//		////////////////////////////////////////////////////////////////////////////////////////////
-//		// print here for EX1 only! (need to print score before any warnings!)
-//		this->printScores();
-//		for (vector<Simulation*>::iterator it = simulatios.begin(); it != simulatios.end(); ++it)
-//		{
-//			Simulation& curr = **it;
-//			if (curr.isRobotOutOfBattery())
-//			{
-//				cout << "[INFO] The robot was stuck with an empty battery." << endl;
-//			}
-//			if (curr.didRobotMisbehave())
-//			{
-//				cout << "[INFO] The robot was trying to walk through a wall." << endl;
-//			}
-//		}
-//		////////////////////////////////////////////////////////////////////////////////////////////
-//
-//		
 		Simulator::clearPointersVector(simulations);
 	}
 
@@ -238,15 +231,14 @@ void Simulator::simulate()
 
 void Simulator::score(int simulationSteps, vector<Simulation*>& simulations_)
 {
-	std::sort(simulations_.begin(), simulations_.end()); // sort by winner score (done && less steps are first)
-
+	std::sort(simulations_.begin(), simulations_.end(), Simulation::Compare); // sort by winner score (done && less steps are first)
+	
 	Simulation& firstSim = *simulations_.at(0);
 	int winner_num_steps = firstSim.isDone() ? firstSim.getStepsCount() : simulationSteps;
 
 	for (vector<Simulation*>::iterator it = simulations_.begin(); it != simulations_.end(); ++it)
 	{
 		Simulation& currentSim = **it;
-		int index = it - simulations_.begin();
 		
 		int position_in_competition = 10;
 		if (currentSim.isDone())
@@ -254,7 +246,14 @@ void Simulator::score(int simulationSteps, vector<Simulation*>& simulations_)
 			position_in_competition = this->getActualPosition(simulations_, currentSim);
 		}
 
-		_algos[index].second->push_back(currentSim.score(position_in_competition, winner_num_steps, simulationSteps)); // save score
+		for (auto it = _algos.begin(); it != _algos.end(); ++it)
+		{
+			if ((*it).first->GetAlgorithmName() == currentSim.getAlgoName())
+			{
+				(*it).second->push_back(currentSim.score(position_in_competition, winner_num_steps, simulationSteps)); // save score
+				break;
+			}
+		}
 	}
 }
 
@@ -322,6 +321,9 @@ vector<House*> Simulator::loadAllHouses(const char* house_path)
 
 vector<AlgorithmContainer*> Simulator::loadAllAlgos(const char* algorithm_path)
 {
+	// REMOVE
+//	cout << "Starting loadAllAlgos" << endl;
+	
 	vector<AlgorithmContainer*> result;
 	vector<string> files = loadFilesWithSuffix(algorithm_path, "_.so");
 
@@ -376,7 +378,7 @@ void Simulator::printScores() const
 	for (vector<House*>::const_iterator it = _houses.begin(); it != _houses.end(); ++it)
 	{
 		string filename = boost::filesystem::path((*it)->getFileName()).stem().generic_string();
-		cout << filename << string(CELL_SIZE - filename.size(), ' ') << '|';
+		cout << filename.substr(0,9) << string(CELL_SIZE - min((int)filename.size(), 9), ' ') << '|';
 	}
 	cout << "AVG" << string(CELL_SIZE - 3, ' ') << '|' << endl;
 	cout << string(rowLength, '-') << endl;

@@ -1,10 +1,13 @@
 #include "AlgorithmBase.h"
 #include <algorithm>
 
-void AlgorithmBase::aboutToFinish(int stepsTillFinishing)
+void AlgorithmBase::aboutToFinish(int stepsTillFinishing_)
 {
+	//REMOVE
+//	cout << "aboutToFinish" << endl;
+
 	_returnHome = true;
-	_movesUntilFinish = stepsTillFinishing;
+	_movesUntilFinish = stepsTillFinishing_;
 }
 
 void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
@@ -12,6 +15,10 @@ void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
 //	bool returnQuick = false;
 	if (_returnHome)
 	{
+		//REMOVE
+//		cout << "_returnHome" << endl;
+
+
 		if (isDocking())
 		{
 			moves_.push_back(Direction::Stay);
@@ -82,7 +89,7 @@ void AlgorithmBase::removeBackwardDirection(vector<Direction>& moves_)
 }
 bool AlgorithmBase::isDocking()
 {
-	return _eastLocation == 0 && _southLocation == 0;
+	return _robot.location == Point();
 }
 
 //bool AlgorithmBase::returnQuicklyMoves(vector<Direction>& moves_)
@@ -137,22 +144,6 @@ Direction AlgorithmBase::oppositeDirection(Direction direction_)
 	return Direction::Stay;
 }
 
-void AlgorithmBase::updateLocation(Direction direction_)
-{
-	if (direction_ == Direction::East){
-		_eastLocation++;
-	}
-	else if (direction_ == Direction::West){
-		_eastLocation--;
-	}
-	else if (direction_ == Direction::South){
-		_southLocation++;
-	}
-	else if (direction_ == Direction::North){
-		_southLocation--;
-	}
-}
-
 void AlgorithmBase::updateBeforeMove()
 {
 	updateBattery();
@@ -164,7 +155,6 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 	// update robot info
 	_robot.location.move(direction_);
 	_robot.totalSteps++;
-	updateLocation(direction_);
 
 	// Save moves
 	if (!_returnHome)
@@ -192,11 +182,11 @@ void AlgorithmBase::updateBattery()
 
 	if (isDocking())
 	{
-		_robotBattery = std::max(_robotBattery + rechargeRate, capacity);
+		_robot.battery = std::max(_robot.battery + rechargeRate, capacity);
 	}
 	else
 	{
-		_robotBattery -= - consumptionRate;
+		_robot.battery -= -consumptionRate;
 	}
 
 	// Next were figuring out if we have enough battery to return home
@@ -206,8 +196,22 @@ void AlgorithmBase::updateBattery()
 	}
 
 	int returnMoves = _movesDone.size(), returnBatteryConsumption = returnMoves*consumptionRate;
-	if ((_robotBattery >= returnBatteryConsumption) && (_robotBattery - consumptionRate <= returnBatteryConsumption))
+	if ((_robot.battery >= returnBatteryConsumption) && (_robot.battery - consumptionRate <= returnBatteryConsumption))
 	{
+		//REMOVE
+//		cout << "battery" << endl;
 		_returnHome = true;
 	}
+}
+
+void AlgorithmBase::resetValues()
+{
+	_robot.totalSteps = 0;
+	_movesDone.clear();
+	_lastMove = Direction::Stay;
+
+	_returnHome = false;
+	_robot.location = Point();
+
+	_movesUntilFinish = UINT_MAX;
 }

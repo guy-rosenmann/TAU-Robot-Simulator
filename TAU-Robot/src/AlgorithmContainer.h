@@ -2,11 +2,11 @@
 #define __ALGORITHMCONTAINER__H_
 
 #include "Direction.h"
-#include "AlgorithmRegistrar.h"
+#include "AbstractAlgorithm.h"
 
 class AlgorithmContainer
 {
-	AbstractAlgorithm*		_algorithm;
+	AbstractAlgorithm*		_algorithm = nullptr;
 
 	bool					_isValid;
 	string					_fileName;
