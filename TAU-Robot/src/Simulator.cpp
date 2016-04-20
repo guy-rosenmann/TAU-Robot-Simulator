@@ -172,6 +172,10 @@ void Simulator::simulate()
 					{
 						atLeastOneDone = true;
 					}
+					if (currentSimulation.didRobotMisbehave())
+					{
+						_errors.push_back(currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount+1));
+					}
 					tempStoppedSimulatios.push_back(*it);
 					it = simulations.erase(it);
 #ifdef _DEBUG_
@@ -360,9 +364,9 @@ vector<string> Simulator::loadFilesWithSuffix(const char* path_, const char* suf
 		return result;
 	}
 
-#ifdef _DEBUG_
-	std::cout << "[INFO] " << p << " is a directory" << endl;
-#endif
+//#ifdef _DEBUG_
+//	std::cout << "[INFO] " << p << " is a directory" << endl;
+//#endif
 
 	boost::filesystem::directory_iterator end_it;
 	for (boost::filesystem::directory_iterator it(path); it != end_it; ++it)
@@ -371,9 +375,9 @@ vector<string> Simulator::loadFilesWithSuffix(const char* path_, const char* suf
 		{
 			result.push_back(it->path().generic_string());
 
-#ifdef _DEBUG_
-			std::cout << "[INFO] " << it->path() << " File with " << suffix << " suffix" << endl;
-#endif
+//#ifdef _DEBUG_
+////			std::cout << "[INFO] " << it->path() << " File with " << suffix << " suffix" << endl;
+//#endif
 		}
 	}
 	std::sort(result.begin(), result.end());
@@ -392,7 +396,7 @@ void Simulator::printScores() const
 	cout << '|' << string(ALGO_NAME_CELL_SIZE, ' ') << '|';
 	for (vector<House*>::const_iterator it = _houses.begin(); it != _houses.end(); ++it)
 	{
-		string filename = boost::filesystem::path((*it)->getFileName()).stem().generic_string();
+		string filename = (*it)->getFilenameWithoutSuffix();
 		cout << filename.substr(0,9) << string(CELL_SIZE - min((int)filename.size(), 9), ' ') << '|';
 	}
 	cout << "AVG" << string(CELL_SIZE - 3, ' ') << '|' << endl;

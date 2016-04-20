@@ -14,6 +14,7 @@ House::House(const char* path_)
 {
 	boost::filesystem::path path(path_);
 	_houseFilename = path.filename().generic_string();
+	_houseFilenameWithoutSuffix = path.stem().generic_string();
 	this->loadFromFile(path_);
 
 #ifdef _DEBUG_

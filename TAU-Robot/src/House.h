@@ -23,6 +23,7 @@ class House
 	int		_currentDirt;
 
 	string _houseFilename;
+	string _houseFilenameWithoutSuffix;
 	bool	_isValid;
 	string	_errorLine;
 
@@ -57,6 +58,7 @@ public:
 	bool isValid() const { return _isValid; }
 	string getErrorLine() const { return _errorLine; }
 	string getFileName() const { return _houseFilename; }
+	string getFilenameWithoutSuffix() const { return _houseFilenameWithoutSuffix; }
 
 	// prints
 	void print(ostream& out = cout) const;
