@@ -191,8 +191,6 @@ void AlgorithmBase::updateBattery()
 	int returnMoves = _movesDone.size(), returnBatteryConsumption = returnMoves*consumptionRate;
 	if ((_robot.battery >= returnBatteryConsumption) && (_robot.battery - consumptionRate <= returnBatteryConsumption))
 	{
-		//REMOVE
-//		cout << "battery" << endl;
 		_returnHome = true;
 	}
 }

@@ -1,15 +1,12 @@
 #include "Simulator.h"
 #include "AlgorithmLoader.h"
+#include "StringUtils.h"
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
-#include <sstream>
 
 Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_)
 {
-	// REMOVE
-//	cout << "Starting Simulator" << endl;
-
 	_config = conf_;
 	
 	// Handle Alogs
@@ -50,9 +47,11 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		return;
 	}
 
+#ifdef _WINDOWS_
 //	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_A(), "201445681_A_"), new std::vector<int>()));
 //	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_B(), "201445681_B_"), new std::vector<int>()));
 //	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_C(), "201445681_C_"), new std::vector<int>()));
+#endif
 	
 	// Handle Houses
 	string housePath = string(housePath_ != NULL ? housePath_ : ".");
@@ -174,7 +173,6 @@ void Simulator::simulate()
 						cout << "Simulation is stopped!" << endl;
 					}
 					currentSimulation.printStatus();
-
 #endif
 				}
 			}
@@ -191,13 +189,6 @@ void Simulator::simulate()
 			//		2. Winner finished and aboutToFinish() was not called
 			if (!aboutToFinishCalled && (atLeastOneDone || (stepsCount == maxSteps - maxStepsAfterWinner)))
 			{
-				//REMOVE
-//				cout << "aboutToFinishCalled: " << aboutToFinishCalled <<endl;
-//				cout << "atLeastOneDone: " << atLeastOneDone << endl;
-//				cout << "stepsCount: " << stepsCount << endl;
-//				cout << "maxSteps: " << maxSteps << endl;
-//				cout << "maxStepsAfterWinner: " << maxStepsAfterWinner << endl;
-
 				aboutToFinishCalled = true;
 
 				// Iterating on all active simulations and calling aboutToFinish()
@@ -323,9 +314,6 @@ vector<House*> Simulator::loadAllHouses(const char* house_path)
 
 vector<AlgorithmLoader*> Simulator::loadAllAlgos(const char* algorithm_path)
 {
-	// REMOVE
-//	cout << "Starting loadAllAlgos" << endl;
-	
 	vector<AlgorithmLoader*> result;
 	vector<string> files = loadFilesWithSuffix(algorithm_path, "_.so");
 
@@ -355,7 +343,8 @@ vector<string> Simulator::loadFilesWithSuffix(const char* path, const char* suff
 
 	while (it != endit)
 	{
-		if (is_regular_file(*it) && endsWith(it->path().generic_string(), suffix)){
+		if (is_regular_file(*it) && StringUtils::endsWith(it->path().generic_string(), suffix))
+		{
 			result.push_back(it->path().generic_string());
 
 #ifdef _DEBUG_
@@ -401,7 +390,7 @@ void Simulator::printScores() const
 			int score = *s_it;
 			avg += score;
 
-			printf("%10s", numberToString<int>(score).c_str());
+			printf("%10s", StringUtils::numberToString<int>(score).c_str());
 			cout << '|';
 		}
 
@@ -415,12 +404,6 @@ void Simulator::printScores() const
 	}
 }
 
-
-bool Simulator::endsWith(string value, string ending) const
-{
-	if (ending.size() > value.size()) return false;
-	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-}
 
 void Simulator::printErrors() const
 {
@@ -438,12 +421,4 @@ void Simulator::clearPointersVector(vector<T*>& vec_)
 		delete *it;
 	}
 	vec_.clear();
-}
-
-template <typename T>
-string Simulator::numberToString(T num) const
-{
-	std::stringstream ss;
-	ss << num;
-	return ss.str();
 }

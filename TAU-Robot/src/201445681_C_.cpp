@@ -1,6 +1,6 @@
-#include "_201445681_B.h"
+#include "201445681_C_.h"
 
-Direction _201445681_B::step()
+Direction _201445681_C::step()
 {
 	updateBeforeMove();
 
@@ -16,18 +16,18 @@ Direction _201445681_B::step()
 	return next;
 }
 
-void _201445681_B::updatePseudoRandom()
+void _201445681_C::updatePseudoRandom()
 {
 	_psuedoRand++;
 
 	// Adding more randomness
 	if (_psuedoRand % 11 == 0)
 	{
-		_psuedoRand++;
+		_psuedoRand += 2;
 	}
 }
 
 extern "C" AbstractAlgorithm* getAbstractAlgorithmPointer()
 {
-	return new _201445681_B();
+	return new _201445681_C();
 }

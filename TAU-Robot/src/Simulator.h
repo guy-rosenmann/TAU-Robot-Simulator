@@ -38,7 +38,6 @@ private:
 	int getActualPosition(vector<Simulation*>& allSimulatios_, Simulation& currSimulation_) const;
 	void printScores() const;
 	void printErrors() const;
-	bool endsWith(string value, string ending) const;
 
 	static int CountSpaces(double avg);
 
@@ -48,12 +47,6 @@ private:
 
 	template <class T>
 	static void clearPointersVector(vector<T*>& vec);
-
-	template <class T>
-	string numberToString(T Number) const;
-
-
-
 };
 
 

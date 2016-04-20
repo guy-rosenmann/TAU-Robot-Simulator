@@ -1,7 +1,10 @@
 ﻿#include "AlgorithmLoader.h"
 #include <iostream>
-#include <dlfcn.h> 
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
+
+#ifndef _WINDOWS_
+#include <dlfcn.h>
+#endif
 
 map<string, instanceCreator> globalFactory;
 

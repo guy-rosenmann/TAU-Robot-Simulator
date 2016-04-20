@@ -10,68 +10,17 @@
 #include <boost/filesystem.hpp>
 
 
-//const char* House::defaultHouseFileName = "simple1.house";
-
 House::House(const char* path_)
 {
 	boost::filesystem::path path(path_);
 	_houseFilename = path.filename().generic_string();
 	this->loadFromFile(path_);
 
-	//this->print(_docking);
-	//cout << endl << "Docking station: " << _docking << endl << endl;
+#ifdef _DEBUG_
+	this->print(_docking);
+	cout << endl << "Docking station: " << _docking << endl << endl;
+#endif
 }
-
-
-//void House::createDefaultHouse()
-//{
-//	ofstream fout(House::defaultHouseFileName);
-//
-//	if (fout.good())
-//	{
-//		fout << "Simple1" << endl;
-//
-//#if 0
-//		fout << "Really big house" << endl;
-//		fout << 19 << endl;
-//		fout << 80 << endl;
-//		fout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << endl;
-//		fout << "W  99   D              1234321                                                 W" << endl;
-//		fout << "W  99      WWWWWWW     1234321                     W                       1   W" << endl;
-//		fout << "W              W                                   W   555                 2   W" << endl;
-//		fout << "W              W                                   W   555                 3   W" << endl;
-//		fout << "W              W           WWWWWWWWWWWWWWWWWWWWWWWWW                       4   W" << endl;
-//		fout << "W              W                                                           5   W" << endl;
-//		fout << "W              W                                                           6   W" << endl;
-//		fout << "W                          WWWWWWWWWWWWWWWWWWWWWW  WWWWWWW                 7   W" << endl;
-//		fout << "W         1         2         3         4         5W 999 W  6         7        W" << endl;
-//		fout << "W              W           444                     W 999 W                 9   W" << endl;
-//		fout << "W              W           444                     W 999 W                 8   W" << endl;
-//		fout << "W              W                                   W     W                 7   W" << endl;
-//		fout << "W              W                                   WW   WW                 6   W" << endl;
-//		fout << "W              W                                    W   W                  5   W" << endl;
-//		fout << "W              W                                                           4   W" << endl;
-//		fout << "W              W                                                           3   W" << endl;
-//		fout << "W              W                                                               W" << endl;
-//		fout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << endl;
-//#else
-//		fout << "2 Bedrooms + Kitchen Isle" << endl;
-//		fout << 8 << endl;
-//		fout << 10 << endl;
-//		fout << "WWWWWWWWWW" << endl;
-//		fout << "W22  DW59W" << endl;
-//		fout << "W  W 1119W" << endl;
-//		fout << "W WWW3WW W" << endl;
-//		fout << "W6   3W  W" << endl;
-//		fout << "W78W  W  W" << endl;
-//		fout << "W99W  W  W" << endl;
-//		fout << "WWWWWWWWWW" << endl;
-//#endif
-//
-//	}
-//
-//	fout.close();
-//}
 
 
 void House::loadFromFile(const char* path_)
@@ -149,7 +98,7 @@ bool House::GetUnsignedIntFromStream(ifstream& fin_, size_t* argPointer_, unsign
 		cout << "[ERROR] Invalid line " << rowNumber_ << " " << line << endl;
 #endif
 		_isValid = false;
-		_errorLine = _houseFilename + ": line number " + std::to_string(rowNumber_) + " in house file shall be a positive number, found: " + line;
+		_errorLine = _houseFilename + ": line number " + std::to_string(rowNumber_) + " in house file shall be a positive number, found: " + (line.size() > 0 ? line : "<empty>");
 		return false;
 	}
 
@@ -194,11 +143,44 @@ void House::freeHouse()
 }
 
 
+House::House(House&& other) :	_maxSteps(other._maxSteps),
+								_rows(other._rows),
+								_cols(other._cols),
+								_name(other._name),
+								_docking(other._docking),
+								_totalDirt(other._totalDirt),
+								_currentDirt(other._totalDirt),
+								_houseFilename(other._houseFilename),
+								_isValid(other._isValid),
+								_errorLine(other._errorLine)
+{
+	std::swap(_house, other._house);
+}
+
+
 House& House::operator=(const House& other)
 {
 	if (_house != other._house) { // prevent self destruction in case of self assignment
 		setHouse(other);
 	}
+	return *this;
+}
+
+House& House::operator=(House&& other)
+{
+	_maxSteps = other._maxSteps;
+	_rows = other._rows;
+	_cols = other._cols;
+	std::swap(_house, other._house);
+
+	_name = other._name;
+	_docking = other._docking;
+	_totalDirt = other._totalDirt;
+	_currentDirt = other._totalDirt;
+	_houseFilename = other._houseFilename;
+	_isValid = other._isValid;
+	_errorLine = other._errorLine;
+
 	return *this;
 }
 
@@ -255,14 +237,17 @@ void House::print(ostream& out) const
 }
 
 
-void House::print(const Point& robot, ostream& out)
+void House::print(const Point& robot, ostream& out) const
 {
 	if (this->isInside(robot))
 	{
 		char last = (*this)[robot];
-		(*this)[robot] = 'R';
+		
+		// Const hack - temporarily changing character in house matrix, then changing it back (so overall - no change!)
+		House& h = const_cast<House&>(*this);
+		h[robot] = 'R';
 		this->print(out);
-		(*this)[robot] = last;
+		h[robot] = last;
 	}
 	else
 	{

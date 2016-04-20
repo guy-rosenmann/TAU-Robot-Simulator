@@ -7,11 +7,6 @@
 
 int main(int argc, char* argv[])
 {
-	// REMOVE
-//	cout << "Starting main" << endl;
-	
-//	std::srand((unsigned int)std::time(0)); // initialize random seed for algorithm
-	
 	ParamsParser params(argc, argv);
 
 	const char* conf_path, *house_path, *algorithm_path;
@@ -23,7 +18,9 @@ int main(int argc, char* argv[])
 
 	if (!config.isReady())
 	{
-//		cout << "[ERROR] Failed to load configuration file. Terminating..." << endl;
+#ifdef _DEBUG_
+		cout << "[ERROR] Failed to load configuration file. Terminating..." << endl;
+#endif
 		return -1;
 	}
 

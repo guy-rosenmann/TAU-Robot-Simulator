@@ -117,15 +117,6 @@ int Simulation::score(int position_in_competition, int winner_num_steps, int Sim
 	points -= (this->getTotalDirtCount() - this->getCleanedDirtCount()) * 3;
 	points += this->isRobotDocked() ? 50 : -200;
 
-	//REMOVE
-//	cout << "(position_in_competition - 1) * 50: " << (position_in_competition - 1) * 50 << endl;
-//	cout << "(winner_num_steps - this_num_steps) * 10: " << (winner_num_steps - this_num_steps) * 10 << endl;
-//	cout << "winner_num_steps: " << winner_num_steps << endl;
-//	cout << "this_num_steps: " << this_num_steps<< endl;
-//	cout << "(this->getTotalDirtCount() - this->getCleanedDirtCount()) * 3: " << (this->getTotalDirtCount() - this->getCleanedDirtCount()) * 3 << endl;
-//	cout << "this->isRobotDocked() ? 50 : -200: " << (this->isRobotDocked() ? 50 : -200) << endl;
-//	cout << "points: " << points << endl;
-
 	return std::max(0, points);
 }
 

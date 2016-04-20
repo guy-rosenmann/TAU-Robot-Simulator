@@ -16,6 +16,12 @@
     <Filter Include="Header Files\interface">
       <UniqueIdentifier>{bd3237ef-01dc-475d-aab4-22c403403a29}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Algorithms">
+      <UniqueIdentifier>{eecca555-4045-47e7-814c-f78e3a7863f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Algorithms">
+      <UniqueIdentifier>{b3495e90-5a8f-4bc0-bfa1-a6acac027824}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -36,20 +42,20 @@
     <ClCompile Include="src\ParamsParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AlgorithmBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\_201445681_C.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\_201445681_B.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\_201445681_A.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\AlgorithmLoader.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\201445681_A_.cpp">
+      <Filter>Source Files\Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="src\201445681_B_.cpp">
+      <Filter>Source Files\Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="src\201445681_C_.cpp">
+      <Filter>Source Files\Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AlgorithmBase.cpp">
+      <Filter>Source Files\Algorithms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -89,22 +95,25 @@
     <ClInclude Include="src\ParamsParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\AlgorithmBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\_201445681_C.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\_201445681_B.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\_201445681_A.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\AlgorithmRegistrar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\AlgorithmLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\201445681_A_.h">
+      <Filter>Header Files\Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\201445681_B_.h">
+      <Filter>Header Files\Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\201445681_C_.h">
+      <Filter>Header Files\Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AlgorithmBase.h">
+      <Filter>Header Files\Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="src\StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

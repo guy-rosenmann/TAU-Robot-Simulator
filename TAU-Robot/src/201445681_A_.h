@@ -5,6 +5,7 @@
 #include <map>
 using namespace std;
 
+
 #include "Direction.h"
 #include "AlgorithmBase.h"
 #include "Configuration.h"
@@ -16,7 +17,7 @@ class _201445681_A : public AlgorithmBase
 
 public:
 	_201445681_A() {}
-	_201445681_A(const AbstractSensor& sensor, const Configuration& conf) : AlgorithmBase(sensor, conf){ }
+	_201445681_A(const AbstractSensor& sensor, const Configuration& conf) : AlgorithmBase(sensor, conf) {}
 
 	Direction step();
 	void updatePseudoRandom();

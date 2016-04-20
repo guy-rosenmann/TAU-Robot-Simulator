@@ -8,11 +8,10 @@
 using namespace std;
 
 
-class House {
+class House
+{
 
-	static const char* defaultHouseFileName;
-
-	size_t _maxSteps;
+	size_t	_maxSteps;
 	size_t	_rows;
 	size_t	_cols;
 	char**	_house = nullptr;
@@ -35,9 +34,11 @@ public:
 
 	House(const char* path_ = NULL);
 	House(const House& other) { setHouse(other); }
+	House(House&& other);
 	virtual ~House() { freeHouse(); }
 
 	House& operator=(const House& other);
+	House& operator=(House&& other);
 	
 	
 	int clean(Point& spot_, int amout_ = 1);
@@ -59,7 +60,7 @@ public:
 
 	// prints
 	void print(ostream& out = cout) const;
-	void print(const Point& robot, ostream& out = cout);
+	void print(const Point& robot, ostream& out = cout) const;
 	friend ostream& operator<<(ostream& out, const House& h) { h.print(out); return out; }
 
 private:
