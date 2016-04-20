@@ -1,4 +1,5 @@
 #include "Configuration.h"
+#include "Constants.h"
 
 #include <sys/stat.h>
 #include <iostream>
@@ -53,12 +54,7 @@ bool Configuration::loadFromFile(const string& iniPath_)
 	if (stat(iniPath_.c_str(), &buf) != 0)
 	{
 		// ini file is missing
-		boost::filesystem::path path(iniPath_);
-//		cout << "[ERROR] File:" << boost::filesystem::absolute(path) << " doesn't exist." << endl;
-		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
-		cout << "\t- config:\tconfiguration file dir path" << endl;
-		cout << "\t- default value:\tcurrent dir" << endl;
-
+		cout << USAGE_MSG << endl;
 		return false;
 	}
 

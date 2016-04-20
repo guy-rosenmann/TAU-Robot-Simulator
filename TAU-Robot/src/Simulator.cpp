@@ -1,86 +1,31 @@
 #include "Simulator.h"
 #include "AlgorithmLoader.h"
 #include "StringUtils.h"
+#include "Constants.h"
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
+
+#ifdef _WINDOWS_
+#include "201445681_A_.h"
+#include "201445681_B_.h"
+#include "201445681_C_.h"
+#endif
 
 Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_)
 {
 	_config = conf_;
 	
 	// Handle Alogs
-	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
-	vector<AlgorithmLoader*> allAlgos = loadAllAlgos(algoPath.c_str());
-	vector<string>	algoErrors;
-
-	if (allAlgos.size() == 0)
+	vector<string> algoErrors;
+	if (!getAlgos(algorithmPath_, algoErrors))
 	{
-		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
-		cout << "\t- algorithm_path:\talgorithm dir path" << endl;
-		cout << "\t- default value:\tcurrent dir" << endl;
 		return;
 	}
-
-	for (AlgorithmLoader* algo : allAlgos)
-	{
-		if (algo->isValid())
-		{
-			_algos.push_back(std::make_pair(algo, new std::vector<int>()));
-		}
-		else
-		{
-			algoErrors.push_back(algo->getErrorLine());
-		}
-	}
-
-	if (_algos.size() == 0)
-	{
-		cout << "All algorithm files in target folder " << boost::filesystem::canonical(algoPath) << " cannot be opened or are invalid : " << endl;
-
-		// Only algorithms errors should be printed
-		for (vector<string>::iterator it = algoErrors.begin(); it != algoErrors.end(); ++it)
-		{
-			cout << (*it) << endl;
-		}
-
-		return;
-	}
-
-#ifdef _WINDOWS_
-//	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_A(), "201445681_A_"), new std::vector<int>()));
-//	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_B(), "201445681_B_"), new std::vector<int>()));
-//	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_C(), "201445681_C_"), new std::vector<int>()));
-#endif
 	
 	// Handle Houses
-	string housePath = string(housePath_ != NULL ? housePath_ : ".");
-	vector<House*> allHouses = loadAllHouses(housePath.c_str());
-	if (allHouses.size() == 0)
+	if (!getHouses(housePath_))
 	{
-		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
-		cout << "\t- house_path:\thouse dir path" << endl;
-		cout << "\t- default value:\tcurrent dir" << endl;
-		return;
-	}
-
-	for (House* house : allHouses)
-	{
-		if (house->isValid())
-		{
-			_houses.push_back(house);
-		}
-		else
-		{
-			_errors.push_back(house->getErrorLine());
-			delete house;
-		}
-	}
-
-	if (_houses.size() == 0)
-	{
-		cout << "All house files in target folder " << boost::filesystem::canonical(housePath) << " cannot be opened or are invalid : " << endl;
-		printErrors();
 		return;
 	}
 
@@ -105,10 +50,84 @@ Simulator::~Simulator()
 }
 
 
+bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
+{
+	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
+	vector<AlgorithmLoader*> allAlgos = loadAllAlgos(algoPath.c_str());
+
+	if (allAlgos.size() == 0)
+	{
+		cout << USAGE_MSG << endl;
+		return false;
+	}
+
+	for (AlgorithmLoader* algo : allAlgos)
+	{
+		if (algo->isValid())
+		{
+			_algos.push_back(std::make_pair(algo, new std::vector<int>()));
+		}
+		else
+		{
+			errors_.push_back(algo->getErrorLine());
+			delete algo;
+		}
+	}
+
+	if (_algos.size() == 0)
+	{
+		cout << "All algorithm files in target folder '" << boost::filesystem::canonical(algoPath).string() << "' cannot be opened or are invalid: " << endl;
+
+		// Only algorithms errors should be printed
+		for (vector<string>::iterator it = errors_.begin(); it != errors_.end(); ++it)
+		{
+			cout << (*it) << endl;
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
+
+bool Simulator::getHouses(const char* housePath_)
+{
+	string housePath = string(housePath_ != NULL ? housePath_ : ".");
+	vector<House*> allHouses = loadAllHouses(housePath.c_str());
+	
+	if (allHouses.size() == 0)
+	{
+		cout << USAGE_MSG << endl;
+		return false;
+	}
+
+	for (House* house : allHouses)
+	{
+		if (house->isValid())
+		{
+			_houses.push_back(house);
+		}
+		else
+		{
+			_errors.push_back(house->getErrorLine());
+			delete house;
+		}
+	}
+
+	if (_houses.size() == 0)
+	{
+		cout << "All house files in target folder '" << boost::filesystem::canonical(housePath).string() << "' cannot be opened or are invalid: " << endl;
+		printErrors();
+		return false;
+	}
+
+	return true;
+}
+
+
 void Simulator::simulate()
 {
-	if (_houses.size() == 0) return;
-	
 	int maxStepsAfterWinner = _config["MaxStepsAfterWinner"];
 
 	// for each house, simulate all possible algorithms
@@ -126,7 +145,7 @@ void Simulator::simulate()
 			AlgoPair& algoPair = *a_it;
 			string algoName = algoPair.first->GetAlgorithmName();
 
-			// Invoking new instance
+			// Invoking new instance			
 			AbstractAlgorithm* algo = globalFactory[algoName]();
 			//std::vector<int>* algo_scores = algoPair.second;
 
@@ -192,11 +211,9 @@ void Simulator::simulate()
 				aboutToFinishCalled = true;
 
 				// Iterating on all active simulations and calling aboutToFinish()
-				vector<Simulation*>::iterator iterator = simulations.begin();
-				while (iterator != simulations.end())
+				for (vector<Simulation*>::iterator itt = simulations.begin(); itt != simulations.end(); ++itt)
 				{
-					(*iterator)->CallAboutToFinish(min(maxSteps-stepsCount, maxStepsAfterWinner));
-					++iterator;
+					(*itt)->CallAboutToFinish(min(maxSteps - stepsCount, maxStepsAfterWinner));
 				}
 			}
 		}
@@ -299,6 +316,7 @@ int Simulator::CountSpaces(double avg)
 	return leadingSpaces;
 }
 
+
 vector<House*> Simulator::loadAllHouses(const char* house_path)
 {
 	vector<House*> result;
@@ -312,24 +330,32 @@ vector<House*> Simulator::loadAllHouses(const char* house_path)
 	return result;
 }
 
+
 vector<AlgorithmLoader*> Simulator::loadAllAlgos(const char* algorithm_path)
 {
 	vector<AlgorithmLoader*> result;
 	vector<string> files = loadFilesWithSuffix(algorithm_path, "_.so");
 
+#ifndef _WINDOWS_
 	for (vector<string>::iterator it = files.begin(); it != files.end(); ++it)
 	{
 		result.push_back(new AlgorithmLoader((*it).c_str()));
 	}
+#else
+	// result.push_back(new AlgorithmLoader(new _201445681_A(), "201445681_A_"));
+	// result.push_back(new AlgorithmLoader(new _201445681_B(), "201445681_B_"));
+	// result.push_back(new AlgorithmLoader(new _201445681_C(), "201445681_C_"));
+#endif
 
 	return result;
 }
 
-vector<string> Simulator::loadFilesWithSuffix(const char* path, const char* suffix)
+
+vector<string> Simulator::loadFilesWithSuffix(const char* path_, const char* suffix_)
 {
 	vector<string> result;
-	boost::filesystem::path p(path);
-	if (!is_directory(p))
+	boost::filesystem::path path(path_);
+	if (!is_directory(path))
 	{
 		return result;
 	}
@@ -338,12 +364,10 @@ vector<string> Simulator::loadFilesWithSuffix(const char* path, const char* suff
 	std::cout << "[INFO] " << p << " is a directory" << endl;
 #endif
 
-	boost::filesystem::directory_iterator it(p);
-	boost::filesystem::directory_iterator endit;
-
-	while (it != endit)
+	boost::filesystem::directory_iterator end_it;
+	for (boost::filesystem::directory_iterator it(path); it != end_it; ++it)
 	{
-		if (is_regular_file(*it) && StringUtils::endsWith(it->path().generic_string(), suffix))
+		if ( is_regular_file(*it) && StringUtils::endsWith(it->path().generic_string(), suffix_) )
 		{
 			result.push_back(it->path().generic_string());
 
@@ -351,11 +375,11 @@ vector<string> Simulator::loadFilesWithSuffix(const char* path, const char* suff
 			std::cout << "[INFO] " << it->path() << " File with " << suffix << " suffix" << endl;
 #endif
 		}
-		++it;
 	}
 	std::sort(result.begin(), result.end());
 	return result;
 }
+
 
 void Simulator::printScores() const
 {
@@ -412,6 +436,7 @@ void Simulator::printErrors() const
 		cout << error << endl;
 	}
 }
+
 
 template <typename T>
 void Simulator::clearPointersVector(vector<T*>& vec_)

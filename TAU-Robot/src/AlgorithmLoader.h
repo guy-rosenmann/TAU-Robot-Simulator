@@ -4,6 +4,7 @@
 #include "Direction.h"
 #include "AlgorithmRegistrar.h"
 
+
 class AlgorithmLoader
 {
 	bool					_isValid;
@@ -14,8 +15,12 @@ class AlgorithmLoader
 public:
 
 	AlgorithmLoader() = delete;
+#ifndef _WINDOWS_
 	AlgorithmLoader(const char* algorithmPath_);
-	~AlgorithmLoader(){}
+#else
+	AlgorithmLoader(AbstractAlgorithm* algo_, const char* algoName_);
+#endif
+	~AlgorithmLoader() {}
 
 	bool isValid() const { return _isValid; }
 	string getFileName() const { return _fileName; }

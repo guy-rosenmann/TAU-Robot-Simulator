@@ -6,8 +6,10 @@
 #include <dlfcn.h>
 #endif
 
+
 map<string, instanceCreator> globalFactory;
 
+#ifndef _WINDOWS_
 AlgorithmLoader::AlgorithmLoader(const char* algorithmPath_)
 {
 	boost::filesystem::path path(algorithmPath_);
@@ -36,6 +38,16 @@ AlgorithmLoader::AlgorithmLoader(const char* algorithmPath_)
 	}
 
 	globalFactory[_algoName] = function1;
+
 	_isValid = true;
 }
+
+#else
+// loading in Windows without shared objects - only for tests!
+AlgorithmLoader::AlgorithmLoader(AbstractAlgorithm* algo_, const char* algoName_)
+{
+	_isValid = true;
+	
+}
+#endif
 

@@ -18,8 +18,8 @@ int main(int argc, char* argv[])
 
 	if (!config.isReady())
 	{
-#ifdef _DEBUG_
-		cout << "[ERROR] Failed to load configuration file. Terminating..." << endl;
+#if defined(_DEBUG_) || defined(_RELEASE_)
+		getchar();
 #endif
 		return -1;
 	}
@@ -27,6 +27,9 @@ int main(int argc, char* argv[])
 	Simulator simulator(config, house_path, algorithm_path);
 	if (!simulator.isReady())
 	{
+#if defined(_DEBUG_) || defined(_RELEASE_)
+		getchar();
+#endif
 		return -1;
 	}
 

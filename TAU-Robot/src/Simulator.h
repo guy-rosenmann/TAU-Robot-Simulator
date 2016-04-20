@@ -18,7 +18,7 @@ class Simulator
 {
 	Configuration				_config;
 	vector<House*>				_houses;
-	bool						_successful;
+	bool						_successful = false;
 	vector<string>				_errors;
 
 	typedef std::pair<AlgorithmLoader*, std::vector<int>*> AlgoPair;
@@ -26,7 +26,6 @@ class Simulator
 	AlgoVector					_algos;
 
 public:
-	Simulator() = delete;
 	Simulator(const Configuration& conf_, const char* housePath_ = NULL, const char* algorithmPath_ = NULL);
 	~Simulator();
 
@@ -44,6 +43,9 @@ private:
 	vector<House*> loadAllHouses(const char* house_path);
 	vector<AlgorithmLoader*> loadAllAlgos(const char* algorithm_path);
 	vector<string> loadFilesWithSuffix(const char* path, const char* suffix);
+
+	bool getAlgos(const char* algorithmPath_, vector<string>& errors_);
+	bool getHouses(const char* housePath_);
 
 	template <class T>
 	static void clearPointersVector(vector<T*>& vec);

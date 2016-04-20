@@ -1,4 +1,5 @@
 #include "ParamsParser.h"
+#include "Constants.h"
 
 #include <iostream>
 #include <cstring>
@@ -40,12 +41,7 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 
 	if (printUsage)
 	{
-		cout << "USAGE:\tsimulator [-config <path>] [-house_path <path>] [-algorithm_path <path>]" << endl;
-		cout << "\t- config:\tconfiguration file location path" << endl;
-		cout << "\t- house_path:\thouse dir path" << endl;
-		cout << "\t- algorithm_path:\talgorithm dir path" << endl;
-		//cout << "\t- house_path:\thouse files directory path" << endl; // for Ex1 it is a house file path
-		cout << "\tDefault paths = current working directory" << endl;
+		cout << USAGE_MSG << endl;
 		cout << endl;
 	}
 }

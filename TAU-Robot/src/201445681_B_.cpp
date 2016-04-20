@@ -27,7 +27,9 @@ void _201445681_B::updatePseudoRandom()
 	}
 }
 
+#ifndef _WINDOWS_
 extern "C" AbstractAlgorithm* getAbstractAlgorithmPointer()
 {
 	return new _201445681_B();
 }
+#endif
