@@ -10,13 +10,10 @@
 #include <boost/filesystem.hpp>
 
 
-const char* House::defaultHouseFileName = "simple1.house";
-
-
+//const char* House::defaultHouseFileName = "simple1.house";
 
 House::House(const char* path_)
 {
-
 	boost::filesystem::path path(path_);
 	_houseFilename = path.filename().generic_string();
 	this->loadFromFile(path_);
@@ -26,55 +23,55 @@ House::House(const char* path_)
 }
 
 
-void House::createDefaultHouse()
-{
-	ofstream fout(House::defaultHouseFileName);
-
-	if (fout.good())
-	{
-		fout << "Simple1" << endl;
-
-#if 0
-		fout << "Really big house" << endl;
-		fout << 19 << endl;
-		fout << 80 << endl;
-		fout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << endl;
-		fout << "W  99   D              1234321                                                 W" << endl;
-		fout << "W  99      WWWWWWW     1234321                     W                       1   W" << endl;
-		fout << "W              W                                   W   555                 2   W" << endl;
-		fout << "W              W                                   W   555                 3   W" << endl;
-		fout << "W              W           WWWWWWWWWWWWWWWWWWWWWWWWW                       4   W" << endl;
-		fout << "W              W                                                           5   W" << endl;
-		fout << "W              W                                                           6   W" << endl;
-		fout << "W                          WWWWWWWWWWWWWWWWWWWWWW  WWWWWWW                 7   W" << endl;
-		fout << "W         1         2         3         4         5W 999 W  6         7        W" << endl;
-		fout << "W              W           444                     W 999 W                 9   W" << endl;
-		fout << "W              W           444                     W 999 W                 8   W" << endl;
-		fout << "W              W                                   W     W                 7   W" << endl;
-		fout << "W              W                                   WW   WW                 6   W" << endl;
-		fout << "W              W                                    W   W                  5   W" << endl;
-		fout << "W              W                                                           4   W" << endl;
-		fout << "W              W                                                           3   W" << endl;
-		fout << "W              W                                                               W" << endl;
-		fout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << endl;
-#else
-		fout << "2 Bedrooms + Kitchen Isle" << endl;
-		fout << 8 << endl;
-		fout << 10 << endl;
-		fout << "WWWWWWWWWW" << endl;
-		fout << "W22  DW59W" << endl;
-		fout << "W  W 1119W" << endl;
-		fout << "W WWW3WW W" << endl;
-		fout << "W6   3W  W" << endl;
-		fout << "W78W  W  W" << endl;
-		fout << "W99W  W  W" << endl;
-		fout << "WWWWWWWWWW" << endl;
-#endif
-
-	}
-
-	fout.close();
-}
+//void House::createDefaultHouse()
+//{
+//	ofstream fout(House::defaultHouseFileName);
+//
+//	if (fout.good())
+//	{
+//		fout << "Simple1" << endl;
+//
+//#if 0
+//		fout << "Really big house" << endl;
+//		fout << 19 << endl;
+//		fout << 80 << endl;
+//		fout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << endl;
+//		fout << "W  99   D              1234321                                                 W" << endl;
+//		fout << "W  99      WWWWWWW     1234321                     W                       1   W" << endl;
+//		fout << "W              W                                   W   555                 2   W" << endl;
+//		fout << "W              W                                   W   555                 3   W" << endl;
+//		fout << "W              W           WWWWWWWWWWWWWWWWWWWWWWWWW                       4   W" << endl;
+//		fout << "W              W                                                           5   W" << endl;
+//		fout << "W              W                                                           6   W" << endl;
+//		fout << "W                          WWWWWWWWWWWWWWWWWWWWWW  WWWWWWW                 7   W" << endl;
+//		fout << "W         1         2         3         4         5W 999 W  6         7        W" << endl;
+//		fout << "W              W           444                     W 999 W                 9   W" << endl;
+//		fout << "W              W           444                     W 999 W                 8   W" << endl;
+//		fout << "W              W                                   W     W                 7   W" << endl;
+//		fout << "W              W                                   WW   WW                 6   W" << endl;
+//		fout << "W              W                                    W   W                  5   W" << endl;
+//		fout << "W              W                                                           4   W" << endl;
+//		fout << "W              W                                                           3   W" << endl;
+//		fout << "W              W                                                               W" << endl;
+//		fout << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW" << endl;
+//#else
+//		fout << "2 Bedrooms + Kitchen Isle" << endl;
+//		fout << 8 << endl;
+//		fout << 10 << endl;
+//		fout << "WWWWWWWWWW" << endl;
+//		fout << "W22  DW59W" << endl;
+//		fout << "W  W 1119W" << endl;
+//		fout << "W WWW3WW W" << endl;
+//		fout << "W6   3W  W" << endl;
+//		fout << "W78W  W  W" << endl;
+//		fout << "W99W  W  W" << endl;
+//		fout << "WWWWWWWWWW" << endl;
+//#endif
+//
+//	}
+//
+//	fout.close();
+//}
 
 
 void House::loadFromFile(const char* path_)

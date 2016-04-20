@@ -11,9 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Algorithm.cpp" />
     <ClCompile Include="src\AlgorithmBase.cpp" />
-    <ClCompile Include="src\AlgorithmContainer.cpp" />
+    <ClCompile Include="src\AlgorithmLoader.cpp" />
     <ClCompile Include="src\_201445681_A.cpp" />
     <ClCompile Include="src\_201445681_B.cpp" />
     <ClCompile Include="src\_201445681_C.cpp" />
@@ -29,9 +28,9 @@
     <ClInclude Include="include\interface\AbstractSensor.h" />
     <ClInclude Include="include\interface\Direction.h" />
     <ClInclude Include="include\interface\SensorInformation.h" />
-    <ClInclude Include="src\Algorithm.h" />
     <ClInclude Include="src\AlgorithmBase.h" />
-    <ClInclude Include="src\AlgorithmContainer.h" />
+    <ClInclude Include="src\AlgorithmLoader.h" />
+    <ClInclude Include="src\AlgorithmRegistrar.h" />
     <ClInclude Include="src\_201445681_A.h" />
     <ClInclude Include="src\_201445681_B.h" />
     <ClInclude Include="src\_201445681_C.h" />

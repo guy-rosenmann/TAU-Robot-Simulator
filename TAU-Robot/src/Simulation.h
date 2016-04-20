@@ -7,7 +7,6 @@
 #include "Sensor.h"
 #include "Configuration.h"
 
-
 class Simulation
 {
 	AbstractAlgorithm*	_algo = nullptr;

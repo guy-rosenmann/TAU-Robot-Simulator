@@ -3,9 +3,6 @@
 
 void AlgorithmBase::aboutToFinish(int stepsTillFinishing_)
 {
-	//REMOVE
-//	cout << "aboutToFinish" << endl;
-
 	_returnHome = true;
 	_movesUntilFinish = stepsTillFinishing_;
 }
@@ -15,10 +12,6 @@ void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
 //	bool returnQuick = false;
 	if (_returnHome)
 	{
-		//REMOVE
-//		cout << "_returnHome" << endl;
-
-
 		if (isDocking())
 		{
 			moves_.push_back(Direction::Stay);
@@ -146,7 +139,7 @@ Direction AlgorithmBase::oppositeDirection(Direction direction_)
 
 void AlgorithmBase::updateBeforeMove()
 {
-	updateBattery();
+//	updateBattery(); // We'll start using this in Ex.3
 	updateRemainingMoves();
 }
 
@@ -204,14 +197,14 @@ void AlgorithmBase::updateBattery()
 	}
 }
 
-void AlgorithmBase::resetValues()
-{
-	_robot.totalSteps = 0;
-	_movesDone.clear();
-	_lastMove = Direction::Stay;
-
-	_returnHome = false;
-	_robot.location = Point();
-
-	_movesUntilFinish = UINT_MAX;
-}
+//void AlgorithmBase::resetValues()
+//{
+//	_robot.totalSteps = 0;
+//	_movesDone.clear();
+//	_lastMove = Direction::Stay;
+//
+//	_returnHome = false;
+//	_robot.location = Point();
+//
+//	_movesUntilFinish = UINT_MAX;
+//}

@@ -16,12 +16,6 @@ Direction _201445681_B::step()
 	return next;
 }
 
-void _201445681_B::resetValues()
-{
-	AlgorithmBase::resetValues();
-	_psuedoRand = pseudoDefaultValue;
-}
-
 void _201445681_B::updatePseudoRandom()
 {
 	_psuedoRand++;
@@ -35,7 +29,5 @@ void _201445681_B::updatePseudoRandom()
 
 extern "C" AbstractAlgorithm* getAbstractAlgorithmPointer()
 {
-	//	cout << "in getAbstractFunctionPointer" << endl << std::flush;
-
 	return new _201445681_B();
 }

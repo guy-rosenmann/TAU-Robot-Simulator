@@ -8,7 +8,8 @@
 using namespace std;
 
 #include "Simulation.h"
-#include "AlgorithmContainer.h"
+#include "AlgorithmLoader.h"
+#include "AlgorithmRegistrar.h"
 
 #define ALGO_NAME_CELL_SIZE 13
 #define CELL_SIZE 10
@@ -20,7 +21,7 @@ class Simulator
 	bool						_successful;
 	vector<string>				_errors;
 
-	typedef std::pair<AlgorithmContainer*, std::vector<int>*> AlgoPair;
+	typedef std::pair<AlgorithmLoader*, std::vector<int>*> AlgoPair;
 	typedef std::vector< AlgoPair > AlgoVector;
 	AlgoVector					_algos;
 
@@ -36,13 +37,13 @@ private:
 	void score(int simulationSteps, vector<Simulation*>& simulatios_);
 	int getActualPosition(vector<Simulation*>& allSimulatios_, Simulation& currSimulation_) const;
 	void printScores() const;
-	void printErrors();
-	bool endsWith(string value, string ending);
+	void printErrors() const;
+	bool endsWith(string value, string ending) const;
 
 	static int CountSpaces(double avg);
 
 	vector<House*> loadAllHouses(const char* house_path);
-	vector<AlgorithmContainer*> loadAllAlgos(const char* algorithm_path);
+	vector<AlgorithmLoader*> loadAllAlgos(const char* algorithm_path);
 	vector<string> loadFilesWithSuffix(const char* path, const char* suffix);
 
 	template <class T>

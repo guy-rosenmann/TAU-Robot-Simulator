@@ -1,5 +1,5 @@
 # source files and object files
-src = main.cpp Simulator.cpp Simulation.cpp ParamsParser.cpp House.cpp Configuration.cpp AlgorithmContainer.cpp
+src = main.cpp Simulator.cpp Simulation.cpp ParamsParser.cpp House.cpp Configuration.cpp AlgorithmLoader.cpp
 obj = $(src:.cpp=.o)
 target = simulator
 

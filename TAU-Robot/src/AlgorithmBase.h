@@ -16,18 +16,16 @@ class AlgorithmBase : public AbstractAlgorithm
 {
 
 public:
-
 	AlgorithmBase() {}
 	AlgorithmBase(const AbstractSensor& sensor, const Configuration& conf) { setSensor(sensor); setConfiguration(conf.getParams()); }
 
-	void setSensor(const AbstractSensor& sensor) { _sensor = &sensor; resetValues(); }
+	void setSensor(const AbstractSensor& sensor) { _sensor = &sensor; }
 	void setConfiguration(map<string, int> config) { _config = config; _robot.battery = _config["BatteryConsumptionRate"]; }
 
 	virtual Direction step() = 0;
 	void aboutToFinish(int stepsTillFinishing);
 
 	void updateBattery();
-	virtual void resetValues();
 
 protected:
 	const AbstractSensor*	_sensor = nullptr;

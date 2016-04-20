@@ -1,5 +1,5 @@
 #include "Simulator.h"
-#include "AlgorithmContainer.h"
+#include "AlgorithmLoader.h"
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
@@ -14,7 +14,7 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 	
 	// Handle Alogs
 	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
-	vector<AlgorithmContainer*> allAlgos = loadAllAlgos(algoPath.c_str());
+	vector<AlgorithmLoader*> allAlgos = loadAllAlgos(algoPath.c_str());
 	vector<string>	algoErrors;
 
 	if (allAlgos.size() == 0)
@@ -25,7 +25,7 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		return;
 	}
 
-	for (AlgorithmContainer* algo : allAlgos)
+	for (AlgorithmLoader* algo : allAlgos)
 	{
 		if (algo->isValid())
 		{
@@ -34,7 +34,6 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		else
 		{
 			algoErrors.push_back(algo->getErrorLine());
-			delete algo;
 		}
 	}
 
@@ -51,9 +50,9 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 		return;
 	}
 
-//	_algos.push_back(make_pair(new AlgorithmContainer(new _201445681_A(), "201445681_A_"), new std::vector<int>()));
-//	_algos.push_back(make_pair(new AlgorithmContainer(new _201445681_B(), "201445681_B_"), new std::vector<int>()));
-//	_algos.push_back(make_pair(new AlgorithmContainer(new _201445681_C(), "201445681_C_"), new std::vector<int>()));
+//	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_A(), "201445681_A_"), new std::vector<int>()));
+//	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_B(), "201445681_B_"), new std::vector<int>()));
+//	_algos.push_back(make_pair(new AlgorithmLoader(new _201445681_C(), "201445681_C_"), new std::vector<int>()));
 	
 	// Handle Houses
 	string housePath = string(housePath_ != NULL ? housePath_ : ".");
@@ -126,8 +125,10 @@ void Simulator::simulate()
 		for (AlgoVector::iterator a_it = _algos.begin(); a_it != _algos.end(); ++a_it)
 		{
 			AlgoPair& algoPair = *a_it;
-			AbstractAlgorithm* algo = algoPair.first->getAlgorithm();
 			string algoName = algoPair.first->GetAlgorithmName();
+
+			// Invoking new instance
+			AbstractAlgorithm* algo = globalFactory[algoName]();
 			//std::vector<int>* algo_scores = algoPair.second;
 
 			simulations.push_back(new Simulation(config, house, algo, algoName));
@@ -146,6 +147,7 @@ void Simulator::simulate()
 			while (it != simulations.end())
 			{
 				Simulation& currentSimulation = **it;
+
 				if (!currentSimulation.step() || currentSimulation.isDone())
 				{
 					if (currentSimulation.isDone())
@@ -319,17 +321,17 @@ vector<House*> Simulator::loadAllHouses(const char* house_path)
 	return result;
 }
 
-vector<AlgorithmContainer*> Simulator::loadAllAlgos(const char* algorithm_path)
+vector<AlgorithmLoader*> Simulator::loadAllAlgos(const char* algorithm_path)
 {
 	// REMOVE
 //	cout << "Starting loadAllAlgos" << endl;
 	
-	vector<AlgorithmContainer*> result;
+	vector<AlgorithmLoader*> result;
 	vector<string> files = loadFilesWithSuffix(algorithm_path, "_.so");
 
 	for (vector<string>::iterator it = files.begin(); it != files.end(); ++it)
 	{
-		result.push_back(new AlgorithmContainer((*it).c_str()));
+		result.push_back(new AlgorithmLoader((*it).c_str()));
 	}
 
 	return result;
@@ -414,13 +416,13 @@ void Simulator::printScores() const
 }
 
 
-bool Simulator::endsWith(string value, string ending)
+bool Simulator::endsWith(string value, string ending) const
 {
 	if (ending.size() > value.size()) return false;
 	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-void Simulator::printErrors()
+void Simulator::printErrors() const
 {
 	for (string error : _errors)
 	{

@@ -6,10 +6,8 @@
 
 using namespace std;
 
-// typedef to make it easier to set up our factory 
-typedef AbstractAlgorithm *maker_t();
+typedef AbstractAlgorithm* (*instanceCreator)();
 
-// our global factory 
-extern map<string, maker_t*> factory;
+extern map<string, instanceCreator> globalFactory;
 
 #endif //__ALGORITHM_REGISTRAR__H_

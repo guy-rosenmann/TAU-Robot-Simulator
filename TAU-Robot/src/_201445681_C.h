@@ -13,8 +13,7 @@ using namespace std;
 
 class _201445681_C : public AlgorithmBase
 {
-	const int pseudoDefaultValue = 31;
-	unsigned int _psuedoRand = pseudoDefaultValue;
+	unsigned int _psuedoRand = 31;
 
 public:
 	_201445681_C() {}
@@ -22,7 +21,6 @@ public:
 
 	Direction step();
 	void updatePseudoRandom();
-	void resetValues();
 };
 
 

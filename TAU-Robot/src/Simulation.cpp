@@ -19,14 +19,11 @@ Simulation::Simulation(const Configuration& config_, const House& house_, Abstra
 
 Simulation::~Simulation()
 {
-	//delete _algo; // currently (for EX1 only!) freed by Simulator
+	delete _algo;
 }
 
 bool Simulation::step()
 {
-	//REMOVE
-//	_house.print(cout);
-
 	if (_robot.battery <= 0)
 	{
 #ifdef _DEBUG_
@@ -55,6 +52,7 @@ bool Simulation::step()
 
 	// always make a move if battery is larger than 0 at the beggining
 	Direction stepDirection = _algo->step();
+
 	_robot.location.move(stepDirection);
 	_robot.totalSteps++;
 

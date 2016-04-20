@@ -13,9 +13,6 @@ Direction _201445681_A::step()
 	updatePseudoRandom();
 	updateAfterMove(next);
 
-	// REMOVE
-//	cout << "A: moves.size(): " << moves.size() << endl;
-	
 	return next;
 }
 
@@ -30,15 +27,7 @@ void _201445681_A::updatePseudoRandom()
 	}
 }
 
-void _201445681_A::resetValues()
-{
-	AlgorithmBase::resetValues();
-	_psuedoRand = pseudoDefaultValue;
-}
-
 extern "C" AbstractAlgorithm* getAbstractAlgorithmPointer()
 {
-//	cout << "in getAbstractFunctionPointer" << endl << std::flush;
-
 	return new _201445681_A();
 }
