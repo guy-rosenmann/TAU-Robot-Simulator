@@ -409,7 +409,7 @@ void Simulator::printScores() const
 	{
 		cout << '|';
 		string filename = (*it).first->GetAlgorithmName();
-		cout << filename << string(ALGO_NAME_CELL_SIZE - filename.size(), ' ') << '|';
+		cout << filename.substr(0, ALGO_NAME_CELL_SIZE) << string(std::max(ALGO_NAME_CELL_SIZE - (int)filename.size(), 0), ' ') << '|';
 		
 		vector<int>& scores = *it->second;
 		double avg = 0.0;
