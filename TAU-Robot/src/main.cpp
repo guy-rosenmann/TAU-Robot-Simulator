@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
 	if (!config.isReady())
 	{
-#if defined(_DEBUG_) || defined(_RELEASE_)
+#ifdef _WINDOWS_
 		getchar();
 #endif
 		return -1;
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	Simulator simulator(config, house_path, algorithm_path);
 	if (!simulator.isReady())
 	{
-#if defined(_DEBUG_) || defined(_RELEASE_)
+#ifdef _WINDOWS_
 		getchar();
 #endif
 		return -1;
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 
 	simulator.simulate();
 
-#if defined(_DEBUG_) || defined(_RELEASE_)
+#ifdef _WINDOWS_
 	getchar();
 #endif
 	return 0;
