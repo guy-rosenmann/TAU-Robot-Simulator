@@ -17,22 +17,20 @@ AlgorithmLoader::AlgorithmLoader(const char* algorithmPath_)
 	_algoName = path.stem().generic_string();
 
 	// Opening the .so file:
-	void *dlib = dlopen(algorithmPath_, RTLD_NOW);
-	if (dlib == NULL){
-
-		_isValid = false;
+	_handle = dlopen(algorithmPath_, RTLD_NOW);
+	if (_handle == NULL)
+	{
 		_errorLine = _fileName + ": file cannot be loaded or is not a valid .so";
 		return;
 	}
 
 	// getAbstractAlgorithmPointer is the instance creator method
-	void* p = dlsym(dlib, "getAbstractAlgorithmPointer");
+	void* p = dlsym(_handle, "getAbstractAlgorithmPointer");
 
 	// Safe casting
 	instanceCreator function1 = reinterpret_cast<instanceCreator>(reinterpret_cast<long>(p));
 
 	if (function1 == nullptr) {
-		_isValid = false;
 		_errorLine = _fileName + ": valid .so file but no algorithm was registered after loading it";
 		return;
 	}
@@ -40,6 +38,14 @@ AlgorithmLoader::AlgorithmLoader(const char* algorithmPath_)
 	globalFactory[_algoName] = function1;
 
 	_isValid = true;
+}
+
+AlgorithmLoader::~AlgorithmLoader()
+{
+	if (_handle != NULL)
+	{
+		dlclose(_handle);
+	}
 }
 
 #else
@@ -50,4 +56,3 @@ AlgorithmLoader::AlgorithmLoader(AbstractAlgorithm* algo_, const char* algoName_
 	
 }
 #endif
-

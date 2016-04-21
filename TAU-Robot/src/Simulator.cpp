@@ -44,7 +44,7 @@ Simulator::~Simulator()
 
 	for (AlgoVector::iterator it = _algos.begin(); it != _algos.end(); ++it)
 	{
-		delete it->first;	// algorithm
+		delete it->first;	// AlgorithmLoader
 		delete it->second;	// scores vector
 	}
 }

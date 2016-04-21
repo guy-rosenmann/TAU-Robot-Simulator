@@ -7,7 +7,8 @@
 
 class AlgorithmLoader
 {
-	bool					_isValid;
+	void*					_handle = NULL;
+	bool					_isValid = false;
 	string					_fileName;
 	string					_algoName;
 	string					_errorLine;
@@ -17,10 +18,12 @@ public:
 	AlgorithmLoader() = delete;
 #ifndef _WINDOWS_
 	AlgorithmLoader(const char* algorithmPath_);
+	~AlgorithmLoader();
 #else
 	AlgorithmLoader(AbstractAlgorithm* algo_, const char* algoName_);
-#endif
 	~AlgorithmLoader() {}
+#endif
+	
 
 	bool isValid() const { return _isValid; }
 	string getFileName() const { return _fileName; }
