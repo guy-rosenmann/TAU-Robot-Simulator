@@ -135,7 +135,7 @@ bool Configuration::checkAllParamsExistence()
 
 	if (missingCount != 0)
 	{
-		cout << "config.ini missing " << missingCount << " parameter(s) : " << missingParams.substr(0, missingParams.size() - 2) << endl;
+		cout << Configuration::configFileName << " missing " << missingCount << " parameter(s): " << missingParams.substr(0, missingParams.size() - 2) << endl;
 
 		return false;
 	}
