@@ -23,6 +23,7 @@ public:
 	enum { ALGORITHM_REGISTERED_SUCCESSFULY = 0, FILE_CANNOT_BE_LOADED = -1, NO_ALGORITHM_REGISTERED = -2 };
 	
 #ifdef _WINDOWS_
+	// for Windows tests only
 	AlgorithmRegistrar();
 #endif
 	~AlgorithmRegistrar();

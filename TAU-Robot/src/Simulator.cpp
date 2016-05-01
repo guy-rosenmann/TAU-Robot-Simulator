@@ -132,6 +132,7 @@ bool Simulator::getHouses(const char* housePath_)
 
 void Simulator::simulate()
 {
+	if (!_successful) return;
 	int maxStepsAfterWinner = _config["MaxStepsAfterWinner"];
 
 	// for each house, simulate all possible algorithms

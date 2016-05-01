@@ -16,29 +16,22 @@ int main(int argc, char* argv[])
 	algorithm_path = params["-algorithm_path"];
 
 	Configuration config(conf_path);
+	if (!config.isReady()) goto error;
 
-	if (!config.isReady())
 	{
-#ifdef _WINDOWS_
-		getchar();
-#endif
-		return -1;
+		Simulator simulator(config, house_path, algorithm_path);
+		if (!simulator.isReady()) goto error;
+		simulator.simulate();
 	}
-
-	Simulator simulator(config, house_path, algorithm_path);
-
-	if (!simulator.isReady())
-	{
-#ifdef _WINDOWS_
-		getchar();
-#endif
-		return -1;
-	}
-
-	simulator.simulate();
 
 #ifdef _WINDOWS_
 	getchar();
 #endif
 	return 0;
+
+error:
+#ifdef _WINDOWS_
+	getchar();
+#endif
+	return -1;
 }

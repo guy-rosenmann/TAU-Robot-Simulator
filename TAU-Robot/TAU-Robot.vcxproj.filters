@@ -60,9 +60,6 @@
     <ClCompile Include="src\AlgorithmRegistration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SharedObjectLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Sensor.h">

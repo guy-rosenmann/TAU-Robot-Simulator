@@ -3,17 +3,21 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)bin\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>
-    </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-house_path "D:\Dropbox\University\8th Semester\Advanced Topics in Programing\Homeworks\Robot\TAU-Robot\src\houses"</LocalDebuggerCommandArguments>
     <LocalDebuggerEnvironment>
     </LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)bin\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>
-    </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-house_path "D:\Dropbox\University\8th Semester\Advanced Topics in Programing\Homeworks\Robot\TAU-Robot\src\houses"</LocalDebuggerCommandArguments>
     <LocalDebuggerEnvironment>
     </LocalDebuggerEnvironment>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Linux|Win32'">
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)bin\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>-house_path "D:\Dropbox\University\8th Semester\Advanced Topics in Programing\Homeworks\Robot\TAU-Robot\src\houses"</LocalDebuggerCommandArguments>
+    <LocalDebuggerEnvironment />
   </PropertyGroup>
 </Project>

@@ -12,10 +12,10 @@ using namespace std;
 class Configuration
 {
 	static string configFileName;
-	static const char* const _mandatoryParams[];
+	static const char* const mandatoryParams[];
 
 	map<string, int>	_params;
-	bool				_successful; // did last loading of config was OK
+	bool				_successful = false; // did last loading of config was OK
 
 public:
 

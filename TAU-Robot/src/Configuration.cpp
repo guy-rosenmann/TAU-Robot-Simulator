@@ -9,7 +9,7 @@
 
 string Configuration::configFileName = "config.ini";
 
-const char* const Configuration::_mandatoryParams[] = {
+const char* const Configuration::mandatoryParams[] = {
 	"MaxStepsAfterWinner",
 	"BatteryCapacity",
 	"BatteryConsumptionRate",
@@ -17,7 +17,7 @@ const char* const Configuration::_mandatoryParams[] = {
 };
 
 
-Configuration::Configuration(const char* iniPath_) : _successful(true)
+Configuration::Configuration(const char* iniPath_)
 { 
 	string fullPath;
 	if (iniPath_ != NULL)
@@ -38,14 +38,6 @@ Configuration::Configuration(const char* iniPath_) : _successful(true)
 	_successful = loadFromFile(fullPath);
 }
 
-
-//void Configuration::loadDefaultConfig()
-//{
-//	if (!this->loadFromFile(Configuration::configFileName))
-//	{
-//		this->writeConfigFile(Configuration::configFileName); // create the default config file
-//	}
-//}
 
 
 bool Configuration::loadFromFile(const string& iniPath_)
@@ -76,17 +68,6 @@ bool Configuration::loadFromFile(const string& iniPath_)
 	return checkAllParamsExistence();
 }
 
-//void Configuration::writeConfigFile(const string& iniPath_) const
-//{
-//	ofstream fout(iniPath_.c_str());
-//
-//	for (map<string, int>::const_iterator itr = _params.begin(); itr != _params.end(); ++itr)
-//	{
-//		fout << itr->first << "=" << itr->second << endl;
-//	}
-//
-//	fout.close();
-//}
 
 string Configuration::toString() const
 {
@@ -101,6 +82,32 @@ string Configuration::toString() const
 	}
 	return out;
 }
+
+
+bool Configuration::checkAllParamsExistence()
+{
+	string missingParams;
+	unsigned int i, missingCount = 0, mandatoryParamsSize = sizeof(Configuration::mandatoryParams) / sizeof(*Configuration::mandatoryParams);
+	for (i = 0; i < mandatoryParamsSize; ++i)
+	{
+		map<string, int>::const_iterator it = _params.find(Configuration::mandatoryParams[i]);
+		if (it == _params.end())
+		{
+			missingCount++;
+			missingParams += string(Configuration::mandatoryParams[i]) + string(", ");
+		}
+	}
+
+	if (missingCount != 0)
+	{
+		cout << Configuration::configFileName << " missing " << missingCount << " parameter(s): " << missingParams.substr(0, missingParams.size() - 2) << endl;
+
+		return false;
+	}
+
+	return true;
+}
+
 
 std::vector<std::string> Configuration::split(const std::string& s, char delim) {
 	std::vector<std::string> elems;
@@ -119,29 +126,6 @@ std::string Configuration::trim(std::string& str)
 	return str;
 }
 
-bool Configuration::checkAllParamsExistence()
-{
-	string missingParams;
-	unsigned int i, missingCount = 0, _mandatoryParamsSize = sizeof(_mandatoryParams) / sizeof(*_mandatoryParams);
-	for (i = 0; i < _mandatoryParamsSize; ++i)
-	{
-		map<string, int>::const_iterator it = _params.find(_mandatoryParams[i]);
-		if (it == _params.end())
-		{
-			missingCount++;
-			missingParams += string(_mandatoryParams[i]) + string(", ");
-		}
-	}
-
-	if (missingCount != 0)
-	{
-		cout << Configuration::configFileName << " missing " << missingCount << " parameter(s): " << missingParams.substr(0, missingParams.size() - 2) << endl;
-
-		return false;
-	}
-
-	return true;
-}
 
 void Configuration::processLine(const string& line)
 {
@@ -166,3 +150,30 @@ void Configuration::processLine(const string& line)
 	}
 	_params[Configuration::trim(tokens[0])] = num;
 }
+
+
+// Not needed functions
+/*
+
+void Configuration::loadDefaultConfig()
+{
+	if (!this->loadFromFile(Configuration::configFileName))
+	{
+		this->writeConfigFile(Configuration::configFileName); // create the default config file
+	}
+}
+
+
+void Configuration::writeConfigFile(const string& iniPath_) const
+{
+	ofstream fout(iniPath_.c_str());
+
+	for (map<string, int>::const_iterator itr = _params.begin(); itr != _params.end(); ++itr)
+	{
+		fout << itr->first << "=" << itr->second << endl;
+	}
+
+	fout.close();
+}
+
+*/

@@ -3,8 +3,8 @@
 AlgorithmRegistrar AlgorithmRegistrar::_instance;
 
 
-// For windows only (TESTS) !
 #ifdef _WINDOWS_
+// for Windows tests only
 #include "MakeUnique.h"
 #include "201445681_A_.h"
 #include "201445681_B_.h"

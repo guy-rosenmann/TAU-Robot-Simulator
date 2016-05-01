@@ -27,6 +27,7 @@ public:
 		return dlsym(_handle, funcName_);
 	}
 #else
+	// for Windows tests only
 	SharedObjectLoader::SharedObjectLoader(const char* soPath_) : _path(soPath_) {}
 	SharedObjectLoader::~SharedObjectLoader() {}
 	void* SharedObjectLoader::getFunctionPointer(const char* funcName_) const { return NULL; }
