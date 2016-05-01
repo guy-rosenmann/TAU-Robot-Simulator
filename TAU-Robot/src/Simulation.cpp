@@ -2,14 +2,14 @@
 
 #include <algorithm>
 
-Simulation::Simulation(const Configuration& config_, const House& house_, AbstractAlgorithm* algo_, string algoName_) : _algo(algo_), _algoName(algoName_), _house(house_), _config(config_)
+Simulation::Simulation(const Configuration& config_, const House& house_, unique_ptr<AbstractAlgorithm>& algo_, string algoName_) : _algoName(algoName_), _house(house_), _config(config_)
 {
 	_robot.battery = _config["BatteryCapacity"];
 	_robot.location = _house.getDocking();
 
 	_config = config_;
 	_house = house_;
-	_algo = algo_;
+	_algo = algo_.release();
 
 	this->updateSensor();
 	

@@ -99,7 +99,7 @@ bool House::GetUnsignedIntFromStream(ifstream& fin_, size_t* argPointer_, unsign
 		cout << "[ERROR] Invalid line " << rowNumber_ << " " << line << endl;
 #endif
 		_isValid = false;
-		_errorLine = _houseFilename + ": line number " + std::to_string(rowNumber_) + " in house file shall be a positive number, found: " + (line.size() > 0 ? line : "<empty>");
+		_errorLine = _houseFilename + ": line number " + std::to_string(rowNumber_) + " in house file shall be a positive number, found: " + line;
 		return false;
 	}
 

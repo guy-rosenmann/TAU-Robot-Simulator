@@ -1,4 +1,6 @@
 #include "201445681_B_.h"
+#include "AlgorithmRegistration.h"
+
 
 Direction _201445681_B::step()
 {
@@ -28,8 +30,5 @@ void _201445681_B::updatePseudoRandom()
 }
 
 #ifndef _WINDOWS_
-extern "C" AbstractAlgorithm* getAbstractAlgorithmPointer()
-{
-	return new _201445681_B();
-}
+REGISTER_ALGORITHM(_201445681_B)
 #endif

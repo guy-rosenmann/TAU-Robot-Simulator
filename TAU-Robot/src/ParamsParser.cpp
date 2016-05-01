@@ -10,7 +10,9 @@ using namespace std;
 const char* const ParamsParser::_options[] = {
 	"-config",
 	"-house_path",
-	"-algorithm_path"
+	"-algorithm_path",
+	"-score_formula",
+	"-threads"
 };
 
 

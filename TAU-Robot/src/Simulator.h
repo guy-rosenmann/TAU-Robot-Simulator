@@ -8,7 +8,6 @@
 using namespace std;
 
 #include "Simulation.h"
-#include "AlgorithmLoader.h"
 #include "AlgorithmRegistrar.h"
 
 #define ALGO_NAME_CELL_SIZE 13
@@ -16,14 +15,12 @@ using namespace std;
 
 class Simulator
 {
-	Configuration				_config;
-	vector<House*>				_houses;
-	bool						_successful = false;
-	vector<string>				_errors;
+	Configuration	_config;
+	vector<House*>	_houses;
+	map<string, unique_ptr<vector<int>>>	_algoScores;
 
-	typedef std::pair<AlgorithmLoader*, std::vector<int>*> AlgoPair;
-	typedef std::vector< AlgoPair > AlgoVector;
-	AlgoVector					_algos;
+	bool			_successful = false;
+	vector<string>	_errors;
 
 public:
 	Simulator(const Configuration& conf_, const char* housePath_ = NULL, const char* algorithmPath_ = NULL);
@@ -33,7 +30,7 @@ public:
 	void simulate();
 
 private:
-	void score(int simulationSteps, vector<Simulation*>& simulatios_);
+	void score(int houseIndex_, int simulationSteps_, vector<Simulation*>& simulatios_);
 	int getActualPosition(vector<Simulation*>& allSimulatios_, Simulation& currSimulation_) const;
 	void printScores() const;
 	void printErrors() const;
@@ -41,7 +38,6 @@ private:
 	static int CountSpaces(double avg);
 
 	vector<House*> loadAllHouses(const char* house_path);
-	vector<AlgorithmLoader*> loadAllAlgos(const char* algorithm_path);
 	vector<string> loadFilesWithSuffix(const char* path, const char* suffix);
 
 	bool getAlgos(const char* algorithmPath_, vector<string>& errors_);

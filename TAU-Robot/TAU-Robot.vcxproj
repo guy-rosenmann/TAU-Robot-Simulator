@@ -12,14 +12,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlgorithmBase.cpp" />
-    <ClCompile Include="src\AlgorithmLoader.cpp" />
     <ClCompile Include="src\201445681_A_.cpp" />
     <ClCompile Include="src\201445681_B_.cpp" />
     <ClCompile Include="src\201445681_C_.cpp" />
+    <ClCompile Include="src\AlgorithmRegistrar.cpp" />
+    <ClCompile Include="src\AlgorithmRegistration.cpp" />
     <ClCompile Include="src\Configuration.cpp" />
     <ClCompile Include="src\House.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ParamsParser.cpp" />
+    <ClCompile Include="src\SharedObjectLoader.cpp" />
     <ClCompile Include="src\Simulation.cpp" />
     <ClCompile Include="src\Simulator.cpp" />
   </ItemGroup>
@@ -29,18 +31,20 @@
     <ClInclude Include="include\interface\Direction.h" />
     <ClInclude Include="include\interface\SensorInformation.h" />
     <ClInclude Include="src\AlgorithmBase.h" />
-    <ClInclude Include="src\AlgorithmLoader.h" />
     <ClInclude Include="src\AlgorithmRegistrar.h" />
     <ClInclude Include="src\201445681_A_.h" />
     <ClInclude Include="src\201445681_B_.h" />
     <ClInclude Include="src\201445681_C_.h" />
+    <ClInclude Include="src\AlgorithmRegistration.h" />
     <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\House.h" />
+    <ClInclude Include="src\MakeUnique.h" />
     <ClInclude Include="src\ParamsParser.h" />
     <ClInclude Include="src\Point.h" />
     <ClInclude Include="src\RobotInformation.h" />
     <ClInclude Include="src\Sensor.h" />
+    <ClInclude Include="src\SharedObjectLoader.h" />
     <ClInclude Include="src\Simulation.h" />
     <ClInclude Include="src\Simulator.h" />
     <ClInclude Include="src\StringUtils.h" />

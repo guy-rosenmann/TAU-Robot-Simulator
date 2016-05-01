@@ -1,32 +1,37 @@
 #include "Simulator.h"
-#include "AlgorithmLoader.h"
 #include "StringUtils.h"
 #include "Constants.h"
+#include "AlgorithmRegistrar.h"
+#include "MakeUnique.h"
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
 
-#ifdef _WINDOWS_
-#include "201445681_A_.h"
-#include "201445681_B_.h"
-#include "201445681_C_.h"
-#endif
 
 Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_)
 {
 	_config = conf_;
-	
+
 	// Handle Alogs
 	vector<string> algoErrors;
+#ifndef _WINDOWS_
 	if (!getAlgos(algorithmPath_, algoErrors))
 	{
 		return;
 	}
-	
+#endif
+
 	// Handle Houses
 	if (!getHouses(housePath_))
 	{
 		return;
+	}
+
+	// Create scores matrix
+	vector<string> algoNames = AlgorithmRegistrar::getInstance().getAlgorithmNames();
+	for (vector<string>::iterator it = algoNames.begin(); it != algoNames.end(); ++it)
+	{
+		_algoScores[*it] = make_unique<vector<int>>(_houses.size());
 	}
 
 	// Concatenate algo errors to house errors
@@ -41,40 +46,40 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 Simulator::~Simulator()
 {
 	Simulator::clearPointersVector(_houses);
-
-	for (AlgoVector::iterator it = _algos.begin(); it != _algos.end(); ++it)
-	{
-		delete it->first;	// AlgorithmLoader
-		delete it->second;	// scores vector
-	}
 }
 
 
 bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
 {
+	AlgorithmRegistrar& registrar = AlgorithmRegistrar::getInstance();
+	
 	string algoPath = string(algorithmPath_ != NULL ? algorithmPath_ : ".");
-	vector<AlgorithmLoader*> allAlgos = loadAllAlgos(algoPath.c_str());
+	vector<string> files = loadFilesWithSuffix(algoPath.c_str(), "_.so");
 
-	if (allAlgos.size() == 0)
+	if (files.size() == 0)
 	{
 		cout << USAGE_MSG << endl;
 		return false;
 	}
 
-	for (AlgorithmLoader* algo : allAlgos)
+	for (vector<string>::iterator it = files.begin(); it != files.end(); ++it)
 	{
-		if (algo->isValid())
+		int err = registrar.loadAlgorithm((*it).c_str());
+		if (err != AlgorithmRegistrar::ALGORITHM_REGISTERED_SUCCESSFULY)
 		{
-			_algos.push_back(std::make_pair(algo, new std::vector<int>()));
-		}
-		else
-		{
-			errors_.push_back(algo->getErrorLine());
-			delete algo;
+			string fileName = boost::filesystem::path((*it).c_str()).filename().generic_string();
+			if (err == AlgorithmRegistrar::FILE_CANNOT_BE_LOADED)
+			{
+				errors_.push_back(fileName + ": file cannot be loaded or is not a valid .so");
+			}
+			else if (err == AlgorithmRegistrar::NO_ALGORITHM_REGISTERED)
+			{
+				errors_.push_back(fileName + ": valid .so file but no algorithm was registered after loading it");
+			}
 		}
 	}
 
-	if (_algos.size() == 0)
+	if (registrar.size() == 0)
 	{
 		cout << "All algorithm files in target folder '" << boost::filesystem::canonical(algoPath).string() << "' cannot be opened or are invalid: " << endl;
 
@@ -86,7 +91,6 @@ bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
 
 		return false;
 	}
-
 	return true;
 }
 
@@ -133,6 +137,7 @@ void Simulator::simulate()
 	// for each house, simulate all possible algorithms
 	for (vector<House*>::iterator h_it = _houses.begin(); h_it != _houses.end(); ++h_it)
 	{
+		int index = h_it - _houses.begin();
 		House& house = **h_it;
 		vector<Simulation*> simulations;
 
@@ -140,18 +145,11 @@ void Simulator::simulate()
 		Configuration config(_config);
 		int maxSteps = house.getMaxSteps();
 
-		for (AlgoVector::iterator a_it = _algos.begin(); a_it != _algos.end(); ++a_it)
+		map<string, unique_ptr<AbstractAlgorithm>> algorithms = AlgorithmRegistrar::getInstance().getAlgorithms();
+		for (auto a_it = algorithms.begin(); a_it != algorithms.end(); ++a_it)
 		{
-			AlgoPair& algoPair = *a_it;
-			string algoName = algoPair.first->GetAlgorithmName();
-
-			// Invoking new instance			
-			AbstractAlgorithm* algo = globalFactory[algoName]();
-			//std::vector<int>* algo_scores = algoPair.second;
-
-			simulations.push_back(new Simulation(config, house, algo, algoName));
+			simulations.push_back(new Simulation(config, house, a_it->second, a_it->first));
 		}
-
 #ifdef _DEBUG_
 		cout << house << endl;
 #endif
@@ -225,10 +223,9 @@ void Simulator::simulate()
 #ifdef _DEBUG_
 		cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl << endl;
 #endif
-
 		simulations.insert(simulations.end(), tempStoppedSimulatios.begin(), tempStoppedSimulatios.end());
 		tempStoppedSimulatios.clear();
-		this->score(stepsCount, simulations);
+		this->score(index, stepsCount, simulations);
 
 		Simulator::clearPointersVector(simulations);
 	}
@@ -243,12 +240,12 @@ void Simulator::simulate()
 }
 
 
-void Simulator::score(int simulationSteps, vector<Simulation*>& simulations_)
+void Simulator::score(int houseIndex_, int simulationSteps_, vector<Simulation*>& simulations_)
 {
 	std::sort(simulations_.begin(), simulations_.end(), Simulation::Compare); // sort by winner score (done && less steps are first)
 	
 	Simulation& firstSim = *simulations_.at(0);
-	int winner_num_steps = firstSim.isDone() ? firstSim.getStepsCount() : simulationSteps;
+	int winner_num_steps = firstSim.isDone() ? firstSim.getStepsCount() : simulationSteps_;
 
 	for (vector<Simulation*>::iterator it = simulations_.begin(); it != simulations_.end(); ++it)
 	{
@@ -260,14 +257,7 @@ void Simulator::score(int simulationSteps, vector<Simulation*>& simulations_)
 			position_in_competition = this->getActualPosition(simulations_, currentSim);
 		}
 
-		for (auto it = _algos.begin(); it != _algos.end(); ++it)
-		{
-			if ((*it).first->GetAlgorithmName() == currentSim.getAlgoName())
-			{
-				(*it).second->push_back(currentSim.score(position_in_competition, winner_num_steps, simulationSteps)); // save score
-				break;
-			}
-		}
+		(*_algoScores[currentSim.getAlgoName()])[houseIndex_] = currentSim.score(position_in_competition, winner_num_steps, simulationSteps_);
 	}
 }
 
@@ -335,25 +325,6 @@ vector<House*> Simulator::loadAllHouses(const char* house_path)
 }
 
 
-vector<AlgorithmLoader*> Simulator::loadAllAlgos(const char* algorithm_path)
-{
-	vector<AlgorithmLoader*> result;
-	vector<string> files = loadFilesWithSuffix(algorithm_path, "_.so");
-
-#ifndef _WINDOWS_
-	for (vector<string>::iterator it = files.begin(); it != files.end(); ++it)
-	{
-		result.push_back(new AlgorithmLoader((*it).c_str()));
-	}
-#else
-	// result.push_back(new AlgorithmLoader(new _201445681_A(), "201445681_A_"));
-	// result.push_back(new AlgorithmLoader(new _201445681_B(), "201445681_B_"));
-	// result.push_back(new AlgorithmLoader(new _201445681_C(), "201445681_C_"));
-#endif
-
-	return result;
-}
-
 
 vector<string> Simulator::loadFilesWithSuffix(const char* path_, const char* suffix_)
 {
@@ -405,13 +376,13 @@ void Simulator::printScores() const
 	//////////////////////////////////////
 	//////Print Table Algos' Results//////
 	//////////////////////////////////////
-	for (AlgoVector::const_iterator it = _algos.begin(); it != _algos.end(); ++it)
+	for (auto it = _algoScores.begin(); it != _algoScores.end(); ++it)
 	{
 		cout << '|';
-		string filename = (*it).first->GetAlgorithmName();
+		string filename = it->first;
 		cout << filename.substr(0, ALGO_NAME_CELL_SIZE) << string(std::max(ALGO_NAME_CELL_SIZE - (int)filename.size(), 0), ' ') << '|';
 		
-		vector<int>& scores = *it->second;
+		vector<int>& scores = *(it->second);
 		double avg = 0.0;
 		for (vector<int>::iterator s_it = scores.begin(); s_it != scores.end(); ++s_it)
 		{

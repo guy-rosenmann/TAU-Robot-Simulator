@@ -7,6 +7,8 @@
 #include "Sensor.h"
 #include "Configuration.h"
 
+#include <memory>
+
 class Simulation
 {
 	AbstractAlgorithm*	_algo = nullptr;
@@ -19,7 +21,7 @@ class Simulation
 public:
 
 	Simulation() = delete;
-	Simulation(const Configuration& config_, const House& house_, AbstractAlgorithm* algo_, string algoName_);
+	Simulation(const Configuration& config_, const House& house_, unique_ptr<AbstractAlgorithm>& algo_, string algoName_);
 	virtual ~Simulation();
 
 	bool step();

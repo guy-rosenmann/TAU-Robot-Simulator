@@ -42,9 +42,6 @@
     <ClCompile Include="src\ParamsParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AlgorithmLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\201445681_A_.cpp">
       <Filter>Source Files\Algorithms</Filter>
     </ClCompile>
@@ -56,6 +53,15 @@
     </ClCompile>
     <ClCompile Include="src\AlgorithmBase.cpp">
       <Filter>Source Files\Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AlgorithmRegistrar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AlgorithmRegistration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SharedObjectLoader.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,9 +104,6 @@
     <ClInclude Include="src\AlgorithmRegistrar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\AlgorithmLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\201445681_A_.h">
       <Filter>Header Files\Algorithms</Filter>
     </ClInclude>
@@ -117,6 +120,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MakeUnique.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AlgorithmRegistration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SharedObjectLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

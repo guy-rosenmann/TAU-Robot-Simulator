@@ -5,6 +5,7 @@
 #include "ParamsParser.h"
 #include "Simulator.h"
 
+
 int main(int argc, char* argv[])
 {
 	ParamsParser params(argc, argv);
@@ -25,6 +26,7 @@ int main(int argc, char* argv[])
 	}
 
 	Simulator simulator(config, house_path, algorithm_path);
+
 	if (!simulator.isReady())
 	{
 #ifdef _WINDOWS_
