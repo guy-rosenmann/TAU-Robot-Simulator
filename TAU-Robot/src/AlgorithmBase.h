@@ -22,7 +22,7 @@ public:
 	void setSensor(const AbstractSensor& sensor) { _sensor = &sensor; }
 	void setConfiguration(map<string, int> config) { _config = config; _robot.battery = _config["BatteryConsumptionRate"]; }
 
-	virtual Direction step() = 0;
+	virtual Direction step(Direction prevStep) = 0;
 	void aboutToFinish(int stepsTillFinishing);
 
 	void updateBattery();

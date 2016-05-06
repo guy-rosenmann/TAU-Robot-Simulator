@@ -51,7 +51,8 @@ bool Simulation::step()
 	}
 
 	// always make a move if battery is larger than 0 at the beggining
-	Direction stepDirection = _algo->step();
+	Direction stepDirection = _algo->step(_prevStep);
+	_prevStep = stepDirection;
 
 	_robot.location.move(stepDirection);
 	_robot.totalSteps++;

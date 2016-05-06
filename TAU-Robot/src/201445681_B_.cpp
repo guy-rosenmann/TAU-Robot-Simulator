@@ -2,7 +2,7 @@
 #include "AlgorithmRegistration.h"
 
 
-Direction _201445681_B::step()
+Direction _201445681_B::step(Direction prevStep)
 {
 	updateBeforeMove();
 
