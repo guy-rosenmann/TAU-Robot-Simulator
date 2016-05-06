@@ -6,11 +6,15 @@
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
+#include <thread>
 
 
-Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_)
+Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_, const char* threadsCount_)
 {
 	_config = conf_;
+
+	// get threads
+	size_t requestedThreadsCount = getThreadsFromString(threadsCount_);
 
 	// Handle Alogs
 	vector<string> algoErrors;
@@ -39,6 +43,12 @@ Simulator::Simulator(const Configuration& conf_, const char* housePath_, const c
 	{
 		_errors.push_back(*it);
 	}
+
+	_threadsCount = min(requestedThreadsCount, _houses.size());
+
+#ifdef _DEBUG_
+	cout << "_threadsCount: " << _threadsCount << endl;
+#endif	
 
 	_successful = true;
 }
@@ -129,106 +139,160 @@ bool Simulator::getHouses(const char* housePath_)
 	return true;
 }
 
+size_t Simulator::getThreadsFromString(const char* threads_count) const
+{
+	int num;
+
+	if (threads_count == NULL)
+	{
+		return 1;
+	}
+
+	try
+	{
+		num = stoi(threads_count);
+	}
+	catch (std::invalid_argument e)
+	{
+		return 1;
+	}
+	catch (std::out_of_range e)
+	{
+		return 1;
+	}
+
+	if (num <= 0)
+	{
+		return 1;
+	}
+
+	return num;
+}
+
+void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index, House& house)
+{
+	vector<Simulation*> simulations;
+
+#ifdef _DEBUG_
+	cout << std::this_thread::get_id() << " running on house: " << index << endl << endl;
+#endif
+
+	// We need to set MaxSteps for each house sepreratly
+	Configuration config(_config);
+	int maxSteps = house.getMaxSteps();
+
+	map<string, unique_ptr<AbstractAlgorithm>> algorithms = AlgorithmRegistrar::getInstance().getAlgorithms();
+	for (auto a_it = algorithms.begin(); a_it != algorithms.end(); ++a_it)
+	{
+		simulations.push_back(new Simulation(config, house, a_it->second, a_it->first));
+	}
+#ifdef _DEBUG_
+	cout << house << endl;
+#endif
+	// Simulate all algorithms on current house
+	vector<Simulation*> tempStoppedSimulatios;
+	bool atLeastOneDone = false, aboutToFinishCalled = false;
+	int stepsCount = 0, afterStepsCount = -1;
+	while ((simulations.size() > 0) && (stepsCount < maxSteps) && (atLeastOneDone ? (afterStepsCount < maxStepsAfterWinner) : true) )
+	{
+		vector<Simulation*>::iterator it = simulations.begin();
+		while (it != simulations.end())
+		{
+			Simulation& currentSimulation = **it;
+
+			if (!currentSimulation.step() || currentSimulation.isDone())
+			{
+				if (currentSimulation.isDone())
+				{
+					atLeastOneDone = true;
+				}
+				if (currentSimulation.didRobotMisbehave())
+				{
+					_errors.push_back(currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount+1));
+				}
+				tempStoppedSimulatios.push_back(*it);
+				it = simulations.erase(it);
+//#ifdef _DEBUG_
+//				cout << "Simulation is done!" << endl;
+//				if (stepsCount % 5 == 0)
+//				{
+//					currentSimulation.printStatus();
+//				}
+//#endif
+			}
+			else
+			{
+				++it;
+#ifdef _DEBUG_
+				// currentSimulation.printStatus();
+				if (stepsCount == maxSteps - 1)
+				{
+					cout << "Simulation is stopped!" << endl;
+				}
+//				currentSimulation.printStatus();
+#endif
+			}
+		}
+
+		if (atLeastOneDone)
+		{
+			afterStepsCount++;
+		}
+		stepsCount++;
+
+		// Calling aboutToFinish only once per algorithm
+		// According to the forum there are 2 scenarios for our call to aboutToFinish()
+		//		1. No winner and (stepsCount >= maxSteps - maxStepsAfterWinner)
+		//		2. Winner finished and aboutToFinish() was not called
+		if (!aboutToFinishCalled && (atLeastOneDone || (stepsCount == maxSteps - maxStepsAfterWinner)))
+		{
+			aboutToFinishCalled = true;
+
+			// Iterating on all active simulations and calling aboutToFinish()
+			for (vector<Simulation*>::iterator itt = simulations.begin(); itt != simulations.end(); ++itt)
+			{
+				(*itt)->CallAboutToFinish(min(maxSteps - stepsCount, maxStepsAfterWinner));
+			}
+		}
+	}
+		
+#ifdef _DEBUG_
+	cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl << endl;
+#endif
+	simulations.insert(simulations.end(), tempStoppedSimulatios.begin(), tempStoppedSimulatios.end());
+	tempStoppedSimulatios.clear();
+	this->score(index, stepsCount, simulations);
+
+	Simulator::clearPointersVector(simulations);
+}
+
+void Simulator::runSingleSubSimulationThread(int maxStepsAfterWinner) {
+	// ===> thread should take a new task, if available, and run it
+	// if no task is available, thread is done
+	cout << std::this_thread::get_id() << " runSingleSubSimulationThread " << endl;
+
+	for (size_t index = _houseIndex++; // fetch old value, then add. equivalent to: fetch_add(1)
+		index < _houses.size();
+		index = _houseIndex++) {
+		House& house = *_houses.at(index);
+		simulateOnHouse(maxStepsAfterWinner, index, house);
+	}
+}
 
 void Simulator::simulate()
 {
 	if (!_successful) return;
 	int maxStepsAfterWinner = _config["MaxStepsAfterWinner"];
 
-	// for each house, simulate all possible algorithms
-	for (vector<House*>::iterator h_it = _houses.begin(); h_it != _houses.end(); ++h_it)
-	{
-		int index = h_it - _houses.begin();
-		House& house = **h_it;
-		vector<Simulation*> simulations;
+	vector<unique_ptr<thread>> threads(_threadsCount);
+	for (auto& thread_ptr : threads) {
+		// ===> actually create the threads and run them
+		thread_ptr = make_unique<thread>(&Simulator::runSingleSubSimulationThread, this, maxStepsAfterWinner); // create and run the thread
+	}
 
-		// We need to set MaxSteps for each house sepreratly
-		Configuration config(_config);
-		int maxSteps = house.getMaxSteps();
-
-		map<string, unique_ptr<AbstractAlgorithm>> algorithms = AlgorithmRegistrar::getInstance().getAlgorithms();
-		for (auto a_it = algorithms.begin(); a_it != algorithms.end(); ++a_it)
-		{
-			simulations.push_back(new Simulation(config, house, a_it->second, a_it->first));
-		}
-#ifdef _DEBUG_
-		cout << house << endl;
-#endif
-		// Simulate all algorithms on current house
-		vector<Simulation*> tempStoppedSimulatios;
-		bool atLeastOneDone = false, aboutToFinishCalled = false;
-		int stepsCount = 0, afterStepsCount = -1;
-		while ((simulations.size() > 0) && (stepsCount < maxSteps) && (atLeastOneDone ? (afterStepsCount < maxStepsAfterWinner) : true) )
-		{
-			vector<Simulation*>::iterator it = simulations.begin();
-			while (it != simulations.end())
-			{
-				Simulation& currentSimulation = **it;
-
-				if (!currentSimulation.step() || currentSimulation.isDone())
-				{
-					if (currentSimulation.isDone())
-					{
-						atLeastOneDone = true;
-					}
-					if (currentSimulation.didRobotMisbehave())
-					{
-						_errors.push_back(currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount+1));
-					}
-					tempStoppedSimulatios.push_back(*it);
-					it = simulations.erase(it);
-#ifdef _DEBUG_
-					cout << "Simulation is done!" << endl;
-					if (stepsCount % 5 == 0)
-					{
-						currentSimulation.printStatus();
-					}
-#endif
-				}
-				else
-				{
-					++it;
-#ifdef _DEBUG_
-					// currentSimulation.printStatus();
-					if (stepsCount == maxSteps - 1)
-					{
-						cout << "Simulation is stopped!" << endl;
-					}
-					currentSimulation.printStatus();
-#endif
-				}
-			}
-
-			if (atLeastOneDone)
-			{
-				afterStepsCount++;
-			}
-			stepsCount++;
-
-			// Calling aboutToFinish only once per algorithm
-			// According to the forum there are 2 scenarios for our call to aboutToFinish()
-			//		1. No winner and (stepsCount >= maxSteps - maxStepsAfterWinner)
-			//		2. Winner finished and aboutToFinish() was not called
-			if (!aboutToFinishCalled && (atLeastOneDone || (stepsCount == maxSteps - maxStepsAfterWinner)))
-			{
-				aboutToFinishCalled = true;
-
-				// Iterating on all active simulations and calling aboutToFinish()
-				for (vector<Simulation*>::iterator itt = simulations.begin(); itt != simulations.end(); ++itt)
-				{
-					(*itt)->CallAboutToFinish(min(maxSteps - stepsCount, maxStepsAfterWinner));
-				}
-			}
-		}
-		
-#ifdef _DEBUG_
-		cout << "[INFO] Total simulation steps for current house: " << stepsCount << endl << endl;
-#endif
-		simulations.insert(simulations.end(), tempStoppedSimulatios.begin(), tempStoppedSimulatios.end());
-		tempStoppedSimulatios.clear();
-		this->score(index, stepsCount, simulations);
-
-		Simulator::clearPointersVector(simulations);
+	// ===> join all the threads to finish nicely (i.e. without crashing / terminating threads)
+	for (auto& thread_ptr : threads) {
+		thread_ptr->join();
 	}
 
 	this->printScores();
@@ -258,7 +322,10 @@ void Simulator::score(int houseIndex_, int simulationSteps_, vector<Simulation*>
 			position_in_competition = this->getActualPosition(simulations_, currentSim);
 		}
 
+		// this lock will prevent parallel writes to _algoScores
+		lock_guard<mutex> lock(_algoScoresMutex);
 		(*_algoScores[currentSim.getAlgoName()])[houseIndex_] = currentSim.score(position_in_competition, winner_num_steps, simulationSteps_);
+		
 	}
 }
 

@@ -4,6 +4,8 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <atomic>
+#include <mutex>
 
 using namespace std;
 
@@ -17,13 +19,18 @@ class Simulator
 {
 	Configuration	_config;
 	vector<House*>	_houses;
-	map<string, unique_ptr<vector<int>>>	_algoScores;
+	size_t _threadsCount;
 
 	bool			_successful = false;
 	vector<string>	_errors;
 
+	map<string, unique_ptr<vector<int>>>	_algoScores;
+	mutex _algoScoresMutex;
+
+	atomic_size_t _houseIndex{0};
+	
 public:
-	Simulator(const Configuration& conf_, const char* housePath_ = NULL, const char* algorithmPath_ = NULL);
+	Simulator(const Configuration& conf_, const char* housePath_ = NULL, const char* algorithmPath_ = NULL, const char* threadsCount_ = NULL);
 	~Simulator();
 
 	bool isReady() { return _successful; }
@@ -43,6 +50,9 @@ private:
 	bool getAlgos(const char* algorithmPath_, vector<string>& errors_);
 	bool getHouses(const char* housePath_);
 
+	size_t getThreadsFromString(const char* threads_count) const;
+	void simulateOnHouse(int maxStepsAfterWinner, int index, House& house);
+	void runSingleSubSimulationThread(int maxStepsAfterWinner);
 	template <class T>
 	static void clearPointersVector(vector<T*>& vec);
 };

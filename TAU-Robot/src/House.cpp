@@ -18,7 +18,7 @@ House::House(const char* path_)
 	this->loadFromFile(path_);
 
 #ifdef _DEBUG_
-	this->print(_docking);
+//	this->print(_docking);
 	cout << endl << "Docking station: " << _docking << endl << endl;
 #endif
 }
