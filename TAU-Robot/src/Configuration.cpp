@@ -20,36 +20,28 @@ const char* const Configuration::mandatoryParams[] = {
 
 Configuration::Configuration(const char* iniPath_)
 { 
-	string fullPath;
-	if (iniPath_ != NULL)
-	{
-		fullPath = StringUtils::getWithTrailingSlash(iniPath_);
-		fullPath += Configuration::configFileName; // add config file name to path
-	}
-	else
-	{
-		fullPath = Configuration::configFileName;
-	}
-
-	_successful = loadFromFile(fullPath);
+	string path = StringUtils::getWithTrailingSlash(iniPath_ != NULL ? iniPath_ : ".");
+	_successful = loadFromPath(path);
 }
 
 
 
-bool Configuration::loadFromFile(const string& iniPath_)
+bool Configuration::loadFromPath(const string& iniPath_)
 {
+	string fullPath = iniPath_ + Configuration::configFileName; // add config file name to path
 	struct stat buf;
-	if (stat(iniPath_.c_str(), &buf) != 0)
+	if (stat(fullPath.c_str(), &buf) != 0)
 	{
 		// ini file is missing
 		ParamsParser::printUsage();
+		cout << "cannot find " << Configuration::configFileName << " file in '" << StringUtils::getFullPath(iniPath_) << "'" << endl;
 		return false;
 	}
 
-	ifstream fin(iniPath_.c_str());
+	ifstream fin(fullPath.c_str());
 	if (!fin.good())
 	{
-		cout << "config.ini exists in " << iniPath_ << " but cannot be opened" << endl;
+		cout << Configuration::configFileName << " exists in '" << StringUtils::getFullPath(iniPath_) << "' but cannot be opened" << endl;
 		return false;
 	}
 
@@ -60,6 +52,17 @@ bool Configuration::loadFromFile(const string& iniPath_)
 		this->processLine(line);
 	}
 	fin.close();
+
+	if (_badParams.size() > 0)
+	{
+		cout << Configuration::configFileName << " having bad values for " << _badParams.size() << " parameter(s): ";
+		for (vector<string>::iterator it = _badParams.begin(); it != _badParams.end(); ++it)
+		{
+			cout << *it;
+			if (it + 1 != _badParams.end()) cout << ", ";
+		}
+		cout << endl;
+	}
 
 	return checkAllParamsExistence();
 }
@@ -83,21 +86,32 @@ string Configuration::toString() const
 bool Configuration::checkAllParamsExistence()
 {
 	string missingParams;
+	bool hadBadParam = false;
 	unsigned int i, missingCount = 0, mandatoryParamsSize = sizeof(Configuration::mandatoryParams) / sizeof(*Configuration::mandatoryParams);
 	for (i = 0; i < mandatoryParamsSize; ++i)
 	{
 		map<string, int>::const_iterator it = _params.find(Configuration::mandatoryParams[i]);
 		if (it == _params.end())
 		{
-			missingCount++;
-			missingParams += string(Configuration::mandatoryParams[i]) + string(", ");
+			if (std::find(_badParams.begin(), _badParams.end(), Configuration::mandatoryParams[i]) == _badParams.end()) // add only if does not exist with bad value
+			{
+				missingCount++;
+				missingParams += string(Configuration::mandatoryParams[i]) + string(", ");
+			}
+			else
+			{
+				hadBadParam = true;
+			}
 		}
 	}
 
 	if (missingCount != 0)
 	{
 		cout << Configuration::configFileName << " missing " << missingCount << " parameter(s): " << missingParams.substr(0, missingParams.size() - 2) << endl;
-
+		return false;
+	}
+	else if (hadBadParam)
+	{
 		return false;
 	}
 
@@ -123,12 +137,12 @@ std::string Configuration::trim(std::string& str)
 }
 
 
-void Configuration::processLine(const string& line)
+bool Configuration::processLine(const string& line)
 {
 	vector<string> tokens = Configuration::split(line, '=');
 	if (tokens.size() != 2)
 	{
-		return;
+		goto bad_param;
 	}
 
 	int num;
@@ -138,13 +152,22 @@ void Configuration::processLine(const string& line)
 	}
 	catch (std::invalid_argument e)
 	{
-		return;
+		goto bad_param;
 	}
 	catch (std::out_of_range e)
 	{
-		return;
+		goto bad_param;
 	}
-	_params[Configuration::trim(tokens[0])] = num;
+	
+	if (num >= 0)
+	{
+		_params[Configuration::trim(tokens[0])] = num;
+		return true;
+	}
+
+bad_param:
+	_badParams.push_back(tokens[0]);
+	return false;
 }
 
 

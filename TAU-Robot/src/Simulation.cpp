@@ -113,6 +113,7 @@ int Simulation::score(int actual_position_in_competition, int winner_num_steps, 
 	scoreParams["sum_dirt_in_house"] = this->getTotalDirtCount();
 	scoreParams["dirt_collected"] = this->getCleanedDirtCount();
 	scoreParams["is_back_in_docking"] = this->isRobotDocked() ? 1 : 0;
+	scoreParams["did_misbehave"] = this->didRobotMisbehave() ? 1 : 0;
 
 	return Simulation::calc_score(scoreParams);
 }
@@ -120,9 +121,12 @@ int Simulation::score(int actual_position_in_competition, int winner_num_steps, 
 
 int Simulation::calc_score(const map<string, int>& score_params_)
 {
+	bool didMisbehave = score_params_.at("did_misbehave") == 1 ? true : false;
 	bool isHouseClean = score_params_.at("sum_dirt_in_house") == score_params_.at("dirt_collected");
 	bool isDocked = score_params_.at("is_back_in_docking") == 1 ? true : false;
 	bool isDone = isHouseClean && isDocked;
+
+	if (didMisbehave) return 0;
 
 	int position_in_competition = isDone ? std::min(score_params_.at("actual_position_in_competition"), 4) : 10;
 

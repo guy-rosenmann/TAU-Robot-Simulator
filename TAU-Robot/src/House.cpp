@@ -1,6 +1,5 @@
 #include "House.h"
 
-#include <string>
 #include <cstring>
 #include <cmath>
 #include <functional>
@@ -56,11 +55,11 @@ void House::loadFromFile(const char* path_)
 	{
 		_house[i] = new char[_cols + 1];
 		_house[i][_cols] = '\0';
-		std::memset(_house[i], House::EMPTY, _cols); // fill in all places with spaces
+		memset(_house[i], House::EMPTY, _cols); // fill in all places with spaces
 
 		string houseRow;
 		std::getline(fin, houseRow);
-		std::memcpy(_house[i], houseRow.c_str(), std::min(houseRow.size(), _cols));
+		memcpy(_house[i], houseRow.c_str(), std::min(houseRow.size(), _cols));
 	}
 
 	fin.close();
