@@ -17,7 +17,7 @@ class Point {
 public:
 	Point(int x_, int y_) : _x(x_), _y(y_) {}
 	Point() : _x(0), _y(0) {}
-
+	Point(const Point &obj) : _x(obj._x), _y(obj._y) {}
 	double distance(const Point& other) const {
 		return sqrt(pow(_x - other._x, 2) + pow(_y - other._y, 2));
 	}
@@ -36,6 +36,7 @@ public:
 		do_move[(int)d](*this);
 	}
 	bool operator==(const Point& other) const { return (_x == other._x && _y == other._y); }
+	bool operator<(const Point& other) const { return (_x < other._x) || (_x == other._x && _y < other._y); }
 	friend ostream& operator<<(ostream& out, const Point& p) { p.print(out); return out; }
 };
 

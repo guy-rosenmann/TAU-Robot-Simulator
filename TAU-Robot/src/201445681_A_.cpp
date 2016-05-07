@@ -1,20 +1,33 @@
 #include "201445681_A_.h"
 #include "AlgorithmRegistration.h"
+#include <boost/filesystem/path.hpp>
 
-Direction _201445681_A::step(Direction prevStep)
+Direction _201445681_A::step(Direction prevStep_)
 {
-	updateBeforeMove();
-	
-	vector<Direction> moves;
-	this->getPossibleMoves(moves);
 
-	// Choose "randomly"
-	Direction next = moves[_psuedoRand % moves.size()];
+#ifdef _DEBUG_
+//	int i = 0;
+	boost::detail::Sleep(500);
+	system("cls");
+	printHouse(_robot.location);
+	cout << _robot.location << endl;
+	cout << (int) prevStep_ << endl;
+//	if (i++ % 10 == 0)
+//	{
+//		printNLocation();
+//	}
+#endif
 
-	updatePseudoRandom();
-	updateAfterMove(next);
+	// AfterMove because we can't be sure it moved (in cases of undisciplined robot)
+	updateAfterMove(prevStep_);
+
+	Direction next = getMove(prevStep_);
+
+	// BeforeMove because we can't be sure it moved (in cases of undisciplined robot)
+	updateBeforeMove(next);
 
 	return next;
+
 }
 
 void _201445681_A::updatePseudoRandom()

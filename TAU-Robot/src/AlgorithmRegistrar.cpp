@@ -12,15 +12,15 @@ AlgorithmRegistrar AlgorithmRegistrar::_instance;
 AlgorithmRegistrar::AlgorithmRegistrar()
 {
 	SharedObjectLoader* so1 = new SharedObjectLoader("201445681_A_.so");
-	SharedObjectLoader* so2 = new SharedObjectLoader("201445681_B_.so");
-	SharedObjectLoader* so3 = new SharedObjectLoader("201445681_C_.so");
+//	SharedObjectLoader* so2 = new SharedObjectLoader("201445681_B_.so");
+//	SharedObjectLoader* so3 = new SharedObjectLoader("201445681_C_.so");
 	auto fac1 = []{return make_unique<_201445681_A>(); };
-	auto fac2 = []{return make_unique<_201445681_B>(); };
-	auto fac3 = []{return make_unique<_201445681_C>(); };
+//	auto fac2 = []{return make_unique<_201445681_B>(); };
+//	auto fac3 = []{return make_unique<_201445681_C>(); };
 	
 	_instance._algorithmPairs.push_back(std::make_pair(so1, fac1));
-	_instance._algorithmPairs.push_back(std::make_pair(so2, fac2));
-	_instance._algorithmPairs.push_back(std::make_pair(so3, fac3));
+//	_instance._algorithmPairs.push_back(std::make_pair(so2, fac2));
+//	_instance._algorithmPairs.push_back(std::make_pair(so3, fac3));
 }
 #endif
 

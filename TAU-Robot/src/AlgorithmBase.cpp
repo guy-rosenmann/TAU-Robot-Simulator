@@ -1,6 +1,20 @@
 #include "AlgorithmBase.h"
 #include <algorithm>
 
+AlgorithmBase::AlgorithmBase()
+{
+	_house = new char*[MAXHOUSELENGTH];
+	for (size_t i = 0; i < MAXHOUSELENGTH; i++)
+	{
+		_house[i] = new char[MAXHOUSELENGTH + 1];
+		_house[i][MAXHOUSELENGTH] = '\0';
+		std::memset(_house[i], AlgorithmBase::UNKNOWN, MAXHOUSELENGTH); // fill in all places with spaces
+	}
+
+	_robot.location = Point(MAXHOUSELENGTH / 2, MAXHOUSELENGTH / 2);
+
+}
+
 void AlgorithmBase::aboutToFinish(int stepsTillFinishing_)
 {
 	_returnHome = true;
@@ -59,7 +73,7 @@ void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
 	}
 }
 
-void AlgorithmBase::removeBackwardDirection(vector<Direction>& moves_)
+void AlgorithmBase::removeBackwardDirection(vector<Direction>& moves_) const
 {
 	// Stay is valid twice for dirty floor
 	if (_lastMove == Direction::Stay)
@@ -80,9 +94,9 @@ void AlgorithmBase::removeBackwardDirection(vector<Direction>& moves_)
 		++it;
 	}
 }
-bool AlgorithmBase::isDocking()
+bool AlgorithmBase::isDocking() const
 {
-	return _robot.location == Point();
+	return _robot.location == Point(INITIALLENGTH, INITIALLENGTH);
 }
 
 //bool AlgorithmBase::returnQuicklyMoves(vector<Direction>& moves_)
@@ -137,10 +151,9 @@ Direction AlgorithmBase::oppositeDirection(Direction direction_)
 	return Direction::Stay;
 }
 
-void AlgorithmBase::updateBeforeMove()
+void AlgorithmBase::updateBeforeMove(Direction prevMove_) const
 {
-//	updateBattery(); // We'll start using this in Ex.3
-	updateRemainingMoves();
+
 }
 
 void AlgorithmBase::updateAfterMove(Direction direction_)
@@ -148,6 +161,10 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 	// update robot info
 	_robot.location.move(direction_);
 	_robot.totalSteps++;
+//	_house[];
+
+	updateBattery();
+	updateRemainingMoves();
 
 	// Save moves
 	if (!_returnHome)
@@ -162,9 +179,159 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 	}
 }
 
+Direction AlgorithmBase::recoverFromUndisciplinedRobot(Direction actualPrevStep_) const
+{
+	return oppositeDirection(actualPrevStep_);
+
+
+//	if (_mode == UNDISCIPLINED)
+//	{
+//		_mode = UNDISCIPLINED2;
+//	}
+//	else
+//	{
+//		_prevMode = _mode;
+//		_mode = UNDISCIPLINED;
+//	}
+//
+//
+//	if (actualPrevStep_ == Direction::Stay)
+//	{
+//		_mode = _prevMode;
+//		return _lastMove;
+//	}
+//
+//	if (_lastMove == Direction::Stay)
+//	{
+//		_mode = _prevMode;
+//		return oppositeDirection(actualPrevStep_);
+//	}
+//
+//	// if we got here, we'll need two steps to recover
+//	if (_mode == UNDISCIPLINED2)
+//	{
+//		_mode = _prevMode;
+//		return oppositeDirection(actualPrevStep_);
+//	}
+
+
+}
+
+string AlgorithmBase::DirectionToString(Direction direction) const
+{
+	switch (direction)
+	{
+	case Direction::Stay: return "stay";
+	case Direction::East: return "east";
+	case Direction::West: return "west";
+	case Direction::North: return "north";
+	case Direction::South: return "south";
+	}
+}
+
+void AlgorithmBase::updateHouseKnowladge(SensorInformation info)
+{
+	for (unsigned int i = 0; i < sizeof(info.isWall) / sizeof(bool); ++i)
+	{
+		Direction direction = (Direction) i;
+		Point block = _robot.location;
+
+#ifdef _DEBUG_
+		cout << "Block before move:" << block << endl;
+		cout << "move direction:" << DirectionToString(direction) << endl;
+#endif
+		block.move(direction);
+
+#ifdef _DEBUG_
+		cout << "Block after move:" << block << endl;
+#endif
+
+		if (_house[block.getY()][block.getX()] == UNKNOWN)
+		{
+			if (info.isWall[i])
+			{
+				_house[block.getY()][block.getX()] = WALL;
+			}
+			else
+			{
+				_house[block.getY()][block.getX()] = NOTWALL;
+				_NLocations.insert(block);
+			}
+		}
+	}
+
+	int dL = info.dirtLevel;
+	_NLocations.erase(_robot.location);
+	_house[_robot.location.getY()][_robot.location.getX()] = (dL == 0) ? EMPTY : CLEAN + dL;
+}
+
+Direction AlgorithmBase::getMove(Direction prevStep_)
+{
+	if (prevStep_ != _lastMove && prevStep_ != Direction::Stay)
+	{
+		return recoverFromUndisciplinedRobot(prevStep_);
+	}
+
+	SensorInformation info = _sensor->sense(); // info.isWall = { East, West, South, North }
+	updateHouseKnowladge(info);
+
+	vector<Direction> possibleMoves;
+	for (unsigned int i = 0; i < sizeof(info.isWall) / sizeof(bool); ++i)
+	{
+		if (!info.isWall[i])
+		{
+			possibleMoves.push_back((Direction)i);
+		}
+	}
+
+	// battery Check
+
+	if (_mode == SCAN && info.dirtLevel >= 1)
+	{
+		return Direction::Stay;
+	}
+
+
+
+
+	return possibleMoves[rand() % possibleMoves.size()];
+}
+
+Direction AlgorithmBase::goToPoint(Point destination)
+{
+
+}
+
+void AlgorithmBase::printHouse(Point robotLocation) const
+{
+	cout << "####################################################" << endl;
+	cout << "Guessed House : " << endl;
+	char prev = _house[robotLocation.getY()][robotLocation.getX()];
+	_house[robotLocation.getY()][robotLocation.getX()] = 'R';
+	for (int i = 0; i < MAXHOUSELENGTH; i++)
+	{
+		cout << _house[i] << endl;
+	}
+	_house[robotLocation.getY()][robotLocation.getX()] = prev;
+	cout << "####################################################" << endl;
+}
+
+void AlgorithmBase::printNLocation()
+{
+	cout << "Printing Set:" << endl;
+	for (auto iter = _NLocations.begin(); iter != _NLocations.end(); ++iter){
+		cout<<(*iter) <<endl;
+	}
+}
+
 void AlgorithmBase::updateRemainingMoves()
 {
 	_movesUntilFinish--;
+}
+
+size_t AlgorithmBase::NumberOfMovesToDocking() const
+{
+	return _movesDone.size();
 }
 
 void AlgorithmBase::updateBattery()
@@ -179,7 +346,7 @@ void AlgorithmBase::updateBattery()
 	}
 	else
 	{
-		_robot.battery -= -consumptionRate;
+		_robot.battery -= consumptionRate;
 	}
 
 	// Next were figuring out if we have enough battery to return home
@@ -188,21 +355,11 @@ void AlgorithmBase::updateBattery()
 		return;
 	}
 
-	int returnMoves = _movesDone.size(), returnBatteryConsumption = returnMoves*consumptionRate;
-	if ((_robot.battery >= returnBatteryConsumption) && (_robot.battery - consumptionRate <= returnBatteryConsumption))
+	int returnBatteryConsumption = NumberOfMovesToDocking()*consumptionRate;
+
+	// The 2 marked here is a safety margin //////////////////////////   -|-  /////////////////////
+	if ((_robot.battery >= returnBatteryConsumption) && (_robot.battery - 2 * consumptionRate <= returnBatteryConsumption))
 	{
 		_returnHome = true;
 	}
 }
-
-//void AlgorithmBase::resetValues()
-//{
-//	_robot.totalSteps = 0;
-//	_movesDone.clear();
-//	_lastMove = Direction::Stay;
-//
-//	_returnHome = false;
-//	_robot.location = Point();
-//
-//	_movesUntilFinish = UINT_MAX;
-//}

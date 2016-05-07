@@ -4,7 +4,7 @@
 
 Direction _201445681_B::step(Direction prevStep)
 {
-	updateBeforeMove();
+//	updateBeforeMove();
 
 	vector<Direction> moves;
 	this->getPossibleMoves(moves);
