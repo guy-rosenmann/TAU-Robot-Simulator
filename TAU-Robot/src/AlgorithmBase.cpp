@@ -237,15 +237,15 @@ void AlgorithmBase::updateHouseKnowladge(SensorInformation info)
 		Direction direction = (Direction) i;
 		Point block = _robot.location;
 
-#ifdef _DEBUG_
-		cout << "Block before move:" << block << endl;
-		cout << "move direction:" << DirectionToString(direction) << endl;
-#endif
+//#ifdef _DEBUG_
+//		cout << "Block before move:" << block << endl;
+//		cout << "move direction:" << DirectionToString(direction) << endl;
+//#endif
 		block.move(direction);
 
-#ifdef _DEBUG_
-		cout << "Block after move:" << block << endl;
-#endif
+//#ifdef _DEBUG_
+//		cout << "Block after move:" << block << endl;
+//#endif
 
 		if (_house[block.getY()][block.getX()] == UNKNOWN)
 		{
@@ -264,6 +264,28 @@ void AlgorithmBase::updateHouseKnowladge(SensorInformation info)
 	int dL = info.dirtLevel;
 	_NLocations.erase(_robot.location);
 	_house[_robot.location.getY()][_robot.location.getX()] = (dL == 0) ? EMPTY : CLEAN + dL;
+}
+
+Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Direction>& possiblemoves)
+{
+	if (info.dirtLevel > 1)
+	{
+		return Direction::Stay;
+	}
+
+	for (auto it = possiblemoves.begin(); it != possiblemoves.end(); it++)
+	{
+		// looking for new block
+		Point block = _robot.location;
+		block.move(*it);
+
+		if (_NLocations.find(block) != _NLocations.end())
+		{
+			return *it;
+		}
+	}
+
+	return possiblemoves[deleteThis++ % possiblemoves.size()];
 }
 
 Direction AlgorithmBase::getMove(Direction prevStep_)
@@ -285,14 +307,14 @@ Direction AlgorithmBase::getMove(Direction prevStep_)
 		}
 	}
 
-	// battery Check
+	///////////// battery Check
 
-	if (_mode == SCAN && info.dirtLevel >= 1)
+
+
+	if (_mode == SCAN)
 	{
-		return Direction::Stay;
+		return getMoveScanMode(info, possibleMoves);
 	}
-
-
 
 
 	return possibleMoves[rand() % possibleMoves.size()];

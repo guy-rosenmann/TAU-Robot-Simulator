@@ -52,6 +52,9 @@ protected:
 	Mode _mode = Mode::SCAN;
 	Mode _prevMode = Mode::SCAN;
 	set<Point> _NLocations;
+
+	vector<Direction> _maze;
+	int deleteThis = 59;
 	///////////////////////////////
 	
 	bool isDocking() const;
@@ -65,6 +68,7 @@ protected:
 	Direction recoverFromUndisciplinedRobot(Direction prevMove_) const;
 	string DirectionToString(Direction direction) const;
 	void updateHouseKnowladge(SensorInformation info);
+	Direction getMoveScanMode(SensorInformation info, vector<Direction>& possiblemoves);
 	Direction getMove(Direction prevMove_);
 	Direction goToPoint(Point destination);
 	void printHouse(Point robotLocation) const;
