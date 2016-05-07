@@ -227,6 +227,7 @@ string AlgorithmBase::DirectionToString(Direction direction) const
 	case Direction::North: return "north";
 	case Direction::South: return "south";
 	}
+	return "NULL";
 }
 
 void AlgorithmBase::updateHouseKnowladge(SensorInformation info)
@@ -299,7 +300,7 @@ Direction AlgorithmBase::getMove(Direction prevStep_)
 
 Direction AlgorithmBase::goToPoint(Point destination)
 {
-
+	return Direction::Stay;
 }
 
 void AlgorithmBase::printHouse(Point robotLocation) const
