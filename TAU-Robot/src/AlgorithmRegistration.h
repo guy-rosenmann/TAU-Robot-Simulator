@@ -1,14 +1,11 @@
 #ifndef __ALGORITHM_REGISTRATION__H_
 #define __ALGORITHM_REGISTRATION__H_
 
+
 #include <functional>
+#include <memory>
 
-#include "Direction.h"
-#include "AbstractAlgorithm.h"
-#include "MakeUnique.h"
-
-class AlgorithmRegistration
-{
+class AlgorithmRegistration {
 public:
 	AlgorithmRegistration(std::function<unique_ptr<AbstractAlgorithm>()>);
 };

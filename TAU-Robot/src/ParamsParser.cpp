@@ -1,5 +1,4 @@
 #include "ParamsParser.h"
-#include "Constants.h"
 
 #include <iostream>
 #include <cstring>
@@ -16,9 +15,13 @@ const char* const ParamsParser::_options[] = {
 };
 
 
+bool ParamsParser::_wasUsageMessagePrinted = false;
+const char* ParamsParser::_usageMessage = "Usage: simulator [-config <config path>] [-house_path <house path>] [-algorithm_path <algorithm path>] [-score_formula <score .so path>] [-threads <num threads>]";
+
+
 ParamsParser::ParamsParser(int argc, char* argv[])
 {
-	bool printUsage = false;
+	bool shouldPrintUsage = false;
 
 	for (int i = 1; i < argc; ++i)
 	{
@@ -37,14 +40,13 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 #ifdef _DEBUG_
 			cout << "[WARN] Incompatible argument: " << argv[i] << endl;
 #endif
-			printUsage = true;
+			shouldPrintUsage = true;
 		}
 	}
 
-	if (printUsage)
+	if (shouldPrintUsage)
 	{
-		cout << USAGE_MSG << endl;
-		cout << endl;
+		ParamsParser::printUsage();
 	}
 }
 
@@ -70,4 +72,14 @@ const char* ParamsParser::operator[](const char* key) const
 {
 	string strKey = key;
 	return this->operator[](strKey);
+}
+
+
+void ParamsParser::printUsage()
+{
+	if (!ParamsParser::_wasUsageMessagePrinted)
+	{
+		cout << ParamsParser::_usageMessage << endl << endl;
+		ParamsParser::_wasUsageMessagePrinted = true;
+	}
 }

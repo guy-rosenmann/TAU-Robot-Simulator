@@ -37,7 +37,8 @@ public:
 	void printStatus();
 	void CallAboutToFinish(int stepsTillFinishing);
 
-	int score(int position_in_competition, int winner_num_steps, int SimulationSteps) const;
+	int score(int actual_position_in_competition, int winner_num_steps, int simulation_steps) const;
+	static int calc_score(const map<string, int>& score_params_);
 
 	RobotInformation getRobotInfo() const { return _robot; }
 

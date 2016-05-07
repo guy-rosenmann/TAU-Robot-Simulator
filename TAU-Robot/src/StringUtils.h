@@ -20,6 +20,18 @@ public:
 		ss << num;
 		return ss.str();
 	}
+
+
+	static std::string getWithTrailingSlash(const char* path)
+	{
+		if (path == NULL) return "";
+		std::string sPath(path);
+		if (!sPath.empty() && *sPath.rbegin() != '/' && *sPath.rbegin() != '\\')
+		{
+			return (sPath + "/");
+		}
+		return path;
+	}
 };
 
 
