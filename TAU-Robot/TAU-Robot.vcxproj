@@ -40,7 +40,6 @@
     <ClInclude Include="src\201445681_C_.h" />
     <ClInclude Include="src\AlgorithmRegistration.h" />
     <ClInclude Include="src\Configuration.h" />
-    <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\House.h" />
     <ClInclude Include="src\MakeUnique.h" />
     <ClInclude Include="src\ParamsParser.h" />

@@ -36,7 +36,7 @@ AlgorithmRegistrar::~AlgorithmRegistrar()
 	}
 	_algorithmPairs.clear();
 
-	for (auto it = deleteList.begin(); it != deleteList.end(); ++it)
+	for (vector<SharedObjectLoader*>::iterator it = deleteList.begin(); it != deleteList.end(); ++it)
 	{
 		delete *it;
 	}

@@ -18,7 +18,7 @@ class SharedObjectLoader
 public:
 
 #ifndef _WINDOWS_
-	SharedObjectLoader(const char* soPath_) : _path(soPath_) { _handle = dlopen(soPath_, RTLD_NOW); }
+	SharedObjectLoader(const char* soPath_) : _path(soPath_) { if (soPath_ != NULL) _handle = dlopen(soPath_, RTLD_NOW); }
 	~SharedObjectLoader() { if (_handle != NULL) dlclose(_handle); }
 
 	void* getFunctionPointer(const char* funcName_) const

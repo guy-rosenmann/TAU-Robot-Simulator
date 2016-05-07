@@ -1,5 +1,6 @@
 #include "Configuration.h"
-#include "Constants.h"
+#include "StringUtils.h"
+#include "ParamsParser.h"
 
 #include <sys/stat.h>
 #include <iostream>
@@ -22,12 +23,7 @@ Configuration::Configuration(const char* iniPath_)
 	string fullPath;
 	if (iniPath_ != NULL)
 	{
-		fullPath = iniPath_;
-		// fix for missing back slash
-		if (!fullPath.empty() && *fullPath.rbegin() != '/' && *fullPath.rbegin() != '\\')
-		{
-			fullPath += "/";
-		}
+		fullPath = StringUtils::getWithTrailingSlash(iniPath_);
 		fullPath += Configuration::configFileName; // add config file name to path
 	}
 	else
@@ -46,7 +42,7 @@ bool Configuration::loadFromFile(const string& iniPath_)
 	if (stat(iniPath_.c_str(), &buf) != 0)
 	{
 		// ini file is missing
-		cout << USAGE_MSG << endl;
+		ParamsParser::printUsage();
 		return false;
 	}
 

@@ -9,7 +9,9 @@ using namespace std;
 class ParamsParser
 {
 	static const char* const _options[];
-	
+	static bool _wasUsageMessagePrinted;
+	static const char* _usageMessage;
+
 	map<string, string> _params;
 	
 public:
@@ -21,6 +23,8 @@ public:
 
 	const char* operator[](const string& key) const;
 	const char* operator[](const char* key) const;
+
+	static void printUsage();
 };
 
 
