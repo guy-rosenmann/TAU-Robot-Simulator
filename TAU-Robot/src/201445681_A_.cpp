@@ -1,5 +1,8 @@
 #include "201445681_A_.h"
+#include "AbstractAlgorithm.h"
+#include "MakeUnique.h"
 #include "AlgorithmRegistration.h"
+
 #include <boost/filesystem/path.hpp>
 
 Direction _201445681_A::step(Direction prevStep_)

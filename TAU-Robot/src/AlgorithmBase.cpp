@@ -1,5 +1,7 @@
 #include "AlgorithmBase.h"
+
 #include <algorithm>
+#include <cstring>
 
 AlgorithmBase::AlgorithmBase()
 {
@@ -8,7 +10,7 @@ AlgorithmBase::AlgorithmBase()
 	{
 		_house[i] = new char[MAXHOUSELENGTH + 1];
 		_house[i][MAXHOUSELENGTH] = '\0';
-		std::memset(_house[i], AlgorithmBase::UNKNOWN, MAXHOUSELENGTH); // fill in all places with spaces
+		memset(_house[i], AlgorithmBase::UNKNOWN, MAXHOUSELENGTH); // fill in all places with spaces
 	}
 
 	_robot.location = Point(MAXHOUSELENGTH / 2, MAXHOUSELENGTH / 2);

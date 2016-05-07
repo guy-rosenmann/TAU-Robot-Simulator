@@ -15,6 +15,7 @@ class Configuration
 	static const char* const mandatoryParams[];
 
 	map<string, int>	_params;
+	vector<string>		_badParams;
 	bool				_successful = false; // did last loading of config was OK
 
 public:
@@ -25,7 +26,7 @@ public:
 
 	bool isReady() { return _successful; }
 
-	bool loadFromFile(const string& iniPath_);
+	bool loadFromPath(const string& iniPath_);
 
 	map<string, int> getParams() const { return _params; }
 
@@ -45,7 +46,7 @@ private:
 	static std::string trim(std::string& str);
 
 	bool checkAllParamsExistence();
-	void processLine(const string& line);
+	bool processLine(const string& line);
 	
 };
 

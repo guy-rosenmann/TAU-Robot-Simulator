@@ -8,6 +8,8 @@
 #include <boost/filesystem.hpp>
 #include <thread>
 
+namespace fs = boost::filesystem;
+
 
 #ifdef _DEBUG_
 // for Windows tests only (debug prints)
@@ -89,6 +91,7 @@ bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
 	if (files.size() == 0)
 	{
 		ParamsParser::printUsage();
+		cout << "cannot find algorithm files in '" << StringUtils::getFullPath(algoPath) << "'" << endl;
 		return false;
 	}
 
@@ -97,7 +100,7 @@ bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
 		int err = registrar.loadAlgorithm((*it).c_str());
 		if (err != AlgorithmRegistrar::ALGORITHM_REGISTERED_SUCCESSFULY)
 		{
-			string fileName = boost::filesystem::path((*it).c_str()).filename().generic_string();
+			string fileName = fs::path((*it).c_str()).filename().generic_string();
 			if (err == AlgorithmRegistrar::FILE_CANNOT_BE_LOADED)
 			{
 				errors_.push_back(fileName + ": file cannot be loaded or is not a valid .so");
@@ -111,7 +114,7 @@ bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
 
 	if (registrar.size() == 0)
 	{
-		cout << "All algorithm files in target folder '" << boost::filesystem::canonical(algoPath).string() << "' cannot be opened or are invalid: " << endl;
+		cout << "All algorithm files in target folder '" << StringUtils::getFullPath(algoPath) << "' cannot be opened or are invalid: " << endl;
 
 		// Only algorithms errors should be printed
 		for (vector<string>::iterator it = errors_.begin(); it != errors_.end(); ++it)
@@ -133,6 +136,7 @@ bool Simulator::getHouses(const char* housePath_)
 	if (allHouses.size() == 0)
 	{
 		ParamsParser::printUsage();
+		cout << "cannot find house files in '" << StringUtils::getFullPath(housePath) << "'" << endl;
 		return false;
 	}
 
@@ -151,7 +155,7 @@ bool Simulator::getHouses(const char* housePath_)
 
 	if (_houses.size() == 0)
 	{
-		cout << "All house files in target folder '" << boost::filesystem::canonical(housePath).string() << "' cannot be opened or are invalid: " << endl;
+		cout << "All house files in target folder '" << StringUtils::getFullPath(housePath) << "' cannot be opened or are invalid: " << endl;
 		printErrors();
 		return false;
 	}
@@ -165,17 +169,17 @@ bool Simulator::getScoreFunc(const char* scorePath_)
 	if (scorePath_ != NULL)
 	{
 		string scoreFile = StringUtils::getWithTrailingSlash(scorePath_) + Simulator::scoreFunctionFileName;	
-		if (!boost::filesystem::exists(scoreFile.c_str()) || is_directory(boost::filesystem::path(scoreFile)))
+		if (!fs::exists(scoreFile.c_str()) || fs::is_directory(fs::path(scoreFile)))
 		{
 			ParamsParser::printUsage();
-			cout << "cannot find score_formula.so file in '" << boost::filesystem::canonical(scorePath_).string() << "'" << endl;
+			cout << "cannot find score_formula.so file in '" << StringUtils::getFullPath(scorePath_) << "'" << endl;
 			return false;
 		}
 
 		_scoreSO = new SharedObjectLoader(scoreFile.c_str());
 		if (_scoreSO->isValid())
 		{
-			_scoreFunc = (score_func)_scoreSO->getFunctionPointer("calc_score");
+			_scoreFunc = reinterpret_cast<score_func>( reinterpret_cast<long>( _scoreSO->getFunctionPointer("calc_score") ) );
 			if (_scoreFunc == NULL)
 			{
 				cout << "score_formula.so is a valid .so but it does not have a valid score formula" << endl;
@@ -184,7 +188,7 @@ bool Simulator::getScoreFunc(const char* scorePath_)
 		}
 		else
 		{
-			cout << "score_formula.so exists in '" << boost::filesystem::canonical(scorePath_).string() << "' but cannot be opened or is not a valid .so" << endl;
+			cout << "score_formula.so exists in '" << StringUtils::getFullPath(scorePath_) << "' but cannot be opened or is not a valid .so" << endl;
 			return false;
 		}
 	}
@@ -385,6 +389,7 @@ void Simulator::score(int houseIndex_, int simulationSteps_, vector<Simulation*>
 		scoreParams["sum_dirt_in_house"] = currentSim.getTotalDirtCount();
 		scoreParams["dirt_collected"] = currentSim.getCleanedDirtCount();
 		scoreParams["is_back_in_docking"] = currentSim.isRobotDocked() ? 1 : 0;
+		scoreParams["did_misbehave"] = currentSim.didRobotMisbehave() ? 1 : 0;
 
 		lock_guard<mutex> lock(_algoScoresMutex); // this lock will prevent parallel writes to _algoScores (freed when out of scope)
 		int currScore = _scoreFunc(scoreParams);
@@ -460,8 +465,8 @@ vector<House*> Simulator::loadAllHouses(const char* house_path)
 vector<string> Simulator::loadFilesWithSuffix(const char* path_, const char* suffix_)
 {
 	vector<string> result;
-	boost::filesystem::path path(path_);
-	if (!is_directory(path))
+	fs::path path(path_);
+	if (!fs::is_directory(path))
 	{
 		return result;
 	}
@@ -470,8 +475,8 @@ vector<string> Simulator::loadFilesWithSuffix(const char* path_, const char* suf
 //	sync_cout::get() << "[INFO] " << p << " is a directory" << endl;
 //#endif
 
-	boost::filesystem::directory_iterator end_it;
-	for (boost::filesystem::directory_iterator it(path); it != end_it; ++it)
+	fs::directory_iterator end_it;
+	for (fs::directory_iterator it(path); it != end_it; ++it)
 	{
 		if ( is_regular_file(*it) && StringUtils::endsWith(it->path().generic_string(), suffix_) )
 		{
