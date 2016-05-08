@@ -10,7 +10,7 @@ Direction _201445681_A::step(Direction prevStep_)
 
 #ifdef _DEBUG_
 //	int i = 0;
-	boost::detail::Sleep(500);
+	boost::detail::Sleep(200);
 	system("cls");
 	printHouse(_robot.location);
 	cout << _robot.location << endl;
