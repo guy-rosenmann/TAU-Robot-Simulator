@@ -47,6 +47,7 @@ private:
 
 	bool checkAllParamsExistence();
 	bool processLine(const string& line);
+	bool isMandatory(const char* param);
 	
 };
 

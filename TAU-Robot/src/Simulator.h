@@ -46,7 +46,7 @@ class Simulator
 	SharedObjectLoader*	_scoreSO = nullptr;
 	typedef int(*score_func)(const map<string, int>&);
 	score_func	_scoreFunc = NULL;
-	bool		_wasScoreErrorPrinted = false;
+	bool		_printScoreError = false;
 	
 	size_t			_threadsCount;
 

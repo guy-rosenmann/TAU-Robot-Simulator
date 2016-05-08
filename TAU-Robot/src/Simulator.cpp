@@ -270,10 +270,16 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index, House& house
 				}
 				if (currentSimulation.didRobotMisbehave())
 				{
-					_errors.push_back(currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount+1));
+					_errors.push_back("Algorithm " + currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount+1));
+					(*_algoScores[currentSimulation.getAlgoName()])[index] = 0; // score = 0 if misbehaved
+					delete (*it);
+					it = simulations.erase(it);
 				}
-				tempStoppedSimulatios.push_back(*it);
-				it = simulations.erase(it);
+				else
+				{
+					tempStoppedSimulatios.push_back(*it);
+					it = simulations.erase(it);
+				}
 //#ifdef _DEBUG_
 //				cout << "Simulation is done!" << endl;
 //				if (stepsCount % 5 == 0)
@@ -362,6 +368,11 @@ void Simulator::simulate()
 
 	this->printScores();
 
+	if (_printScoreError)
+	{
+		_errors.push_back("Score formula could not calculate some scores, see -1 in the results table");
+	}
+
 	if (_errors.size() > 0)
 	{
 		cout << endl << "Errors:" << endl;
@@ -372,6 +383,7 @@ void Simulator::simulate()
 
 void Simulator::score(int houseIndex_, int simulationSteps_, vector<Simulation*>& simulations_)
 {
+	if (simulations_.size() == 0) return;
 	std::sort(simulations_.begin(), simulations_.end(), Simulation::Compare); // sort by winner score (done && less steps are first)
 	
 	Simulation& firstSim = *simulations_.at(0);
@@ -389,14 +401,12 @@ void Simulator::score(int houseIndex_, int simulationSteps_, vector<Simulation*>
 		scoreParams["sum_dirt_in_house"] = currentSim.getTotalDirtCount();
 		scoreParams["dirt_collected"] = currentSim.getCleanedDirtCount();
 		scoreParams["is_back_in_docking"] = currentSim.isRobotDocked() ? 1 : 0;
-		scoreParams["did_misbehave"] = currentSim.didRobotMisbehave() ? 1 : 0;
 
 		lock_guard<mutex> lock(_algoScoresMutex); // this lock will prevent parallel writes to _algoScores (freed when out of scope)
 		int currScore = _scoreFunc(scoreParams);
-		if (currScore == -1 && !_wasScoreErrorPrinted)
+		if (currScore == -1)
 		{
-			_errors.push_back("Score formula could not calculate some scores, see -1 in the results table");
-			_wasScoreErrorPrinted = true;
+			_printScoreError = true;
 		}
 		(*_algoScores[currentSim.getAlgoName()])[houseIndex_] = currScore;
 		
