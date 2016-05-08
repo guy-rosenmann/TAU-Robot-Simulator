@@ -79,7 +79,7 @@ void ParamsParser::printUsage()
 {
 	if (!ParamsParser::_wasUsageMessagePrinted)
 	{
-		cout << ParamsParser::_usageMessage << endl << endl;
+		cout << ParamsParser::_usageMessage << endl;
 		ParamsParser::_wasUsageMessagePrinted = true;
 	}
 }

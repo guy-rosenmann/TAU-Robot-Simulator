@@ -87,8 +87,8 @@ bool Configuration::checkAllParamsExistence()
 {
 	string missingParams;
 	bool hadBadParam = false;
-	unsigned int i, missingCount = 0, mandatoryParamsSize = sizeof(Configuration::mandatoryParams) / sizeof(*Configuration::mandatoryParams);
-	for (i = 0; i < mandatoryParamsSize; ++i)
+	unsigned int missingCount = 0, mandatoryParamsSize = sizeof(Configuration::mandatoryParams) / sizeof(*Configuration::mandatoryParams);
+	for (unsigned int i = 0; i < mandatoryParamsSize; ++i)
 	{
 		map<string, int>::const_iterator it = _params.find(Configuration::mandatoryParams[i]);
 		if (it == _params.end())
@@ -139,6 +139,7 @@ std::string Configuration::trim(std::string& str)
 
 bool Configuration::processLine(const string& line)
 {
+	if (line.size() == 0) return true;
 	vector<string> tokens = Configuration::split(line, '=');
 	if (tokens.size() != 2)
 	{
@@ -166,7 +167,25 @@ bool Configuration::processLine(const string& line)
 	}
 
 bad_param:
-	_badParams.push_back(tokens[0]);
+	if (isMandatory(tokens[0].c_str()))
+	{
+		_badParams.push_back(tokens[0]);
+	}
+	return false;
+}
+
+
+bool Configuration::isMandatory(const char* param)
+{
+	unsigned int mandatoryParamsSize = sizeof(Configuration::mandatoryParams) / sizeof(*Configuration::mandatoryParams);
+	for (unsigned int i = 0; i < mandatoryParamsSize; ++i)
+	{
+		if (string(Configuration::mandatoryParams[i]) == param)
+		{
+			return true;
+		}
+	}
+
 	return false;
 }
 
