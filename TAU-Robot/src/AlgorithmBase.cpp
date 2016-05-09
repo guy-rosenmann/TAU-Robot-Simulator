@@ -21,14 +21,14 @@ AlgorithmBase::AlgorithmBase()
 
 void AlgorithmBase::aboutToFinish(int stepsTillFinishing_)
 {
-	_returnHome = true;
+	_aboutToFinishCalled = true;
 	_movesUntilFinish = stepsTillFinishing_;
 }
 	
-void AlgorithmBase::dijakstra(Point dest_){
+void AlgorithmBase::dijakstra(Point dest_, vector<Direction>& result_){
 	queue<Point> queue;
 	set<Point> untouched;
-	map<Point, Direction> result;
+	map<Point, Direction> map;
 
 	for (size_t i = 0; i < _houseHeight; ++i)
 	{
@@ -61,7 +61,7 @@ void AlgorithmBase::dijakstra(Point dest_){
 				untouched.erase(block);
 				queue.push(block);
 				
-				result[block] = ((Direction) i);
+				map[block] = ((Direction) i);
 			}
 
 			if (block == dest_)
@@ -78,22 +78,21 @@ void AlgorithmBase::dijakstra(Point dest_){
 	}
 
 	// storing path to destination
-	_dijakstraToDest.clear();
+	result_.clear();
 	Point p = dest_;
 
 	while (!(p == _robot.location))
 	{
-		Direction dir = result[p];
-		_dijakstraToDest.push_back(dir);
+		Direction dir = map[p];
+		result_.push_back(dir);
 		p.move(oppositeDirection(dir));
 	}
 }
 
-
 void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
 {
 //	bool returnQuick = false;
-	if (_returnHome)
+	if (_aboutToFinishCalled)
 	{
 		if (isDocking())
 		{
@@ -136,7 +135,7 @@ void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
 	}
 
 	// No need to go back if we don't have to
-	if (!_returnHome && moves_.size() > 1)
+	if (!_aboutToFinishCalled && moves_.size() > 1)
 	{
 		removeBackwardDirection(moves_);
 	}
@@ -235,15 +234,19 @@ void AlgorithmBase::updatePoints(unsigned int xOffset, unsigned int yOffset)
 		newNLoc.insert(Point(it->getX() + xOffset, it->getY() + yOffset));
 	}
 	_NLocations = newNLoc;
+
+	set<Point> newDirtyLoc;
+	for (auto it = _dirtyLocations.begin(); it != _dirtyLocations.end(); ++it)
+	{
+		newDirtyLoc.insert(Point(it->getX() + xOffset, it->getY() + yOffset));
+	}
+	_dirtyLocations = newDirtyLoc;
+
 	_docking = Point(_docking.getX() + xOffset, _docking.getY() + yOffset);
 }
 
-void AlgorithmBase::updateAfterMove(Direction direction_)
+void AlgorithmBase::expandMatrix()
 {
-	// update robot info
-	_robot.location.move(direction_);
-	_robot.totalSteps++;
-
 	if (_robot.location.getY() == _houseHeight -2)
 	{
 		unsigned oldHeight = _houseHeight;
@@ -342,12 +345,23 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 
 		updatePoints(oldLength, 0);
 	}
+}
 
-	updateBattery();
+void AlgorithmBase::updateAfterMove(Direction direction_)
+{
+	// update robot info
+	_robot.location.move(direction_);
+	_robot.totalSteps++;
+
+	expandMatrix();
+
+	dijakstra(_docking, _dijakstraHome);
 	updateRemainingMoves();
 
+	updateBattery();
+	
 //	// Save moves
-//	if (!_returnHome)
+//	if (!_aboutToFinishCalled)
 //	{
 //		_lastMove = direction_;
 //
@@ -359,8 +373,16 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 //	}
 }
 
-Direction AlgorithmBase::recoverFromUndisciplinedRobot(Direction actualPrevStep_) const
+Direction AlgorithmBase::recoverFromUndisciplinedRobot(Direction actualPrevStep_)
 {
+	if (_mode == DIJAKSTRA)
+	{
+		_dijakstraToDest.push_back(_lastMove);
+	}
+	else if (_mode == RETURNHOME || _mode == LOWBATTERY)
+	{
+		_dijakstraHome.push_back(_lastMove);
+	}
 	return oppositeDirection(actualPrevStep_);
 
 
@@ -442,15 +464,20 @@ void AlgorithmBase::updateHouseKnowladge(SensorInformation info)
 	}
 
 	int dL = info.dirtLevel;
+	if (dL > 1)
+	{
+		_dirtyLocations.insert(_robot.location);
+	}
+
 	_NLocations.erase(_robot.location);
 	_house[_robot.location.getY()][_robot.location.getX()] = (dL == 0) ? EMPTY : CLEAN + dL;
 }
 
-Point AlgorithmBase::findClosestN()
+Point AlgorithmBase::findClosestPoint(const set<Point>& points)
 {
 	Point result;
 	double minDistance = _houseLength + _houseHeight;
-	for (auto it = _NLocations.begin(); it != _NLocations.end(); ++it)
+	for (auto it = points.begin(); it != points.end(); ++it)
 	{
 		double dis = _robot.location.distance(*it);
 		if (_robot.location.distance(*it) < minDistance)
@@ -462,11 +489,23 @@ Point AlgorithmBase::findClosestN()
 	return result;
 }
 
+int AlgorithmBase::GetMovesToPoint(Point point)
+{
+	vector<Direction> directions;
+	dijakstra(point, directions);
+
+	return directions.size();
+}
+
 Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Direction>& possiblemoves)
 {
-	if (info.dirtLevel > 1)
+	if (info.dirtLevel > 0)
 	{
 		return Direction::Stay;
+	}
+	else
+	{
+		_dirtyLocations.erase(_robot.location);
 	}
 
 	int findN = 0;
@@ -487,51 +526,49 @@ Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Directio
 		}
 	}
 
-	//	Go To Some N or go home
-	if (findN == 0)
+	if (findN > 0)
 	{
-		if (_NLocations.size() > 0)
-		{
-			_mode = DIJAKSTRA;
-			Point dest = findClosestN();
-			dijakstra(dest);
-			return getMoveDijakstraMode(possiblemoves);
-		}
-		else
-		{
-			_mode = RETURNHOME;
-			dijakstra(_docking);
-			return getMoveDijakstraMode(possiblemoves);
-		}
+		return result;
 	}
 
-	return result != Direction::Stay ? result : possiblemoves[deleteThis++ % possiblemoves.size()];
+	//	else go To Some N or go home
 
+	if (_NLocations.size() == 0 && _dirtyLocations.size() == 0)
+	{
+		_mode = RETURNHOME;
+		return getMoveReturnHomeMode(possiblemoves);
+	}
+	else
+	{
+		_mode = DIJAKSTRA;
 
-//	if (findN <= 1)
-//	{
-//		if (findN == 0)
-//		{
-//			if (_mazeSteps.back().size() == 0)
-//			{
-//				_mazeSteps.pop_back();
-//			}
-//			Direction lastMove = std::get<1>(_mazeSteps.back().back());
-//			_mazeSteps.back().pop_back();
-//			return oppositeDirection(lastMove);
-//		}
-//
-//		_mazeSteps.back().push_back(tuple<Point, Direction>(_robot.location, result));
-//	}
-//	else
-//	{
-//		vector<tuple<Point, Direction>> v;
-//		v.push_back(tuple<Point, Direction>(_robot.location, result));
-//		_mazeSteps.push_back(v);
-//	}
+		if (_NLocations.size() == 0)
+		{
+			dijakstra(findClosestPoint(_dirtyLocations), _dijakstraToDest);
+			return getMoveDijakstraMode(possiblemoves);
+		}
 
+		if (_dirtyLocations.size() == 0)
+		{
+			dijakstra(findClosestPoint(_NLocations), _dijakstraToDest);
+			return getMoveDijakstraMode(possiblemoves);
+		}
 
+		Point NDest = findClosestPoint(_NLocations);
+		Point dirtyDest = findClosestPoint(_dirtyLocations);
+		int movesToNDest = GetMovesToPoint(NDest);
+		int movesTodirtyDest = GetMovesToPoint(dirtyDest);
+		int dirtyLevel = _house[dirtyDest.getY()][dirtyDest.getX()] - DUST1 - 1;
 
+		Point dest = dirtyDest;
+		if (movesTodirtyDest > movesToNDest + 2 * dirtyLevel)
+		{
+			dest = NDest;
+		}
+
+		dijakstra(dest, _dijakstraToDest);
+		return getMoveDijakstraMode(possiblemoves);
+	}
 }
 
 Direction AlgorithmBase::getMoveDijakstraMode(vector<Direction>& vector)
@@ -547,15 +584,15 @@ Direction AlgorithmBase::getMoveDijakstraMode(vector<Direction>& vector)
 	return dir;
 }
 
-Direction AlgorithmBase::getMoveReturnHomeMode(vector<Direction> vector)
+Direction AlgorithmBase::getMoveReturnHomeMode(vector<Direction>& vector)
 {
 	if (_robot.location == _docking)
 	{
 		return Direction::Stay;
 	}
 
-	Direction dir = _dijakstraToDest.back();
-	_dijakstraToDest.pop_back();
+	Direction dir = _dijakstraHome.back();
+	_dijakstraHome.pop_back();
 
 	return dir;
 }
@@ -580,8 +617,10 @@ Direction AlgorithmBase::getMove(Direction prevStep_)
 	}
 
 	// TODO: battery Check /////////////
-
-
+	if (_mode == LOWBATTERY)
+	{
+		return getMoveReturnHomeMode(possibleMoves);
+	}
 
 	if (_mode == SCAN)
 	{
@@ -598,13 +637,7 @@ Direction AlgorithmBase::getMove(Direction prevStep_)
 		return getMoveReturnHomeMode(possibleMoves);
 	}
 
-
-	return possibleMoves[rand() % possibleMoves.size()];
-}
-
-Direction AlgorithmBase::goToPoint(Point destination)
-{
-	return Direction::Stay;
+	return possibleMoves[deleteThis % possibleMoves.size()];
 }
 
 void AlgorithmBase::printHouse(Point robotLocation) const
@@ -615,7 +648,7 @@ void AlgorithmBase::printHouse(Point robotLocation) const
 	char prevD = _house[_docking.getY()][_docking.getX()];
 	_house[robotLocation.getY()][robotLocation.getX()] = 'R';
 	_house[_docking.getY()][_docking.getX()] = 'D';
-	for (int i = 0; i < _houseHeight; i++)
+	for (size_t i = 0; i < _houseHeight; i++)
 	{
 		cout << _house[i] << endl;
 	}
@@ -639,7 +672,7 @@ void AlgorithmBase::updateRemainingMoves()
 
 size_t AlgorithmBase::NumberOfMovesToDocking() const
 {
-	return _movesDone.size();
+	return _dijakstraHome.size();
 }
 
 void AlgorithmBase::updateBattery()
@@ -650,24 +683,32 @@ void AlgorithmBase::updateBattery()
 
 	if (isDocking())
 	{
-		_robot.battery = std::max(_robot.battery + rechargeRate, capacity);
+		_robot.battery = std::min(_robot.battery + rechargeRate, capacity);
 	}
 	else
 	{
 		_robot.battery -= consumptionRate;
 	}
 
+	int movesToDocking = NumberOfMovesToDocking();
+	int returnBatteryConsumption = movesToDocking * consumptionRate;
+
 	// Next were figuring out if we have enough battery to return home
-	if (_returnHome)
+	// The 3 marked here is a safety margin //////////////////////////   -|-  /////////////////////
+	if ((_robot.battery >= returnBatteryConsumption) && (_robot.battery - 3 * consumptionRate <= returnBatteryConsumption))
 	{
+		_mode = LOWBATTERY;
 		return;
 	}
 
-	int returnBatteryConsumption = NumberOfMovesToDocking()*consumptionRate;
-
-	// The 2 marked here is a safety margin //////////////////////////   -|-  /////////////////////
-	if ((_robot.battery >= returnBatteryConsumption) && (_robot.battery - 2 * consumptionRate <= returnBatteryConsumption))
+	if (_robot.battery == capacity)
 	{
-		_returnHome = true;
+		_mode = SCAN;
+	}
+
+	// The 3 marked here is a safety margin /////-|-/////////////////////
+	if (_aboutToFinishCalled && (movesToDocking + 3 > _movesUntilFinish) && movesToDocking < _movesUntilFinish)
+	{
+		_mode = RETURNHOME;
 	}
 }
