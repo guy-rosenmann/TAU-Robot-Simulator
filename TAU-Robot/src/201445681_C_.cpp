@@ -24,12 +24,12 @@ Direction _201445681_C::step(Direction prevStep_)
 
 #ifdef _DEBUG_
 
-	boost::detail::Sleep(50);
-	system("cls");
-	printHouse(_robot.location);
-	cout << "C" << endl;
-	cout << _robot.location << endl;
-	cout << (int)prevStep_ << endl;
+//	boost::detail::Sleep(50);
+//	system("cls");
+//	printHouse(_robot.location);
+//	cout << "C" << endl;
+//	cout << _robot.location << endl;
+//	cout << (int)prevStep_ << endl;
 
 #endif
 	return next;

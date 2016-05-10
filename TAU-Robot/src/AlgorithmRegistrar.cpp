@@ -19,8 +19,8 @@ AlgorithmRegistrar AlgorithmRegistrar::_instance;
 AlgorithmRegistrar::AlgorithmRegistrar()
 {
 	WIN_WRITE_ALGO(201445681_A);
-	WIN_WRITE_ALGO(201445681_B);
-	WIN_WRITE_ALGO(201445681_C);
+//	WIN_WRITE_ALGO(201445681_B);
+//	WIN_WRITE_ALGO(201445681_C);
 }
 #endif
 

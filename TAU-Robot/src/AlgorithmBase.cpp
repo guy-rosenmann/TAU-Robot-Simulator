@@ -19,6 +19,25 @@ AlgorithmBase::AlgorithmBase()
 
 }
 
+void AlgorithmBase::freeHouse()
+{
+	if (_house != nullptr)
+	{
+		for (int i = 0; i < _houseHeight; i++)
+		{
+			delete[] _house[i];
+		}
+
+		delete[] _house;
+		_house = nullptr;
+	}
+}
+
+AlgorithmBase::~AlgorithmBase()
+{
+	freeHouse();
+}
+
 void AlgorithmBase::aboutToFinish(int stepsTillFinishing_)
 {
 	_aboutToFinishCalled = true;
@@ -30,9 +49,9 @@ void AlgorithmBase::dijakstra(Point dest_, vector<Direction>& result_){
 	set<Point> untouched;
 	map<Point, Direction> map;
 
-	for (size_t i = 0; i < _houseHeight; ++i)
+	for (int i = 0; i < _houseHeight; ++i)
 	{
-		for (size_t j = 0; j < _houseLength; ++j)
+		for (int j = 0; j < _houseLength; ++j)
 		{
 			char block = _house[i][j];
 			if (block != UNKNOWN && block != WALL)
@@ -146,17 +165,15 @@ void AlgorithmBase::expandMatrix()
 			newHouse[i] = new char[_houseLength + 1];
 			strncpy(newHouse[i], _house[i], _houseLength);
 			newHouse[i][_houseLength] = '\0';
-			delete _house[i];
 		}
 
-		for (size_t i = oldHeight; i < _houseHeight; i++)
+		for (int i = oldHeight; i < _houseHeight; i++)
 		{
 			newHouse[i] = new char[_houseLength + 1];
 			newHouse[i][_houseLength] = '\0';
 			memset(newHouse[i], AlgorithmBase::UNKNOWN, _houseLength);
 		}
-
-		delete _house;
+		freeHouse();
 		_house = newHouse;
 	}
 
@@ -168,43 +185,41 @@ void AlgorithmBase::expandMatrix()
 		_houseLength *= 2;
 		char** newHouse = new char*[_houseLength];
 
-		for (size_t i = 0; i < _houseHeight; i++)
+		for (int i = 0; i < _houseHeight; i++)
 		{
 			newHouse[i] = new char[_houseLength + 1];
 			strncpy(newHouse[i], _house[i], oldLength);
 			memset(newHouse[i] + oldLength, AlgorithmBase::UNKNOWN, oldLength);
 
 			newHouse[i][_houseLength] = '\0';
-			delete _house[i];
 		}
 
-		delete _house;
+		freeHouse();
 		_house = newHouse;
 	}
 
 	if (_robot.location.getY() == 1)
 	{
-		unsigned int oldHeight = _houseHeight;
+		int oldHeight = _houseHeight;
 
 		_houseHeight *= 2;
 		char** newHouse = new char*[_houseHeight];
 
-		for (size_t i = 0; i < oldHeight; i++)
+		for (int i = 0; i < oldHeight; i++)
 		{
 			newHouse[i] = new char[_houseLength + 1];
 			newHouse[i][_houseLength] = '\0';
 			memset(newHouse[i], AlgorithmBase::UNKNOWN, _houseLength);
 		}
 
-		for (size_t i = oldHeight; i < _houseHeight; i++)
+		for (int i = oldHeight; i < _houseHeight; i++)
 		{
 			newHouse[i] = new char[_houseLength + 1];
 			strncpy(newHouse[i], _house[i-oldHeight], _houseLength);
 			newHouse[i][_houseLength] = '\0';
-			delete _house[i - oldHeight];
 		}
 
-		delete _house;
+		freeHouse();
 		_house = newHouse;
 
 		updatePoints(0, oldHeight);
@@ -217,17 +232,16 @@ void AlgorithmBase::expandMatrix()
 		_houseLength *= 2;
 		char** newHouse = new char*[_houseLength];
 
-		for (size_t i = 0; i < _houseHeight; i++)
+		for (int i = 0; i < _houseHeight; i++)
 		{
 			newHouse[i] = new char[_houseLength + 1];
 			memset(newHouse[i] , AlgorithmBase::UNKNOWN, oldLength);
 			strncpy(newHouse[i] + oldLength, _house[i], oldLength);
 
 			newHouse[i][_houseLength] = '\0';
-			delete _house[i];
 		}
 
-		delete _house;
+		freeHouse();
 		_house = newHouse;
 
 		updatePoints(oldLength, 0);
@@ -386,9 +400,7 @@ Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Directio
 				result = *it;
 			}
 			findNearBlock = true;
-		}
-
-		
+		}		
 	}
 
 	if (findNearBlock)
@@ -513,7 +525,7 @@ void AlgorithmBase::printHouse(Point robotLocation) const
 	char prevD = _house[_docking.getY()][_docking.getX()];
 	_house[robotLocation.getY()][robotLocation.getX()] = 'R';
 	_house[_docking.getY()][_docking.getX()] = 'D';
-	for (size_t i = 0; i < _houseHeight; i++)
+	for (int i = 0; i < _houseHeight; i++)
 	{
 		cout << _house[i] << endl;
 	}
@@ -543,8 +555,8 @@ size_t AlgorithmBase::NumberOfMovesToDocking() const
 void AlgorithmBase::updateBattery()
 {
 	int consumptionRate = _config["BatteryConsumptionRate"];
-	unsigned int rechargeRate = _config["BatteryRechargeRate"];
-	unsigned int capacity = _config["BatteryCapacity"];
+	int rechargeRate = _config["BatteryRechargeRate"];
+	int capacity = _config["BatteryCapacity"];
 
 	if (isDocking())
 	{

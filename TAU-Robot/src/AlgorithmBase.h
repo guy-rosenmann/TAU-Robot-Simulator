@@ -13,14 +13,15 @@ using namespace std;
 #include "Configuration.h"
 #include "RobotInformation.h"
 
-#define MAXHOUSELENGTH 20
-#define INITIALLENGTH (MAXHOUSELENGTH/2)
+#define MAXHOUSELENGTH 62
 
 class AlgorithmBase : public AbstractAlgorithm
 {
 
 public:
 	AlgorithmBase();
+	void freeHouse();
+	~AlgorithmBase();
 	AlgorithmBase(const AbstractSensor& sensor, const Configuration& conf) { setSensor(sensor); setConfiguration(conf.getParams()); }
 
 	void setSensor(const AbstractSensor& sensor) { _sensor = &sensor; }
@@ -49,8 +50,8 @@ protected:
 
 	char** _house;
 
-	unsigned int _houseLength = MAXHOUSELENGTH;
-	unsigned int _houseHeight = MAXHOUSELENGTH;
+	int _houseLength = MAXHOUSELENGTH;
+	int _houseHeight = MAXHOUSELENGTH;
 	Mode _mode = Mode::SCAN;
 	Mode _prevMode = Mode::SCAN;
 	set<Point> _NLocations;
