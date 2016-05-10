@@ -13,10 +13,10 @@ using namespace std;
 
 class _201445681_C : public AlgorithmBase
 {
-	unsigned int _psuedoRand = 31;
+	vector<Direction> _myOrder;
 
 public:
-	_201445681_C() {};
+	_201445681_C();
 	_201445681_C(const AbstractSensor& sensor, const Configuration& conf) : AlgorithmBase(sensor, conf) {}
 
 	Direction step(Direction prevStep);

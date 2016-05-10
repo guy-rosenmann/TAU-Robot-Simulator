@@ -89,122 +89,10 @@ void AlgorithmBase::dijakstra(Point dest_, vector<Direction>& result_){
 	}
 }
 
-void AlgorithmBase::getPossibleMoves(vector<Direction>& moves_)
-{
-//	bool returnQuick = false;
-	if (_aboutToFinishCalled)
-	{
-		if (isDocking())
-		{
-			moves_.push_back(Direction::Stay);
-			return;
-		}
-
-		vector<Direction>::reverse_iterator rit = _movesDone.rbegin();
-		while (rit != _movesDone.rend())
-		{
-			if ((*rit) == Direction::Stay)
-			{
-				_movesDone.erase((++rit).base());
-			}
-			else
-			{
-				moves_.push_back(oppositeDirection(*rit));
-				_movesDone.erase((++rit).base());
-				return;
-			}
-		}
-	}
-
-	SensorInformation info = _sensor->sense(); // info.isWall = { East, West, South, North }
-
-	for (unsigned int i = 0; i < sizeof(info.isWall) / sizeof(bool); ++i)
-	{
-		if (!info.isWall[i])
-		{
-			moves_.push_back((Direction)i);
-		}
-	}
-
-	// Bigger than one because we'll go back the same way
-	if (info.dirtLevel > 1 || moves_.size() == 0 || _robot.location == Point())
-	{
-		// add Stay option only if needed
-		// For the algorithm, the docking station is at the point (0,0)
-		moves_.push_back(Direction::Stay);
-	}
-
-	// No need to go back if we don't have to
-	if (!_aboutToFinishCalled && moves_.size() > 1)
-	{
-		removeBackwardDirection(moves_);
-	}
-}
-
-void AlgorithmBase::removeBackwardDirection(vector<Direction>& moves_) const
-{
-	// Stay is valid twice for dirty floor
-	if (_lastMove == Direction::Stay)
-	{
-		return;
-	}
-
-	vector<Direction>::iterator it = moves_.begin();
-	Direction backDir = oppositeDirection(_lastMove);
-	while (it != moves_.end())
-	{
-		Direction& dir = *it;
-		if (dir == backDir)
-		{
-			it = moves_.erase(it);
-			return;
-		}
-		++it;
-	}
-}
 bool AlgorithmBase::isDocking() const
 {
 	return _robot.location == _docking;
 }
-
-//bool AlgorithmBase::returnQuicklyMoves(vector<Direction>& moves_)
-//{
-//	vector<Direction> quickReturnMoves;
-//	if (_eastLocation > 0)
-//	{
-//		quickReturnMoves.push_back(Direction::West);
-//	}
-//	else if (_eastLocation < 0)
-//	{
-//		quickReturnMoves.push_back(Direction::East);
-//	}
-//
-//	if (_southLocation > 0)
-//	{
-//		quickReturnMoves.push_back(Direction::North);
-//	}
-//	else if (_southLocation < 0)
-//	{
-//		quickReturnMoves.push_back(Direction::South);
-//	}
-//
-//
-//	for (vector<Direction>::iterator itQ = quickReturnMoves.begin(); itQ != quickReturnMoves.end(); itQ++)
-//	{
-//		bool seenQuickReturnMove = false;
-//		for (vector<Direction>::iterator it = moves_.begin(); it != moves_.end(); it++)
-//		{
-//			if ((*it) == (*itQ))
-//			{
-//				break;
-//			}
-//			// Reaching here means that the quick move is invalid
-//			seen
-//		}
-//	}
-//	
-//	
-//}
 
 Direction AlgorithmBase::oppositeDirection(Direction direction_)
 {
@@ -224,23 +112,22 @@ void AlgorithmBase::updateBeforeMove(Direction choosenMove_)
 	_lastMove = choosenMove_;
 }
 
+void AlgorithmBase::updatePointsSet(set<Point>& points, unsigned xOffset, unsigned yOffset)
+{
+	set<Point> newLocations;
+	for (auto it = points.begin(); it != points.end(); ++it)
+	{
+		newLocations.insert(Point(it->getX() + xOffset, it->getY() + yOffset));
+	}
+	points = newLocations;
+}
+
 void AlgorithmBase::updatePoints(unsigned int xOffset, unsigned int yOffset)
 {
 	_robot.location = Point(_robot.location.getX() + xOffset, _robot.location.getY() + yOffset);
 
-	set<Point> newNLoc;
-	for (auto it = _NLocations.begin(); it != _NLocations.end(); ++it)
-	{
-		newNLoc.insert(Point(it->getX() + xOffset, it->getY() + yOffset));
-	}
-	_NLocations = newNLoc;
-
-	set<Point> newDirtyLoc;
-	for (auto it = _dirtyLocations.begin(); it != _dirtyLocations.end(); ++it)
-	{
-		newDirtyLoc.insert(Point(it->getX() + xOffset, it->getY() + yOffset));
-	}
-	_dirtyLocations = newDirtyLoc;
+	updatePointsSet(_NLocations, xOffset, yOffset);
+	updatePointsSet(_dirtyLocations, xOffset, yOffset);
 
 	_docking = Point(_docking.getX() + xOffset, _docking.getY() + yOffset);
 }
@@ -375,6 +262,11 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 
 Direction AlgorithmBase::recoverFromUndisciplinedRobot(Direction actualPrevStep_)
 {
+	if (actualPrevStep_ == Direction::Stay)
+	{
+		return _lastMove;
+	}
+
 	if (_mode == DIJAKSTRA)
 	{
 		_dijakstraToDest.push_back(_lastMove);
@@ -383,40 +275,8 @@ Direction AlgorithmBase::recoverFromUndisciplinedRobot(Direction actualPrevStep_
 	{
 		_dijakstraHome.push_back(_lastMove);
 	}
+
 	return oppositeDirection(actualPrevStep_);
-
-
-//	if (_mode == UNDISCIPLINED)
-//	{
-//		_mode = UNDISCIPLINED2;
-//	}
-//	else
-//	{
-//		_prevMode = _mode;
-//		_mode = UNDISCIPLINED;
-//	}
-//
-//
-//	if (actualPrevStep_ == Direction::Stay)
-//	{
-//		_mode = _prevMode;
-//		return _lastMove;
-//	}
-//
-//	if (_lastMove == Direction::Stay)
-//	{
-//		_mode = _prevMode;
-//		return oppositeDirection(actualPrevStep_);
-//	}
-//
-//	// if we got here, we'll need two steps to recover
-//	if (_mode == UNDISCIPLINED2)
-//	{
-//		_mode = _prevMode;
-//		return oppositeDirection(actualPrevStep_);
-//	}
-
-
 }
 
 string AlgorithmBase::DirectionToString(Direction direction) const
@@ -439,15 +299,7 @@ void AlgorithmBase::updateHouseKnowladge(SensorInformation info)
 		Direction direction = (Direction) i;
 		Point block = _robot.location;
 
-//#ifdef _DEBUG_
-//		cout << "Block before move:" << block << endl;
-//		cout << "move direction:" << DirectionToString(direction) << endl;
-//#endif
 		block.move(direction);
-
-//#ifdef _DEBUG_
-//		cout << "Block after move:" << block << endl;
-//#endif
 
 		if (_house[block.getY()][block.getX()] == UNKNOWN)
 		{
@@ -508,7 +360,8 @@ Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Directio
 		_dirtyLocations.erase(_robot.location);
 	}
 
-	int findN = 0;
+	bool findNearBlock = false;
+	int maxDirtFound = -1;
 	Direction result = Direction::Stay;
 
 	for (auto it = possiblemoves.begin(); it != possiblemoves.end(); it++)
@@ -516,17 +369,29 @@ Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Directio
 		// looking for new block
 		Point block = _robot.location;
 		block.move(*it);
-		if (_NLocations.find(block) != _NLocations.end())
-		{
-			if (findN == 0)
-			{
+
+		if (_NLocations.find(block) != _NLocations.end()){
+			if(maxDirtFound < 0){
+				maxDirtFound = 0;
 				result = *it;
 			}
-			findN++;
+			findNearBlock = true;
 		}
+		else if (_dirtyLocations.find(block) != _dirtyLocations.end())
+		{
+			int dirt = _house[block.getY()][block.getX()];
+			if (dirt > maxDirtFound)
+			{
+				maxDirtFound = dirt;
+				result = *it;
+			}
+			findNearBlock = true;
+		}
+
+		
 	}
 
-	if (findN > 0)
+	if (findNearBlock)
 	{
 		return result;
 	}
@@ -597,22 +462,22 @@ Direction AlgorithmBase::getMoveReturnHomeMode(vector<Direction>& vector)
 	return dir;
 }
 
-Direction AlgorithmBase::getMove(Direction prevStep_)
+Direction AlgorithmBase::getMove(Direction prevStep_, vector<Direction>& order_)
 {
-	if (prevStep_ != _lastMove && prevStep_ != Direction::Stay)
+	if (prevStep_ != _lastMove)
 	{
-		return recoverFromUndisciplinedRobot(prevStep_);
+		recoverFromUndisciplinedRobot(prevStep_);
 	}
 
 	SensorInformation info = _sensor->sense(); // info.isWall = { East, West, South, North }
 	updateHouseKnowladge(info);
 
 	vector<Direction> possibleMoves;
-	for (unsigned int i = 0; i < sizeof(info.isWall) / sizeof(bool); ++i)
+	for (auto dir : order_)
 	{
-		if (!info.isWall[i])
+		if (!info.isWall[(int)dir])
 		{
-			possibleMoves.push_back((Direction)i);
+			possibleMoves.push_back(dir);
 		}
 	}
 

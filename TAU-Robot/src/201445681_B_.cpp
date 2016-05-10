@@ -2,35 +2,40 @@
 #include "AbstractAlgorithm.h"
 #include "MakeUnique.h"
 #include "AlgorithmRegistration.h"
+#include <boost/filesystem/path.hpp>
 
 
-Direction _201445681_B::step(Direction prevStep)
+_201445681_B::_201445681_B()
 {
-//	updateBeforeMove();
+	_myOrder.push_back(Direction::West);
+	_myOrder.push_back(Direction::East);
+	_myOrder.push_back(Direction::North);
+	_myOrder.push_back(Direction::South);
+}
 
-	vector<Direction> moves;
-	this->getPossibleMoves(moves);
+Direction _201445681_B::step(Direction prevStep_)
+{
 
-	// Choose "randomly"
-	Direction next = moves[_psuedoRand % moves.size()];
+	// AfterMove because we can't be sure it moved (in cases of undisciplined robot)
+	updateAfterMove(prevStep_);
 
-	updatePseudoRandom();
-	updateAfterMove(next);
+	Direction next = getMove(prevStep_, _myOrder);
 
+	// BeforeMove because we can't be sure it moved (in cases of undisciplined robot)
+	updateBeforeMove(next);
+
+#ifdef _DEBUG_
+
+//		boost::detail::Sleep(50);
+//		system("cls");
+//		printHouse(_robot.location);
+//		cout << "B" << endl;
+//		cout << _robot.location << endl;
+//		cout << (int)prevStep_ << endl;
+
+#endif
 	return next;
 }
-
-void _201445681_B::updatePseudoRandom()
-{
-	_psuedoRand++;
-
-	// Adding more randomness
-	if (_psuedoRand % 11 == 0)
-	{
-		_psuedoRand++;
-	}
-}
-
 #ifndef _WINDOWS_
 REGISTER_ALGORITHM(_201445681_B)
 #endif

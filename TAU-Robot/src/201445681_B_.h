@@ -13,14 +13,13 @@ using namespace std;
 
 class _201445681_B : public AlgorithmBase
 {
-	unsigned int _psuedoRand = 30;
+	vector<Direction> _myOrder;
 
 public:
-	_201445681_B() {}
+	_201445681_B();
 	_201445681_B(const AbstractSensor& sensor, const Configuration& conf) : AlgorithmBase(sensor, conf) {}
 
 	Direction step(Direction prevStep);
-	void updatePseudoRandom();
 };
 
 

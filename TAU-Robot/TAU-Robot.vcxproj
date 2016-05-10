@@ -51,6 +51,8 @@
     <ClInclude Include="src\Simulator.h" />
     <ClInclude Include="src\StringUtils.h" />
   </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{49882D59-3592-4EB8-9655-0EA7071E144D}</ProjectGuid>
     <RootNamespace>TAURobot</RootNamespace>
@@ -110,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include\interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_WINDOWS_;_DEBUG_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS_;_DEBUG_;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

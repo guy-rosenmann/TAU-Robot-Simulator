@@ -73,12 +73,11 @@ protected:
 	///////////////////////////////
 	
 	bool isDocking() const;
-	void getPossibleMoves(vector<Direction>& moves_);
 	static Direction oppositeDirection(Direction direction_);
-	void removeBackwardDirection(vector<Direction>& moves_) const;
 	void updateRemainingMoves();
 	size_t NumberOfMovesToDocking() const;
 	void updateBeforeMove(Direction direction_);
+	void updatePointsSet(set<Point>& points, unsigned xOffset, unsigned yOffset);
 	void updatePoints(unsigned xOffset, unsigned yOffset);
 	void expandMatrix();
 	void updateAfterMove(Direction direction_);
@@ -90,8 +89,7 @@ protected:
 	Direction getMoveScanMode(SensorInformation info, vector<Direction>& possiblemoves);
 	Direction getMoveDijakstraMode(vector<Direction>& possiblemoves);
 	Direction getMoveReturnHomeMode(vector<Direction>& vector);
-	Direction getMove(Direction prevMove_);
-	Direction goToPoint(Point destination);
+	Direction getMove(Direction prevMove_, vector<Direction>& order);
 	void printHouse(Point robotLocation) const;
 	void printNLocation();
 	void dijakstra(Point dest_, vector<Direction>& result);

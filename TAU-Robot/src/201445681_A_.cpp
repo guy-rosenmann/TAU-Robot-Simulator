@@ -5,40 +5,41 @@
 
 #include <boost/filesystem/path.hpp>
 
+_201445681_A::_201445681_A()
+{
+	_myOrder.push_back(Direction::East);
+	_myOrder.push_back(Direction::West);
+	_myOrder.push_back(Direction::South);
+	_myOrder.push_back(Direction::North);
+}
+int deleteThis;
 Direction _201445681_A::step(Direction prevStep_)
 {
 
 	// AfterMove because we can't be sure it moved (in cases of undisciplined robot)
 	updateAfterMove(prevStep_);
 
-	Direction next = getMove(prevStep_);
+	Direction next = getMove(prevStep_, _myOrder);
 
 	// BeforeMove because we can't be sure it moved (in cases of undisciplined robot)
 	updateBeforeMove(next);
 
 #ifdef _DEBUG_
-	//	int i = 0;
-	boost::detail::Sleep(50);
-	system("cls");
-	printHouse(_robot.location);
-	cout << _robot.location << endl;
-	cout << (int)prevStep_ << endl;
+//	if (deleteThis++ % 5 == 0)
+//	{
+//		boost::detail::Sleep(300);
+//		system("cls");
+//		printHouse(_robot.location);
+//		cout << "A" << endl;
+//		cout << _robot.location << endl;
+//		cout << (int)prevStep_ << endl;
+//	}
+
 
 #endif
 
 	return next;
 
-}
-
-void _201445681_A::updatePseudoRandom()
-{	
-	_psuedoRand++;
-
-	// Adding more randomness
-	if (_psuedoRand % 11 == 0)
-	{
-		_psuedoRand += 3;
-	}
 }
 
 
