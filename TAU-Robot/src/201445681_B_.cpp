@@ -1,5 +1,4 @@
 #include "201445681_B_.h"
-#include "AbstractAlgorithm.h"
 #include "MakeUnique.h"
 #include "AlgorithmRegistration.h"
 #include <boost/filesystem/path.hpp>
