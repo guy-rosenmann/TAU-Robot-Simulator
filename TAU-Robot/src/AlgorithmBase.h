@@ -13,7 +13,7 @@ using namespace std;
 #include "Configuration.h"
 #include "RobotInformation.h"
 
-#define MAXHOUSELENGTH 50
+#define MAXHOUSELENGTH 70
 
 class AlgorithmBase : public AbstractAlgorithm
 {

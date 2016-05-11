@@ -395,7 +395,7 @@ Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Directio
 		}
 		else if (_dirtyLocations.find(block) != _dirtyLocations.end())
 		{
-			int dirt = _house[block.getY()][block.getX()];
+			int dirt = _house[block.getY()][block.getX()] - DUST1 +1;
 			if (dirt > maxDirtFound)
 			{
 				maxDirtFound = dirt;
@@ -437,7 +437,7 @@ Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Directio
 		Point dirtyDest = findClosestPoint(_dirtyLocations);
 		int movesToNDest = GetMovesToPoint(NDest);
 		int movesTodirtyDest = GetMovesToPoint(dirtyDest);
-		int dirtyLevel = _house[dirtyDest.getY()][dirtyDest.getX()] - DUST1 - 1;
+		int dirtyLevel = _house[dirtyDest.getY()][dirtyDest.getX()] - DUST1 + 1;
 
 		Point dest = dirtyDest;
 		if (movesTodirtyDest > movesToNDest + 2 * dirtyLevel)
