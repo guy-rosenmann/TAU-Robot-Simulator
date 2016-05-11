@@ -13,14 +13,14 @@ using namespace std;
 #include "Configuration.h"
 #include "RobotInformation.h"
 
-#define MAXHOUSELENGTH 62
+#define MAXHOUSELENGTH 50
 
 class AlgorithmBase : public AbstractAlgorithm
 {
 
 public:
 	AlgorithmBase();
-	void freeHouse();
+	void freeHouse(int height);
 	~AlgorithmBase();
 	AlgorithmBase(const AbstractSensor& sensor, const Configuration& conf) { setSensor(sensor); setConfiguration(conf.getParams()); }
 
@@ -45,8 +45,7 @@ protected:
 
 	enum { DOCKING = 'D', WALL = 'W', CLEAN = '0', EMPTY = ' ', NOTWALL = 'N', UNKNOWN = '?', ROBOT = 'R' };
 	enum { DUST1 = '1', DUST2, DUST3, DUST4, DUST5, DUST6, DUST7, DUST8, DUST9 };
-	enum Mode { START = 0, RETURNHOME, UNDISCIPLINED, SCAN, DIJAKSTRA, LOWBATTERY};
-//	enum ScanMode {FINDSTART, UP, DOWN, LEFT, RIGHT};dijakstra
+	enum Mode { RETURNHOME, UNDISCIPLINED, SCAN, DIJAKSTRA, LOWBATTERY};
 
 	char** _house;
 
@@ -58,11 +57,6 @@ protected:
 	set<Point> _dirtyLocations;
 	Point		_docking;
 
-	// All steps made since entering a maze
-	vector<vector<tuple<Point, Direction>>> _mazeSteps;
-
-	// Quick way home
-//	vector<tuple<Point, Direction>> _quickToHome;
 
 	// List of dirs to destination.. stored in reverse for convinience
 	vector<Direction> _dijakstraToDest;
@@ -70,7 +64,7 @@ protected:
 	// List of dirs to destination.. stored in reverse for convinience
 	vector<Direction> _dijakstraHome;
 
-	int deleteThis = 59;
+//	int deleteThis = 59;
 	///////////////////////////////
 	
 	bool isDocking() const;

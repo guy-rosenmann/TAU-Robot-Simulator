@@ -19,11 +19,11 @@ AlgorithmBase::AlgorithmBase()
 
 }
 
-void AlgorithmBase::freeHouse()
+void AlgorithmBase::freeHouse(int height)
 {
 	if (_house != nullptr)
 	{
-		for (int i = 0; i < _houseHeight; i++)
+		for (int i = 0; i < height; i++)
 		{
 			delete[] _house[i];
 		}
@@ -35,7 +35,7 @@ void AlgorithmBase::freeHouse()
 
 AlgorithmBase::~AlgorithmBase()
 {
-	freeHouse();
+	freeHouse(_houseHeight);
 }
 
 void AlgorithmBase::aboutToFinish(int stepsTillFinishing_)
@@ -155,12 +155,12 @@ void AlgorithmBase::expandMatrix()
 {
 	if (_robot.location.getY() == _houseHeight -2)
 	{
-		unsigned oldHeight = _houseHeight;
+		int oldHeight = _houseHeight;
 
 		_houseHeight *= 2;
 		char** newHouse = new char*[_houseHeight];
 
-		for (size_t i = 0; i < oldHeight; i++)
+		for (int i = 0; i < oldHeight; i++)
 		{
 			newHouse[i] = new char[_houseLength + 1];
 			strncpy(newHouse[i], _house[i], _houseLength);
@@ -173,7 +173,7 @@ void AlgorithmBase::expandMatrix()
 			newHouse[i][_houseLength] = '\0';
 			memset(newHouse[i], AlgorithmBase::UNKNOWN, _houseLength);
 		}
-		freeHouse();
+		freeHouse(oldHeight);
 		_house = newHouse;
 	}
 
@@ -194,7 +194,7 @@ void AlgorithmBase::expandMatrix()
 			newHouse[i][_houseLength] = '\0';
 		}
 
-		freeHouse();
+		freeHouse(_houseHeight);
 		_house = newHouse;
 	}
 
@@ -219,7 +219,7 @@ void AlgorithmBase::expandMatrix()
 			newHouse[i][_houseLength] = '\0';
 		}
 
-		freeHouse();
+		freeHouse(oldHeight);
 		_house = newHouse;
 
 		updatePoints(0, oldHeight);
@@ -241,7 +241,7 @@ void AlgorithmBase::expandMatrix()
 			newHouse[i][_houseLength] = '\0';
 		}
 
-		freeHouse();
+		freeHouse(_houseHeight);
 		_house = newHouse;
 
 		updatePoints(oldLength, 0);
@@ -342,14 +342,16 @@ void AlgorithmBase::updateHouseKnowladge(SensorInformation info)
 Point AlgorithmBase::findClosestPoint(const set<Point>& points)
 {
 	Point result;
-	double minDistance = _houseLength + _houseHeight;
+	int minDistance = 10000000;
 	for (auto it = points.begin(); it != points.end(); ++it)
 	{
-		double dis = _robot.location.distance(*it);
-		if (_robot.location.distance(*it) < minDistance)
+		vector<Direction> dirsToPoint;
+		dijakstra(*it, dirsToPoint);
+		int distance = dirsToPoint.size();
+		if (distance < minDistance)
 		{
 			result = *it;
-			minDistance = dis;
+			minDistance = distance;
 		}
 	}
 	return result;
@@ -514,7 +516,7 @@ Direction AlgorithmBase::getMove(Direction prevStep_, vector<Direction>& order_)
 		return getMoveReturnHomeMode(possibleMoves);
 	}
 
-	return possibleMoves[deleteThis % possibleMoves.size()];
+	return possibleMoves[0];
 }
 
 void AlgorithmBase::printHouse(Point robotLocation) const

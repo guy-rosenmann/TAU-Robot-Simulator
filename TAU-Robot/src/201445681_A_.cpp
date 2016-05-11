@@ -26,7 +26,7 @@ Direction _201445681_A::step(Direction prevStep_)
 #ifdef _DEBUG_
 //	if (deleteThis++ % 5 == 0)
 //	{
-//		boost::detail::Sleep(300);
+//		boost::detail::Sleep(50);
 //		system("cls");
 //		printHouse(_robot.location);
 //		cout << "A" << endl;
