@@ -252,26 +252,22 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 {
 	// update robot info
 	_robot.location.move(direction_);
+
+	if (_house[_robot.location.getY()][_robot.location.getX()] == DUST1)
+	{
+		_dirtyLocations.erase(_robot.location);
+	}
+
 	_robot.totalSteps++;
 
 	expandMatrix();
+
+
 
 	dijakstra(_docking, _dijakstraHome);
 	updateRemainingMoves();
 
 	updateBattery();
-	
-//	// Save moves
-//	if (!_aboutToFinishCalled)
-//	{
-//		_lastMove = direction_;
-//
-//		// No need to store stay moves
-//		if (_lastMove != Direction::Stay)
-//		{
-//			_movesDone.push_back(_lastMove);
-//		}
-//	}
 }
 
 Direction AlgorithmBase::recoverFromUndisciplinedRobot(Direction actualPrevStep_)
