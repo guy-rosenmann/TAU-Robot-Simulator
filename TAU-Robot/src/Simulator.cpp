@@ -231,12 +231,67 @@ size_t Simulator::getThreadsFromString(const char* threads_count) const
 	return num;
 }
 
-void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index, House& house)
+
+void Simulator::simulate()
 {
+	if (!_successful) return;
+	int maxStepsAfterWinner = _config["MaxStepsAfterWinner"];
+
+	if (_threadsCount > 1)
+	{
+		vector<unique_ptr<thread>> threads(_threadsCount);
+		for (auto& thread_ptr : threads)
+		{
+			// create the threads and run them
+			thread_ptr = make_unique<thread>(&Simulator::runSingleSubSimulationThread, this, maxStepsAfterWinner); // create and run the thread
+		}
+		// join all the threads
+		for (auto& thread_ptr : threads)
+		{
+			thread_ptr->join();
+		}
+	}
+	else
+	{
+		// Only 1 thread - run on main thread
+		runSingleSubSimulationThread(maxStepsAfterWinner);
+	}
+
+	this->printScores();
+
+	if (_printScoreError)
+	{
+		_errors.push_back("Score formula could not calculate some scores, see -1 in the results table");
+	}
+	if (_errors.size() > 0)
+	{
+		cout << endl << "Errors:" << endl;
+		printErrors();
+	}
+}
+
+
+void Simulator::runSingleSubSimulationThread(int maxStepsAfterWinner) {
+	// ===> thread should take a new task, if available, and run it
+	// if no task is available, thread is done
+#ifdef _DEBUG_
+	sync_cout::get() << std::this_thread::get_id() << " runSingleSubSimulationThread " << endl;
+#endif
+
+	for (size_t index = _houseIndex++; index < _houses.size(); index = _houseIndex++) // fetch old value, then add. equivalent to: fetch_add(1)
+	{
+		simulateOnHouse(maxStepsAfterWinner, index);
+	}
+}
+
+
+void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
+{
+	House& house = *_houses.at(index);
 	vector<Simulation*> simulations;
 
 #ifdef _DEBUG_
-	sync_cout::get() << std::this_thread::get_id() << " running on house: " << index << endl << endl;
+	sync_cout::get() << std::this_thread::get_id() << ": running on house " << index << endl << endl;
 #endif
 
 	// We need to set MaxSteps for each house sepreratly
@@ -248,14 +303,16 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index, House& house
 	{
 		simulations.push_back(new Simulation(config, house, a_it->second, a_it->first));
 	}
+
 #ifdef _DEBUG_
 	sync_cout::get() << house << endl;
 #endif
+
 	// Simulate all algorithms on current house
 	vector<Simulation*> tempStoppedSimulatios;
 	bool atLeastOneDone = false, aboutToFinishCalled = false;
 	int stepsCount = 0, afterStepsCount = -1;
-	while ((simulations.size() > 0) && (stepsCount < maxSteps) && (atLeastOneDone ? (afterStepsCount < maxStepsAfterWinner) : true) )
+	while ((simulations.size() > 0) && (stepsCount < maxSteps) && (atLeastOneDone ? (afterStepsCount < maxStepsAfterWinner) : true))
 	{
 		vector<Simulation*>::iterator it = simulations.begin();
 		while (it != simulations.end())
@@ -270,7 +327,7 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index, House& house
 				}
 				if (currentSimulation.didRobotMisbehave())
 				{
-					_errors.push_back("Algorithm " + currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount+1));
+					_errors.push_back("Algorithm " + currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount + 1));
 					(*_algoScores[currentSimulation.getAlgoName()])[index] = 0; // score = 0 if misbehaved
 					delete (*it);
 					it = simulations.erase(it);
@@ -280,24 +337,16 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index, House& house
 					tempStoppedSimulatios.push_back(*it);
 					it = simulations.erase(it);
 				}
-//#ifdef _DEBUG_
-//				cout << "Simulation is done!" << endl;
-//				if (stepsCount % 5 == 0)
-//				{
-//					currentSimulation.printStatus();
-//				}
-//#endif
 			}
 			else
 			{
 				++it;
 #ifdef _DEBUG_
-				// currentSimulation.printStatus();
 				if (stepsCount == maxSteps - 1)
 				{
 					sync_cout::get() << "Simulation is stopped!" << endl;
 				}
-//				currentSimulation.printStatus();
+				// currentSimulation.printStatus();
 #endif
 			}
 		}
@@ -323,7 +372,7 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index, House& house
 			}
 		}
 	}
-		
+
 #ifdef _DEBUG_
 	sync_cout::get() << "[INFO] Total simulation steps for current house: " << stepsCount << endl << endl;
 #endif
@@ -332,52 +381,6 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index, House& house
 	this->score(index, stepsCount, simulations);
 
 	Simulator::clearPointersVector(simulations);
-}
-
-void Simulator::runSingleSubSimulationThread(int maxStepsAfterWinner) {
-	// ===> thread should take a new task, if available, and run it
-	// if no task is available, thread is done
-#ifdef _DEBUG_
-	sync_cout::get() << std::this_thread::get_id() << " runSingleSubSimulationThread " << endl;
-#endif
-
-	for (size_t index = _houseIndex++; index < _houses.size(); index = _houseIndex++) // fetch old value, then add. equivalent to: fetch_add(1)
-	{
-		House& house = *_houses.at(index);
-		simulateOnHouse(maxStepsAfterWinner, index, house);
-	}
-}
-
-void Simulator::simulate()
-{
-	if (!_successful) return;
-	int maxStepsAfterWinner = _config["MaxStepsAfterWinner"];
-
-	vector<unique_ptr<thread>> threads(_threadsCount);
-	for (auto& thread_ptr : threads)
-	{
-		// ===> actually create the threads and run them
-		thread_ptr = make_unique<thread>(&Simulator::runSingleSubSimulationThread, this, maxStepsAfterWinner); // create and run the thread
-	}
-
-	// ===> join all the threads to finish nicely (i.e. without crashing / terminating threads)
-	for (auto& thread_ptr : threads)
-	{
-		thread_ptr->join();
-	}
-
-	this->printScores();
-
-	if (_printScoreError)
-	{
-		_errors.push_back("Score formula could not calculate some scores, see -1 in the results table");
-	}
-
-	if (_errors.size() > 0)
-	{
-		cout << endl << "Errors:" << endl;
-		printErrors();
-	}
 }
 
 
@@ -481,20 +484,12 @@ vector<string> Simulator::loadFilesWithSuffix(const char* path_, const char* suf
 		return result;
 	}
 
-//#ifdef _DEBUG_
-//	sync_cout::get() << "[INFO] " << p << " is a directory" << endl;
-//#endif
-
 	fs::directory_iterator end_it;
 	for (fs::directory_iterator it(path); it != end_it; ++it)
 	{
 		if ( is_regular_file(*it) && StringUtils::endsWith(it->path().generic_string(), suffix_) )
 		{
 			result.push_back(it->path().generic_string());
-
-//#ifdef _DEBUG_
-////			sync_cout::get() << "[INFO] " << it->path() << " File with " << suffix << " suffix" << endl;
-//#endif
 		}
 	}
 	std::sort(result.begin(), result.end());
@@ -504,11 +499,28 @@ vector<string> Simulator::loadFilesWithSuffix(const char* path_, const char* suf
 
 void Simulator::printScores() const
 {
+	// Save average score for each algorithm
+	int index = 0;
+	vector<std::pair<string, double>> avgScores;
+	for (auto it = _algoScores.cbegin(); it != _algoScores.cend(); ++it, ++index)
+	{
+		double avg = 0.0;
+		vector<int>& scores = *(it->second);
+		for (size_t i = 0; i < scores.size(); ++i)
+		{
+			avg += scores[i];
+		}
+		avgScores.push_back(std::make_pair(it->first, avg / scores.size()));
+	}
+
+	// sort by avg score (highest to lowest)
+	std::sort(avgScores.begin(), avgScores.end(), Simulator::avgPairCompare);
+	
+	
 	int rowLength = 2 + ALGO_NAME_CELL_SIZE + (1 + _houses.size()) * (CELL_SIZE + 1);
 
-	//////////////////////////////////////
-	//////////Print Table First Row///////
-	//////////////////////////////////////
+	
+	// Print first row of table
 	cout << string(rowLength, '-') << endl;
 	cout << '|' << string(ALGO_NAME_CELL_SIZE, ' ') << '|';
 	for (vector<House*>::const_iterator it = _houses.begin(); it != _houses.end(); ++it)
@@ -519,27 +531,23 @@ void Simulator::printScores() const
 	cout << "AVG" << string(CELL_SIZE - 3, ' ') << '|' << endl;
 	cout << string(rowLength, '-') << endl;
 
-	//////////////////////////////////////
-	//////Print Table Algos' Results//////
-	//////////////////////////////////////
-	for (auto it = _algoScores.begin(); it != _algoScores.end(); ++it)
+
+	// Print results from highest to lowest avg score
+	for (auto it = avgScores.rbegin(); it != avgScores.rend(); ++it)
 	{
 		cout << '|';
-		string filename = it->first;
+		
+		double avg = it->second;
+		string& filename = it->first;
 		cout << filename.substr(0, ALGO_NAME_CELL_SIZE) << string(std::max(ALGO_NAME_CELL_SIZE - (int)filename.size(), 0), ' ') << '|';
 		
-		vector<int>& scores = *(it->second);
-		double avg = 0.0;
-		for (vector<int>::iterator s_it = scores.begin(); s_it != scores.end(); ++s_it)
+		const vector<int>& scores = *(_algoScores.at(filename));
+		for (vector<int>::const_iterator s_it = scores.begin(); s_it != scores.end(); ++s_it)
 		{
-			int score = *s_it;
-			avg += score;
-
-			printf("%10s", StringUtils::numberToString<int>(score).c_str());
+			printf("%10s", StringUtils::numberToString<int>(*s_it).c_str());
 			cout << '|';
 		}
 
-		avg /= (scores.size());
 		int leadingSpaces = Simulator::CountSpaces(avg);
 
 		printf("%s%.2f|", string(leadingSpaces, ' ').c_str(), avg);
@@ -552,7 +560,7 @@ void Simulator::printScores() const
 
 void Simulator::printErrors() const
 {
-	for (string error : _errors)
+	for (const string& error : _errors)
 	{
 		cout << error << endl;
 	}

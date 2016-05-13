@@ -46,11 +46,11 @@ class Simulator
 	SharedObjectLoader*	_scoreSO = nullptr;
 	typedef int(*score_func)(const map<string, int>&);
 	score_func	_scoreFunc = NULL;
-	bool		_printScoreError = false;
+	bool _printScoreError = false;
 	
-	size_t			_threadsCount;
+	size_t	_threadsCount;
 
-	bool				_successful = false;
+	bool _successful = false;
 	syncVector<string>	_errors;
 
 	map<string, unique_ptr<vector<int>>>	_algoScores;
@@ -79,12 +79,14 @@ private:
 	bool getAlgos(const char* algorithmPath_, vector<string>& errors_);
 	bool getHouses(const char* housePath_);
 	bool getScoreFunc(const char* scorePath_);
-
 	size_t getThreadsFromString(const char* threads_count) const;
-	void simulateOnHouse(int maxStepsAfterWinner, int index, House& house);
+
 	void runSingleSubSimulationThread(int maxStepsAfterWinner);
+	void simulateOnHouse(int maxStepsAfterWinner, int index);
 	template <class T>
+	
 	static void clearPointersVector(vector<T*>& vec);
+	static bool avgPairCompare(const std::pair<string, double>& firstPair, const std::pair<string, double>& secondPair) { return firstPair.second < secondPair.second; }
 };
 
 

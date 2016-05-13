@@ -17,7 +17,7 @@ class Simulation
 	Sensor				_sensor;
 	RobotInformation	_robot;
 	Configuration		_config;
-	Direction		_prevStep = Direction::Stay;
+	Direction			_prevStep = Direction::Stay;
 
 public:
 
