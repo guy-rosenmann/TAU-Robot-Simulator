@@ -13,7 +13,10 @@ using namespace std;
 #include "Configuration.h"
 #include "RobotInformation.h"
 
-#define MAXHOUSELENGTH 70
+#define MAXHOUSELENGTH 96
+
+//#define SAFERETURNBUFFER 3
+//#define RETURNDETOUR 5
 
 class AlgorithmBase : public AbstractAlgorithm
 {
@@ -39,7 +42,7 @@ protected:
 	Direction _lastMove = Direction::Stay;
 	bool _aboutToFinishCalled = false;
 	vector<Direction> _movesDone;
-	int _movesUntilFinish = 10000000;
+	int _movesUntilFinish = 100000000;
 
 	//////////// For Algo /////////
 
@@ -82,12 +85,15 @@ protected:
 	Point findClosestPoint(const set<Point>& points);
 	int GetMovesToPoint(Point point);
 	Direction getMoveScanMode(SensorInformation info, vector<Direction>& possiblemoves);
+	size_t movesUntilNoBattery();
 	Direction getMoveDijakstraMode(vector<Direction>& possiblemoves);
 	Direction getMoveReturnHomeMode(vector<Direction>& vector);
 	Direction getMove(Direction prevMove_, vector<Direction>& order);
 	void printHouse(Point robotLocation) const;
 	void printNLocation();
 	void dijakstra(Point dest_, vector<Direction>& result);
+	int calcScoreForPath(int get, Point point);
+	void dijakstraHome(Point dest_, vector<Direction>& result_);
 };
 
 

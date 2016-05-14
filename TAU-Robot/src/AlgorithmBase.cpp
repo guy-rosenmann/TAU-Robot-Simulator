@@ -108,6 +108,123 @@ void AlgorithmBase::dijakstra(Point dest_, vector<Direction>& result_){
 	}
 }
 
+int AlgorithmBase::calcScoreForPath(int untilPoint, Point point)
+{
+	int addedValue = 1000000;
+	char c = _house[point.getY()][point.getX()];
+	if (c == EMPTY || c == CLEAN)
+	{
+		addedValue = 10;
+	}
+	else if (c == NOTWALL)
+	{
+		addedValue = 9;
+	}
+	else if (c >= DUST1 && c<= DUST9)
+	{
+		addedValue = DUST9 - c;
+	}
+
+	return untilPoint + addedValue + 100000;
+}
+
+void AlgorithmBase::dijakstraHome(Point dest_, vector<Direction>& result_){
+
+	// I'd like to take a minute to explain all data structures in use:
+
+	// Normal dijkstra queue, all items can be here max 1 time
+	queue<Point> queue;
+	// all items in queue, used for finding in O(1)
+	set<Point> inQueue;
+	// all items that were taken out of the queue, or points we'll not travel to
+	set<Point> dontTouch;
+	// scoring map, includeing direction which we came from
+	map<Point, tuple<int, Direction>> map;
+
+	for (int i = 0; i < _houseHeight; ++i)
+	{
+		for (int j = 0; j < _houseLength; ++j)
+		{
+			char block = _house[i][j];
+			if (block == UNKNOWN || block == WALL)
+			{
+				dontTouch.insert(Point(j, i));
+			}
+			// dont touch the frame too
+			if (i == 0 || j == 0 || i == _houseHeight - 1 || j == _houseLength - 1)
+			{
+				dontTouch.insert(Point(j, i));
+			}
+		}
+	}
+
+	queue.push(_robot.location);
+	inQueue.insert(_robot.location);
+	dontTouch.insert(_robot.location);
+
+	bool foundPath = false;
+	while (!foundPath && queue.size() > 0)
+	{
+		Point point = queue.front();
+		queue.pop();
+		inQueue.erase(point);
+		dontTouch.insert(point);
+
+		if (point == dest_)
+		{
+			foundPath = true;
+			break;
+		}
+		
+		for (int i = 0; i < 4; i++)
+		{
+			Point block = point;
+			block.move((Direction)i);
+
+			if (dontTouch.find(block) != dontTouch.end())
+			{
+				// block is a wall, '?', or already computed it's weight
+				continue;
+			}
+
+			if (inQueue.find(block) == inQueue.end())
+			{
+				// block is not in queue
+				map[block] = tuple<int, Direction>(calcScoreForPath(std::get<0>(map[point]), point), (Direction)i);
+				queue.push(block);
+				inQueue.insert(block);
+			}
+			else
+			{
+				int score = calcScoreForPath(std::get<0>(map[point]), point);
+				int prevScore = std::get<0>(map[block]);
+				if (score < prevScore)
+				{
+					map[block] = tuple<int, Direction>(score, (Direction)i);
+				}
+			}
+		}
+	}
+
+	if (!foundPath)
+	{
+		// nothing to do
+		return;
+	}
+
+	// storing path to destination
+	result_.clear();
+	Point p = dest_;
+
+	while (!(p == _robot.location))
+	{
+		Direction dir = std::get<1>(map[p]);
+		result_.push_back(dir);
+		p.move(oppositeDirection(dir));
+	}
+}
+
+
 bool AlgorithmBase::isDocking() const
 {
 	return _robot.location == _docking;
@@ -261,10 +378,8 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 	_robot.totalSteps++;
 
 	expandMatrix();
-
-
-
-	dijakstra(_docking, _dijakstraHome);
+	
+	dijakstraHome(_docking, _dijakstraHome);
 	updateRemainingMoves();
 
 	updateBattery();
@@ -446,8 +561,19 @@ Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Directio
 	}
 }
 
+size_t AlgorithmBase::movesUntilNoBattery()
+{
+	return (size_t) _robot.battery / _config["BatteryConsumptionRate"] + 1;
+}
+
 Direction AlgorithmBase::getMoveDijakstraMode(vector<Direction>& vector)
 {
+	if (_dijakstraToDest.size() > movesUntilNoBattery() + 1)
+	{
+		_mode = RETURNHOME;
+		return getMoveReturnHomeMode(vector);
+	}
+
 	if (_dijakstraToDest.size() == 1)
 	{
 		_mode = SCAN;

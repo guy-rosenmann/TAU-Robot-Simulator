@@ -12,6 +12,8 @@ _201445681_B::_201445681_B()
 	_myOrder.push_back(Direction::South);
 }
 
+//int deleteThis = 0;
+
 Direction _201445681_B::step(Direction prevStep_)
 {
 
@@ -25,12 +27,15 @@ Direction _201445681_B::step(Direction prevStep_)
 
 #ifdef _DEBUG_
 
-//		boost::detail::Sleep(50);
-//		system("cls");
-//		printHouse(_robot.location);
-//		cout << "B" << endl;
-//		cout << _robot.location << endl;
-//		cout << (int)prevStep_ << endl;
+//	if (deleteThis++ % 10 == 0)
+//		{
+//			boost::detail::Sleep(50);
+//			system("cls");
+//			printHouse(_robot.location);
+//			cout << "B" << endl;
+//			cout << _robot.location << endl;
+//			cout << (int)prevStep_ << endl;
+//		}
 
 #endif
 	return next;
