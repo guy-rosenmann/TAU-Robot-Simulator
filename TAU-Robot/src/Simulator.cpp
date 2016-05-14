@@ -107,7 +107,7 @@ bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
 			}
 			else if (err == AlgorithmRegistrar::NO_ALGORITHM_REGISTERED)
 			{
-				errors_.push_back(fileName + ": valid .so file but no algorithm was registered after loading it");
+				errors_.push_back(fileName + ": valid .so but no algorithm was registered after loading it");
 			}
 		}
 	}
