@@ -2,8 +2,6 @@
 #include "MakeUnique.h"
 #include "AlgorithmRegistration.h"
 
-#include <boost/filesystem/path.hpp>
-
 _201445681_A::_201445681_A()
 {
 	_myOrder.push_back(Direction::East);
