@@ -513,7 +513,7 @@ void Simulator::printScores() const
 		avgScores.push_back(std::make_pair(it->first, avg / scores.size()));
 	}
 
-	// sort by avg score (highest to lowest)
+	// sort by avg score
 	std::sort(avgScores.begin(), avgScores.end(), Simulator::avgPairCompare);
 	
 	
@@ -532,7 +532,7 @@ void Simulator::printScores() const
 	cout << string(rowLength, '-') << endl;
 
 
-	// Print results from highest to lowest avg score
+	// Print results from highest to lowest avg score (reverse iterator)
 	for (auto it = avgScores.rbegin(); it != avgScores.rend(); ++it)
 	{
 		cout << '|';
