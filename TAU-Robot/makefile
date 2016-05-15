@@ -13,7 +13,7 @@ target = simulator
 # flags
 SHARED_FLAGS = -O2 -Wall -pthread -std=c++11 -pedantic -g
 CC_FLAGS = -c $(SHARED_FLAGS)
-SO_FLAGS = $(SHARED_FLAGS) -shared -fPIC -mcmodel=large
+SO_FLAGS = $(SHARED_FLAGS) $(LD_FLAGS) -shared -fPIC -mcmodel=large
 LD_FLAGS = -lm -lboost_system -lboost_filesystem -ldl
 CC = g++
 
