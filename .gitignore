@@ -6,7 +6,7 @@ TAU-Robot/readme/
 TAU-Robot.sdf
 TAU-Robot.opensdf
 TAU-Robot.v12.suo
-*.so
+TAU-Robot/so/
 
 TAU-Robot/src/houses/001.house
 TAU-Robot/src/houses/002.house
