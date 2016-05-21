@@ -26,12 +26,15 @@ bool Simulation::step()
 {
 	if (_robot.battery <= 0)
 	{
+		if (_robot.battery != 0 || _house.at(_robot.location) != House::DOCKING) // if (battery == 0) and in docking - not stuck
+		{
 #ifdef _DEBUG_
-		// for EX1: printing after score!
-		// cout << "[INFO] The robot is stuck with an empty battery." << endl;
+			// for EX1: printing after score!
+			// cout << "[INFO] The robot is stuck with an empty battery." << endl;
 #endif
-		_robot.stuck = true;
-		return false;
+			_robot.stuck = true;
+			return false;
+		}
 	}
 	
 	

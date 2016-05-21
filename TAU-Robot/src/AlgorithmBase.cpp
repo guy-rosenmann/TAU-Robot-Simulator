@@ -44,7 +44,8 @@ void AlgorithmBase::aboutToFinish(int stepsTillFinishing_)
 	_movesUntilFinish = stepsTillFinishing_;
 }
 	
-void AlgorithmBase::dijakstra(Point dest_, vector<Direction>& result_){
+void AlgorithmBase::dijakstra(Point dest_, vector<Direction>& result_)
+{
 	queue<Point> queue;
 	set<Point> untouched;
 	map<Point, Direction> map;
@@ -128,7 +129,8 @@ int AlgorithmBase::calcScoreForPath(int untilPoint, Point point)
 	return untilPoint + addedValue + 100000;
 }
 
-void AlgorithmBase::dijakstraHome(Point dest_, vector<Direction>& result_){
+void AlgorithmBase::dijakstraHome(Point dest_, vector<Direction>& result_)
+{
 
 	// I'd like to take a minute to explain all data structures in use:
 
