@@ -22,25 +22,28 @@ Simulation::~Simulation()
 	delete _algo;
 }
 
+
+#ifdef _DEBUG_
 void Simulation::makeHimUndisciplened(Direction& direction)
 {
-//	if (rand() % 100 < _undisiciplenedRate)
-//	{
-//		Direction dirs[5] = { Direction::East, Direction::West, Direction::South, Direction::North, Direction::Stay };
-//		vector<Direction> possibleMoves;
-//		SensorInformation info = _sensor.sense();
-//
-//		for (auto dir : dirs)
-//		{
-//			if (!info.isWall[(int)dir])
-//			{
-//				possibleMoves.push_back(dir);
-//			}
-//		}
-//		
-//		direction = possibleMoves[rand() % possibleMoves.size()];
-//	}
+	if (rand() % 100 < _undisiciplenedRate)
+	{
+		Direction dirs[5] = { Direction::East, Direction::West, Direction::South, Direction::North, Direction::Stay };
+		vector<Direction> possibleMoves;
+		SensorInformation info = _sensor.sense();
+
+		for (auto dir : dirs)
+		{
+			if (!info.isWall[(int)dir])
+			{
+				possibleMoves.push_back(dir);
+			}
+		}
+		
+		direction = possibleMoves[rand() % possibleMoves.size()];
+	}
 }
+#endif
 
 bool Simulation::step()
 {
@@ -75,7 +78,9 @@ bool Simulation::step()
 
 	// always make a move if battery is larger than 0 at the beggining
 	Direction stepDirection = _algo->step(_prevStep);
+#ifdef _DEBUG_
 	makeHimUndisciplened(stepDirection);
+#endif
 	_prevStep = stepDirection;
 
 	_robot.location.move(stepDirection);
