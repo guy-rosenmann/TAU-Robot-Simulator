@@ -387,20 +387,21 @@ void AlgorithmBase::updateAfterMove(Direction direction_)
 	updateBattery();
 }
 
-Direction AlgorithmBase::recoverFromUndisciplinedRobot(Direction actualPrevStep_)
+Direction AlgorithmBase::recoverFromUndisciplinedRobot(Direction actualPrevStep_, SensorInformation info, vector<Direction>& possibleMoves)
 {
 	if (actualPrevStep_ == Direction::Stay)
 	{
 		return _lastMove;
 	}
 
-	if (_mode == DIJAKSTRA)
+	if (_mode == DIJAKSTRA || _mode == SCAN)
 	{
-		_dijakstraToDest.push_back(_lastMove);
+		_mode = SCAN;
+		return getMoveScanMode(info, possibleMoves);
 	}
 	else if (_mode == RETURNHOME || _mode == LOWBATTERY)
 	{
-		_dijakstraHome.push_back(_lastMove);
+		return getMoveReturnHomeMode(possibleMoves);
 	}
 
 	return oppositeDirection(actualPrevStep_);
@@ -565,12 +566,12 @@ Direction AlgorithmBase::getMoveScanMode(SensorInformation info, vector<Directio
 
 size_t AlgorithmBase::movesUntilNoBattery()
 {
-	return (size_t) _robot.battery / _config["BatteryConsumptionRate"] + 1;
+	return (size_t) _robot.battery / _config["BatteryConsumptionRate"];
 }
 
 Direction AlgorithmBase::getMoveDijakstraMode(vector<Direction>& vector)
 {
-	if (_dijakstraToDest.size() > movesUntilNoBattery() + 1)
+	if (_dijakstraToDest.size() > movesUntilNoBattery() )
 	{
 		_mode = RETURNHOME;
 		return getMoveReturnHomeMode(vector);
@@ -602,11 +603,6 @@ Direction AlgorithmBase::getMoveReturnHomeMode(vector<Direction>& vector)
 
 Direction AlgorithmBase::getMove(Direction prevStep_, vector<Direction>& order_)
 {
-	if (prevStep_ != _lastMove)
-	{
-		recoverFromUndisciplinedRobot(prevStep_);
-	}
-
 	SensorInformation info = _sensor->sense(); // info.isWall = { East, West, South, North }
 	updateHouseKnowladge(info);
 
@@ -617,6 +613,12 @@ Direction AlgorithmBase::getMove(Direction prevStep_, vector<Direction>& order_)
 		{
 			possibleMoves.push_back(dir);
 		}
+	}
+
+	if (prevStep_ != _lastMove)
+	{
+		_undisciplinedCount++;
+		return recoverFromUndisciplinedRobot(prevStep_, info, possibleMoves);
 	}
 
 	// TODO: battery Check /////////////
@@ -673,9 +675,16 @@ void AlgorithmBase::updateRemainingMoves()
 	_movesUntilFinish--;
 }
 
-size_t AlgorithmBase::NumberOfMovesToDocking() const
+size_t AlgorithmBase::NumberOfMovesToDocking()
 {
-	return _dijakstraHome.size();
+	int actualSteps = _dijakstraHome.size();
+	double undisciplinedRate = getUndisciplinedRate();
+	return (size_t)(actualSteps * (1 + undisciplinedRate));
+}
+
+double AlgorithmBase::getUndisciplinedRate()
+{
+	return (_undisciplinedCount / (double)_robot.totalSteps) + 0.02;
 }
 
 void AlgorithmBase::updateBattery()
@@ -697,8 +706,8 @@ void AlgorithmBase::updateBattery()
 	int returnBatteryConsumption = movesToDocking * consumptionRate;
 
 	// Next were figuring out if we have enough battery to return home
-	// The 3 marked here is a safety margin //////////////////////////   -|-  /////////////////////
-	if ((_robot.battery >= returnBatteryConsumption) && (_robot.battery - 3 * consumptionRate <= returnBatteryConsumption))
+	// The 2 marked here is a safety margin //////////////////////////   -|-  /////////////////////
+	if ((_robot.battery >= returnBatteryConsumption) && (_robot.battery - 2 * consumptionRate <= returnBatteryConsumption))
 	{
 		_mode = LOWBATTERY;
 		return;
@@ -710,7 +719,7 @@ void AlgorithmBase::updateBattery()
 	}
 
 	// The 3 marked here is a safety margin /////-|-/////////////////////
-	if (_aboutToFinishCalled && (movesToDocking + 3 > _movesUntilFinish) && movesToDocking < _movesUntilFinish)
+	if (_aboutToFinishCalled && (movesToDocking + 3 > _movesUntilFinish) && ((int)_dijakstraHome.size() < _movesUntilFinish))
 	{
 		_mode = RETURNHOME;
 	}

@@ -36,6 +36,7 @@ public:
 		do_move[(int)d](*this);
 	}
 	bool operator==(const Point& other) const { return (_x == other._x && _y == other._y); }
+	bool operator!=(const Point& other) const { return (_x != other._x || _y != other._y); }
 	bool operator<(const Point& other) const { return (_x < other._x) || (_x == other._x && _y < other._y); }
 	friend ostream& operator<<(ostream& out, const Point& p) { p.print(out); return out; }
 };

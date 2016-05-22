@@ -19,12 +19,14 @@ class Simulation
 	Configuration		_config;
 	Direction			_prevStep = Direction::Stay;
 
+	int _undisiciplenedRate = 0;
 public:
 
 	Simulation() = delete;
 	Simulation(const Configuration& config_, const House& house_, unique_ptr<AbstractAlgorithm>& algo_, string algoName_);
 	virtual ~Simulation();
 
+	void makeHimUndisciplened(Direction& direction);
 	bool step();
 	int getStepsCount() const { return _robot.totalSteps; }
 	int getTotalDirtCount() const { return _house.getTotalDirtAmount(); }

@@ -15,9 +15,6 @@ using namespace std;
 
 #define MAXHOUSELENGTH 96
 
-//#define SAFERETURNBUFFER 3
-//#define RETURNDETOUR 5
-
 class AlgorithmBase : public AbstractAlgorithm
 {
 
@@ -48,7 +45,7 @@ protected:
 
 	enum { DOCKING = 'D', WALL = 'W', CLEAN = '0', EMPTY = ' ', NOTWALL = 'N', UNKNOWN = '?', ROBOT = 'R' };
 	enum { DUST1 = '1', DUST2, DUST3, DUST4, DUST5, DUST6, DUST7, DUST8, DUST9 };
-	enum Mode { RETURNHOME, UNDISCIPLINED, SCAN, DIJAKSTRA, LOWBATTERY};
+	enum Mode { RETURNHOME, SCAN, DIJAKSTRA, LOWBATTERY};
 
 	char** _house;
 
@@ -59,7 +56,7 @@ protected:
 	set<Point> _NLocations;
 	set<Point> _dirtyLocations;
 	Point		_docking;
-
+	int _undisciplinedCount = 0;
 
 	// List of dirs to destination.. stored in reverse for convinience
 	vector<Direction> _dijakstraToDest;
@@ -67,19 +64,18 @@ protected:
 	// List of dirs to destination.. stored in reverse for convinience
 	vector<Direction> _dijakstraHome;
 
-//	int deleteThis = 59;
-	///////////////////////////////
-	
+
 	bool isDocking() const;
 	static Direction oppositeDirection(Direction direction_);
 	void updateRemainingMoves();
-	size_t NumberOfMovesToDocking() const;
+	size_t NumberOfMovesToDocking();
+	double getUndisciplinedRate();
 	void updateBeforeMove(Direction direction_);
 	void updatePointsSet(set<Point>& points, unsigned xOffset, unsigned yOffset);
 	void updatePoints(unsigned xOffset, unsigned yOffset);
 	void expandMatrix();
 	void updateAfterMove(Direction direction_);
-	Direction recoverFromUndisciplinedRobot(Direction prevMove_);
+	Direction recoverFromUndisciplinedRobot(Direction prevMove_, SensorInformation info, vector<Direction>& possiblemoves);
 	string DirectionToString(Direction direction) const;
 	void updateHouseKnowladge(SensorInformation info);
 	Point findClosestPoint(const set<Point>& points);
@@ -94,6 +90,7 @@ protected:
 	void dijakstra(Point dest_, vector<Direction>& result);
 	int calcScoreForPath(int get, Point point);
 	void dijakstraHome(Point dest_, vector<Direction>& result_);
+
 };
 
 

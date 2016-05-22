@@ -20,7 +20,6 @@ public:
 	_201445681_C(const AbstractSensor& sensor, const Configuration& conf) : AlgorithmBase(sensor, conf) {}
 
 	Direction step(Direction prevStep);
-	void updatePseudoRandom();
 };
 
 

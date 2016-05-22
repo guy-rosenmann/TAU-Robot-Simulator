@@ -1,20 +1,18 @@
 #include "201445681_B_.h"
 #include "MakeUnique.h"
 #include "AlgorithmRegistration.h"
+#include <boost/filesystem/path.hpp>
 
 _201445681_B::_201445681_B()
 {
-	_myOrder.push_back(Direction::West);
 	_myOrder.push_back(Direction::East);
-	_myOrder.push_back(Direction::North);
 	_myOrder.push_back(Direction::South);
+	_myOrder.push_back(Direction::North);
+	_myOrder.push_back(Direction::West);
 }
-
-//int deleteThis = 0;
 
 Direction _201445681_B::step(Direction prevStep_)
 {
-
 	// AfterMove because we can't be sure it moved (in cases of undisciplined robot)
 	updateAfterMove(prevStep_);
 
@@ -27,15 +25,20 @@ Direction _201445681_B::step(Direction prevStep_)
 
 //	if (deleteThis++ % 10 == 0)
 //		{
-//			boost::detail::Sleep(50);
-//			system("cls");
-//			printHouse(_robot.location);
-//			cout << "B" << endl;
-//			cout << _robot.location << endl;
-//			cout << (int)prevStep_ << endl;
+//	if (_robot.totalSteps > 55)
+//	{
+//
+//		boost::detail::Sleep(50);
+//		system("cls");
+//		printHouse(_robot.location);
+//		cout << "B" << endl;
+//		cout << _robot.location << endl;
+//		cout << (int)prevStep_ << endl;
+//	}
 //		}
 
 #endif
+
 	return next;
 }
 #ifndef _WINDOWS_
