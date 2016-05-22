@@ -1,7 +1,6 @@
 #include "201445681_C_.h"
 #include "MakeUnique.h"
 #include "AlgorithmRegistration.h"
-#include <boost/filesystem/path.hpp>
 
 _201445681_C::_201445681_C()
 {
