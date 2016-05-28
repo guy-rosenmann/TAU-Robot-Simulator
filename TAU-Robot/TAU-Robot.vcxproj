@@ -22,8 +22,10 @@
     <ClCompile Include="src\AlgorithmRegistrar.cpp" />
     <ClCompile Include="src\AlgorithmRegistration.cpp" />
     <ClCompile Include="src\Configuration.cpp" />
+    <ClCompile Include="src\Encoder.cpp" />
     <ClCompile Include="src\House.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Montage.cpp" />
     <ClCompile Include="src\ParamsParser.cpp" />
     <ClCompile Include="src\score_formula.cpp" />
     <ClCompile Include="src\Simulation.cpp" />
@@ -41,8 +43,10 @@
     <ClInclude Include="src\201445681_C_.h" />
     <ClInclude Include="src\AlgorithmRegistration.h" />
     <ClInclude Include="src\Configuration.h" />
+    <ClInclude Include="src\Encoder.h" />
     <ClInclude Include="src\House.h" />
     <ClInclude Include="src\MakeUnique.h" />
+    <ClInclude Include="src\Montage.h" />
     <ClInclude Include="src\ParamsParser.h" />
     <ClInclude Include="src\Point.h" />
     <ClInclude Include="src\RobotInformation.h" />

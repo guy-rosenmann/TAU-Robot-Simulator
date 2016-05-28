@@ -22,6 +22,12 @@
     <Filter Include="Source Files\Algorithms">
       <UniqueIdentifier>{b3495e90-5a8f-4bc0-bfa1-a6acac027824}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Animation">
+      <UniqueIdentifier>{3d4ad865-686d-4610-a8a0-552c3f1343f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Animation">
+      <UniqueIdentifier>{cd66f390-3f98-43a4-a919-dd90364d0851}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -62,6 +68,12 @@
     </ClCompile>
     <ClCompile Include="src\score_formula.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Encoder.cpp">
+      <Filter>Source Files\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Montage.cpp">
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +139,12 @@
     </ClInclude>
     <ClInclude Include="src\SharedObjectLoader.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Montage.h">
+      <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Encoder.h">
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
