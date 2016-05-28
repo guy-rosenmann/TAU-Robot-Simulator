@@ -8,6 +8,10 @@ so_dep = AlgorithmBase.cpp
 so_obj = $(so_src:.cpp=.so)
 so_dep_obj = $(so_dep:.cpp=.o)
 
+# score formula
+score_src = score_formula.cpp
+score_so = $(score_src:.cpp=.so)
+
 target = simulator
 
 # flags
@@ -23,10 +27,13 @@ CC = g++
 
 all: clean $(target)
 
-$(target): $(obj) $(so_obj)
+$(target): $(obj) $(so_obj) $(score_so)
 	$(CC) -rdynamic -o $@ $(obj) $(LD_FLAGS)
 
 $(so_obj): %.so: %.cpp $(so_dep_obj)
+	$(CC) $(SO_FLAGS) $^ -o $@
+
+$(score_so): %.so: %.cpp
 	$(CC) $(SO_FLAGS) $^ -o $@
 
 $(obj): %.o: %.cpp
@@ -36,4 +43,4 @@ $(so_dep_obj): %.o: %.cpp
 	$(CC) $(CC_FLAGS) -fPIC $< -o $@
 	
 clean:
-	rm -f $(obj) $(so_obj) $(so_dep_obj) $(target)
+	rm -f $(obj) $(so_obj) $(so_dep_obj) $(score_so) $(target)

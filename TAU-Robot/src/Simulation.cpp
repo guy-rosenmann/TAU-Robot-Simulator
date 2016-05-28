@@ -79,7 +79,7 @@ bool Simulation::step()
 	// always make a move if battery is larger than 0 at the beggining
 	Direction stepDirection = _algo->step(_prevStep);
 #ifdef _DEBUG_
-	makeHimUndisciplened(stepDirection);
+	// makeHimUndisciplened(stepDirection);
 #endif
 	_prevStep = stepDirection;
 

@@ -25,6 +25,7 @@
     <ClCompile Include="src\House.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ParamsParser.cpp" />
+    <ClCompile Include="src\score_formula.cpp" />
     <ClCompile Include="src\Simulation.cpp" />
     <ClCompile Include="src\Simulator.cpp" />
   </ItemGroup>
