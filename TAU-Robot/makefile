@@ -1,5 +1,5 @@
 # source files and object files
-src = main.cpp Simulator.cpp Simulation.cpp ParamsParser.cpp House.cpp Configuration.cpp AlgorithmRegistration.cpp AlgorithmRegistrar.cpp
+src = main.cpp Simulator.cpp Simulation.cpp ParamsParser.cpp House.cpp Configuration.cpp AlgorithmRegistration.cpp AlgorithmRegistrar.cpp Montage.cpp Encoder.cpp
 obj = $(src:.cpp=.o)
 
 # shared object source files and object files

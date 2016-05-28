@@ -1,5 +1,6 @@
 #include "Simulator.h"
 #include "StringUtils.h"
+#include "BoostUtils.h"
 #include "ParamsParser.h"
 #include "AlgorithmRegistrar.h"
 #include "MakeUnique.h"
@@ -91,7 +92,7 @@ bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
 	if (files.size() == 0)
 	{
 		ParamsParser::printUsage();
-		cout << "cannot find algorithm files in '" << StringUtils::getFullPath(algoPath) << "'" << endl;
+		cout << "cannot find algorithm files in '" << BoostUtils::getFullPath(algoPath) << "'" << endl;
 		return false;
 	}
 
@@ -114,7 +115,7 @@ bool Simulator::getAlgos(const char* algorithmPath_, vector<string>& errors_)
 
 	if (registrar.size() == 0)
 	{
-		cout << "All algorithm files in target folder '" << StringUtils::getFullPath(algoPath) << "' cannot be opened or are invalid: " << endl;
+		cout << "All algorithm files in target folder '" << BoostUtils::getFullPath(algoPath) << "' cannot be opened or are invalid: " << endl;
 
 		// Only algorithms errors should be printed
 		for (vector<string>::iterator it = errors_.begin(); it != errors_.end(); ++it)
@@ -136,7 +137,7 @@ bool Simulator::getHouses(const char* housePath_)
 	if (allHouses.size() == 0)
 	{
 		ParamsParser::printUsage();
-		cout << "cannot find house files in '" << StringUtils::getFullPath(housePath) << "'" << endl;
+		cout << "cannot find house files in '" << BoostUtils::getFullPath(housePath) << "'" << endl;
 		return false;
 	}
 
@@ -155,7 +156,7 @@ bool Simulator::getHouses(const char* housePath_)
 
 	if (_houses.size() == 0)
 	{
-		cout << "All house files in target folder '" << StringUtils::getFullPath(housePath) << "' cannot be opened or are invalid: " << endl;
+		cout << "All house files in target folder '" << BoostUtils::getFullPath(housePath) << "' cannot be opened or are invalid: " << endl;
 		printErrors();
 		return false;
 	}
@@ -172,7 +173,7 @@ bool Simulator::getScoreFunc(const char* scorePath_)
 		if (!fs::exists(scoreFile.c_str()) || fs::is_directory(fs::path(scoreFile)))
 		{
 			ParamsParser::printUsage();
-			cout << "cannot find score_formula.so file in '" << StringUtils::getFullPath(scorePath_) << "'" << endl;
+			cout << "cannot find score_formula.so file in '" << BoostUtils::getFullPath(scorePath_) << "'" << endl;
 			return false;
 		}
 
@@ -188,7 +189,7 @@ bool Simulator::getScoreFunc(const char* scorePath_)
 		}
 		else
 		{
-			cout << "score_formula.so exists in '" << StringUtils::getFullPath(scorePath_) << "' but cannot be opened or is not a valid .so" << endl;
+			cout << "score_formula.so exists in '" << BoostUtils::getFullPath(scorePath_) << "' but cannot be opened or is not a valid .so" << endl;
 			return false;
 		}
 	}
@@ -319,6 +320,8 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
 		{
 			Simulation& currentSimulation = **it;
 
+			currentSimulation.createMontage();
+
 			if (!currentSimulation.step() || currentSimulation.isDone())
 			{
 				if (currentSimulation.isDone())
@@ -329,6 +332,11 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
 				{
 					_errors.push_back("Algorithm " + currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount + 1));
 					(*_algoScores[currentSimulation.getAlgoName()])[index] = 0; // score = 0 if misbehaved
+
+					// Create montage for misbehaved robots too
+					currentSimulation.createMontage();
+					currentSimulation.createMontageVideo();
+
 					delete (*it);
 					it = simulations.erase(it);
 				}
@@ -378,6 +386,14 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
 #endif
 	simulations.insert(simulations.end(), tempStoppedSimulatios.begin(), tempStoppedSimulatios.end());
 	tempStoppedSimulatios.clear();
+
+	for (vector<Simulation*>::iterator it = simulations.begin(); it != simulations.end(); ++it)
+	{
+		Simulation& currentSim = **it;
+		currentSim.createMontage();
+		currentSim.createMontageVideo();
+	}
+
 	this->score(index, stepsCount, simulations);
 
 	Simulator::clearPointersVector(simulations);

@@ -27,6 +27,8 @@ class House
 	bool	_isValid;
 	string	_errorLine;
 
+	int		_montageCounter = 0;
+
 
 public:
 	enum { DOCKING = 'D', WALL = 'W', CLEAN = '0', EMPTY = ' ' };
@@ -46,6 +48,8 @@ public:
 	bool isClean() const { return _currentDirt == 0; }
 	char at(const Point& p) const { return (*this)[p]; }
 
+	void montage(const string& algoName_, const Point& robot_);
+
 	
 	// getters
 	string getName() const { return _name; }
@@ -64,6 +68,7 @@ public:
 	void print(ostream& out = cout) const;
 	void print(const Point& robot, ostream& out = cout) const;
 	friend ostream& operator<<(ostream& out, const House& h) { h.print(out); return out; }
+
 
 private:
 	Point findDocking();

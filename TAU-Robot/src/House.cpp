@@ -1,4 +1,6 @@
 #include "House.h"
+#include "Montage.h"
+#include "BoostUtils.h"
 
 #include <cstring>
 #include <cmath>
@@ -117,6 +119,11 @@ void House::setHouse(const House& other)
 	_totalDirt = other._totalDirt;
 	_currentDirt = other._currentDirt;
 
+	_houseFilename = other._houseFilename;
+	_houseFilenameWithoutSuffix = other._houseFilenameWithoutSuffix;
+
+	_montageCounter = other._montageCounter;
+
 	_house = new char*[_rows];
 	for (size_t i = 0; i < _rows; i++)
 	{
@@ -151,8 +158,10 @@ House::House(House&& other) :	_maxSteps(other._maxSteps),
 								_totalDirt(other._totalDirt),
 								_currentDirt(other._totalDirt),
 								_houseFilename(other._houseFilename),
+								_houseFilenameWithoutSuffix(other._houseFilenameWithoutSuffix),
 								_isValid(other._isValid),
-								_errorLine(other._errorLine)
+								_errorLine(other._errorLine),
+								_montageCounter(other._montageCounter)
 {
 	std::swap(_house, other._house);
 }
@@ -178,8 +187,10 @@ House& House::operator=(House&& other)
 	_totalDirt = other._totalDirt;
 	_currentDirt = other._totalDirt;
 	_houseFilename = other._houseFilename;
+	_houseFilenameWithoutSuffix = other._houseFilenameWithoutSuffix;
 	_isValid = other._isValid;
 	_errorLine = other._errorLine;
+	_montageCounter = other._montageCounter;
 
 	return *this;
 }
@@ -365,4 +376,34 @@ void House::validateHouse()
 	}
 
 	_totalDirt = _currentDirt;
+}
+
+
+void House::montage(const string& algoName_, const Point& robot_)
+{
+	vector<string> tiles;
+	for (size_t row = 0; row < _rows; ++row)
+	{
+		for (size_t col = 0; col < _cols; ++col)
+		{
+			if (robot_ == Point(col, row))
+			{
+				tiles.push_back("R");
+			}
+			else if (_house[row][col] == House::EMPTY || _house[row][col] == House::CLEAN)
+			{
+				tiles.push_back("0");
+			}
+			else
+			{
+				tiles.push_back(string() + _house[row][col]);
+			}		
+		}
+	}
+	
+	string imagesDirPath = "./simulations/" + algoName_ + "_" + _houseFilenameWithoutSuffix;
+	BoostUtils::createDirectoryIfNotExists(imagesDirPath);
+	string counterStr = std::to_string(_montageCounter++);
+	string composedImage = imagesDirPath + "/image" + string(5 - counterStr.length(), '0') + counterStr + ".jpg";
+	Montage::compose(tiles, _cols, _rows, composedImage);
 }

@@ -8,7 +8,7 @@ void Montage::compose(const vector<string> &images, int cols, int rows, const st
   string montageCmd = "montage -geometry 60x60 -tile " + to_string(cols) + "x" + to_string(rows) + " ";
   for (auto &path : images)
   {
-    montageCmd += path + " ";
+    montageCmd += "./avatars/" + path + " ";
   }
   montageCmd += composedImagePath;
   int ret = system(montageCmd.c_str());

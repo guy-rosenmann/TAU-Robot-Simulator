@@ -1,5 +1,6 @@
 #include "Configuration.h"
 #include "StringUtils.h"
+#include "BoostUtils.h"
 #include "ParamsParser.h"
 
 #include <sys/stat.h>
@@ -34,14 +35,14 @@ bool Configuration::loadFromPath(const string& iniPath_)
 	{
 		// ini file is missing
 		ParamsParser::printUsage();
-		cout << "cannot find " << Configuration::configFileName << " file in '" << StringUtils::getFullPath(iniPath_) << "'" << endl;
+		cout << "cannot find " << Configuration::configFileName << " file in '" << BoostUtils::getFullPath(iniPath_) << "'" << endl;
 		return false;
 	}
 
 	ifstream fin(fullPath.c_str());
 	if (!fin.good())
 	{
-		cout << Configuration::configFileName << " exists in '" << StringUtils::getFullPath(iniPath_) << "' but cannot be opened" << endl;
+		cout << Configuration::configFileName << " exists in '" << BoostUtils::getFullPath(iniPath_) << "' but cannot be opened" << endl;
 		return false;
 	}
 

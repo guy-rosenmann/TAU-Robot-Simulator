@@ -33,13 +33,6 @@ public:
 		}
 		return path;
 	}
-
-	static std::string getFullPath(const char* path)
-	{
-		return (boost::filesystem::exists(path) ? boost::filesystem::canonical(path).string() : boost::filesystem::path(path).string());
-	}
-
-	static std::string getFullPath(const std::string path) { return StringUtils::getFullPath(path.c_str()); }
 };
 
 

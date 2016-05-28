@@ -1,4 +1,5 @@
 #include "Simulation.h"
+#include "Encoder.h"
 
 #include <algorithm>
 
@@ -52,7 +53,6 @@ bool Simulation::step()
 		if (_robot.battery != 0 || _house.at(_robot.location) != House::DOCKING) // if (battery == 0) and in docking - not stuck
 		{
 #ifdef _DEBUG_
-			// for EX1: printing after score!
 			// cout << "[INFO] The robot is stuck with an empty battery." << endl;
 #endif
 			_robot.stuck = true;
@@ -90,8 +90,7 @@ bool Simulation::step()
 	if (nextType == House::ERR || nextType == House::WALL)
 	{
 #ifdef _DEBUG_
-		// for EX1: printing after score!
-//		 cout << "[INFO] The robot is trying to walk through a wall." << endl;
+	// cout << "[INFO] The robot is trying to walk through a wall." << endl;
 #endif
 		_robot.goodBehavior = false;
 		return false; // outside the house / into a wall
@@ -209,4 +208,19 @@ void Simulation::updateSensor()
 		temp.move((Direction)direction);
 		_sensor._info.isWall[direction] = (_house.at(temp) == House::WALL);
 	}
+}
+
+
+void Simulation::createMontage()
+{
+	_house.montage(_algoName, _robot.location);
+}
+
+
+void Simulation::createMontageVideo()
+{
+	string simulationName = _algoName + "_" + _house.getFilenameWithoutSuffix();
+	string simulationDir = "simulations/" + simulationName + "/";
+	string imagesExpression = simulationDir + "image%5d.jpg";
+	Encoder::encode(imagesExpression, simulationDir + simulationName + ".mpg");
 }

@@ -42,6 +42,7 @@
     <ClInclude Include="src\201445681_B_.h" />
     <ClInclude Include="src\201445681_C_.h" />
     <ClInclude Include="src\AlgorithmRegistration.h" />
+    <ClInclude Include="src\BoostUtils.h" />
     <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\Encoder.h" />
     <ClInclude Include="src\House.h" />

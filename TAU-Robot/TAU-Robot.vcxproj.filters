@@ -146,5 +146,8 @@
     <ClInclude Include="src\Encoder.h">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
+    <ClInclude Include="src\BoostUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
