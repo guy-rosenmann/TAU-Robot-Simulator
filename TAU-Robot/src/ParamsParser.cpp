@@ -15,17 +15,24 @@ const char* const ParamsParser::_options[] = {
 };
 
 
+const char* const ParamsParser::_flags[] = {
+	"-video"
+};
+
+
 bool ParamsParser::_wasUsageMessagePrinted = false;
-const char* ParamsParser::_usageMessage = "Usage: simulator [-config <config path>] [-house_path <house path>] [-algorithm_path <algorithm path>] [-score_formula <score .so path>] [-threads <num threads>]";
+const char* ParamsParser::_usageMessage = "Usage: simulator [-config <config path>] [-house_path <house path>] [-algorithm_path <algorithm path>] [-score_formula <score .so path>] [-threads <num threads>] [-video]";
 
 
 ParamsParser::ParamsParser(int argc, char* argv[])
 {
 	bool shouldPrintUsage = false;
-
+	unsigned int optionsSize = sizeof(_options) / sizeof(*_options);
+	unsigned int flagsSize = sizeof(_flags) / sizeof(*_flags);
+	
 	for (int i = 1; i < argc; ++i)
 	{
-		unsigned int j, optionsSize = sizeof(_options) / sizeof(*_options);
+		unsigned int j, k;
 		for (j = 0; j < optionsSize; ++j)
 		{
 			if (!strcmp(argv[i], _options[j]) && (i+1 < argc))
@@ -35,7 +42,16 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 				break;
 			}
 		}
-		if (j == optionsSize)
+		for (k = 0; k < flagsSize; ++k)
+		{
+			if (!strcmp(argv[i], _flags[k]))
+			{
+				_params[argv[i]] = "true";
+				++i;
+				break;
+			}
+		}
+		if (j == optionsSize && k == flagsSize)
 		{
 #ifdef _DEBUG_
 			cout << "[WARN] Incompatible argument: " << argv[i] << endl;

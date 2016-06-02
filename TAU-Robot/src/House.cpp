@@ -1,5 +1,4 @@
 #include "House.h"
-#include "Montage.h"
 #include "BoostUtils.h"
 
 #include <cstring>
@@ -122,8 +121,6 @@ void House::setHouse(const House& other)
 	_houseFilename = other._houseFilename;
 	_houseFilenameWithoutSuffix = other._houseFilenameWithoutSuffix;
 
-	_montageCounter = other._montageCounter;
-
 	_house = new char*[_rows];
 	for (size_t i = 0; i < _rows; i++)
 	{
@@ -160,8 +157,7 @@ House::House(House&& other) :	_maxSteps(other._maxSteps),
 								_houseFilename(other._houseFilename),
 								_houseFilenameWithoutSuffix(other._houseFilenameWithoutSuffix),
 								_isValid(other._isValid),
-								_errorLine(other._errorLine),
-								_montageCounter(other._montageCounter)
+								_errorLine(other._errorLine)
 {
 	std::swap(_house, other._house);
 }
@@ -190,7 +186,6 @@ House& House::operator=(House&& other)
 	_houseFilenameWithoutSuffix = other._houseFilenameWithoutSuffix;
 	_isValid = other._isValid;
 	_errorLine = other._errorLine;
-	_montageCounter = other._montageCounter;
 
 	return *this;
 }
@@ -379,7 +374,7 @@ void House::validateHouse()
 }
 
 
-void House::montage(const string& algoName_, const Point& robot_)
+vector<string> House::getMontageTiles(const Point& robot_) const
 {
 	vector<string> tiles;
 	for (size_t row = 0; row < _rows; ++row)
@@ -401,9 +396,5 @@ void House::montage(const string& algoName_, const Point& robot_)
 		}
 	}
 	
-	string imagesDirPath = "./simulations/" + algoName_ + "_" + _houseFilenameWithoutSuffix;
-	BoostUtils::createDirectoryIfNotExists(imagesDirPath);
-	string counterStr = std::to_string(_montageCounter++);
-	string composedImage = imagesDirPath + "/image" + string(5 - counterStr.length(), '0') + counterStr + ".jpg";
-	Montage::compose(tiles, _cols, _rows, composedImage);
+	return tiles;
 }

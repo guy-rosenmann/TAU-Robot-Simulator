@@ -21,11 +21,17 @@ public:
 	{
 		bool returnValue = true;
 		boost::filesystem::path dirPath(dirPath_.c_str());
+		
+		if (is_directory(dirPath))
+		{
+			return true; // folder already exists
+		}
+
 		if (!is_directory(dirPath.parent_path()))
 		{
 			returnValue = returnValue && createDirectoryIfNotExists(dirPath.parent_path().string());
 		}
-		return boost::filesystem::create_directory(dirPath);
+		return (returnValue && boost::filesystem::create_directory(dirPath));
 	}
 };
 

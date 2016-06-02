@@ -18,6 +18,10 @@ class Simulation
 	RobotInformation	_robot;
 	Configuration		_config;
 	Direction			_prevStep = Direction::Stay;
+	
+	int					_montageCounter = 0;
+	int					_montageFailedCounter = 0;
+	vector<string>		_montageErrors;
 
 public:
 
@@ -38,8 +42,8 @@ public:
 	void CallAboutToFinish(int stepsTillFinishing);
 	void createMontage();
 	void createMontageVideo();
+	vector<string> getMontageErrors() const { return _montageErrors; }
 
-	int score(int actual_position_in_competition, int winner_num_steps, int simulation_steps) const;
 	static int calc_score(const map<string, int>& score_params_);
 
 

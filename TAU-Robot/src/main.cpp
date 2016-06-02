@@ -16,12 +16,13 @@ int main(int argc, char* argv[])
 	algorithm_path = params["-algorithm_path"];
 	score_path = params["-score_formula"];
 	threadsCount = params["-threads"];
+	bool createVideos = params["-video"] != NULL;
 
 	Configuration config(conf_path);
 	if (!config.isReady()) goto error;
 
 	{
-		Simulator simulator(config, house_path, algorithm_path, score_path, threadsCount);
+		Simulator simulator(config, house_path, algorithm_path, score_path, threadsCount, createVideos);
 		if (!simulator.isReady()) goto error;
 		simulator.simulate();
 	}

@@ -1,5 +1,7 @@
 #include "Simulation.h"
+#include "Montage.h"
 #include "Encoder.h"
+#include "BoostUtils.h"
 
 #include <algorithm>
 
@@ -131,20 +133,6 @@ void Simulation::CallAboutToFinish(int stepsTillFinishing)
 	_algo->aboutToFinish(stepsTillFinishing);
 }
 
-int Simulation::score(int actual_position_in_competition, int winner_num_steps, int simulation_steps) const
-{
-	map<string, int> scoreParams;
-	scoreParams["actual_position_in_competition"] = actual_position_in_competition;
-	scoreParams["simulation_steps"] = simulation_steps;
-	scoreParams["winner_num_steps"] = winner_num_steps;
-	scoreParams["this_num_steps"] = this->isRobotOutOfBattery() ? simulation_steps : this->getStepsCount();
-	scoreParams["sum_dirt_in_house"] = this->getTotalDirtCount();
-	scoreParams["dirt_collected"] = this->getCleanedDirtCount();
-	scoreParams["is_back_in_docking"] = this->isRobotDocked() ? 1 : 0;
-
-	return Simulation::calc_score(scoreParams);
-}
-
 
 int Simulation::calc_score(const map<string, int>& score_params_)
 {
@@ -213,14 +201,56 @@ void Simulation::updateSensor()
 
 void Simulation::createMontage()
 {
-	_house.montage(_algoName, _robot.location);
+	string imagesDirPath = "./IMG_" + _algoName + "_" + _house.getFilenameWithoutSuffix();
+
+	if (_montageCounter == 0)
+	{
+		if (!BoostUtils::createDirectoryIfNotExists(imagesDirPath) || !boost::filesystem::is_directory(imagesDirPath))
+		{
+			_montageErrors.push_back("Error: In the simulation " + _algoName + ", " + _house.getFilenameWithoutSuffix() + ": folder creation " + imagesDirPath + " failed");
+			_montageCounter++; // ensures we only try once
+		}
+	}
+
+	if (boost::filesystem::is_directory(imagesDirPath))
+	{
+		vector<string> tiles = _house.getMontageTiles(_robot.location);
+		string counterStr = std::to_string(_montageCounter++);
+		string composedImage = imagesDirPath + "/image" + string(5 - counterStr.length(), '0') + counterStr + ".jpg";
+		
+#ifndef _WINDOWS_
+		if (!Montage::compose(tiles, _house.getXSize(), _house.getYSize(), composedImage) || !boost::filesystem::exists(composedImage))
+		{
+			_montageFailedCounter++;
+		}
+#endif
+	}
+
 }
 
 
 void Simulation::createMontageVideo()
 {
-	string simulationName = _algoName + "_" + _house.getFilenameWithoutSuffix();
-	string simulationDir = "simulations/" + simulationName + "/";
-	string imagesExpression = simulationDir + "image%5d.jpg";
-	Encoder::encode(imagesExpression, simulationDir + simulationName + ".mpg");
+	string imagesDirPath = "./IMG_" + _algoName + "_" + _house.getFilenameWithoutSuffix() + "/";
+
+	if (boost::filesystem::is_directory(imagesDirPath))
+	{
+		if (_montageFailedCounter > 0)
+		{
+			_montageErrors.push_back("Error: In the simulation " + _algoName + ", " + _house.getFilenameWithoutSuffix() + ": the creation of " + to_string(_montageFailedCounter) + " images was failed");
+		}
+
+		string videoName = _algoName + "_" + _house.getFilenameWithoutSuffix();
+		string videoFile = "./" + videoName + ".mpg";
+		string imagesExpression = imagesDirPath + "image%5d.jpg";
+		
+#ifndef _WINDOWS_
+		if (!Encoder::encode(imagesExpression, videoFile) || !boost::filesystem::exists(videoFile))
+		{
+			_montageErrors.push_back("Error: In the simulation " + _algoName + ", " + _house.getFilenameWithoutSuffix() + ": video file creation failed");
+		}
+#endif
+
+		boost::filesystem::remove_all(imagesDirPath); // delete temp images folder
+	}
 }

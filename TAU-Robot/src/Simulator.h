@@ -31,8 +31,18 @@ public:
 	void clear() { lock_guard<mutex> lock(_mutex); _vector.clear(); }
 	size_t size() { lock_guard<mutex> lock(_mutex); return _vector.size(); }
 	
-	typename std::vector<T>::const_iterator begin() const { return _vector.begin(); }
-	typename std::vector<T>::const_iterator end() const { return _vector.end(); }
+	typename std::vector<T>::const_iterator begin() const { return _vector.cbegin(); }
+	typename std::vector<T>::const_iterator end() const { return _vector.cend(); }
+
+	template <class OtherContainer>
+	void concat(const OtherContainer& other)
+	{
+		lock_guard<mutex> lock(_mutex);
+		for (auto e : other)
+		{
+			_vector.push_back(e);
+		}
+	}
 };
 
 
@@ -48,10 +58,12 @@ class Simulator
 	score_func	_scoreFunc = NULL;
 	bool _printScoreError = false;
 	
+	bool	_createVideos;
 	size_t	_threadsCount;
 
 	bool _successful = false;
 	syncVector<string>	_errors;
+	syncVector<string>	_montageErrors;
 
 	map<string, unique_ptr<vector<int>>>	_algoScores;
 
@@ -59,7 +71,7 @@ class Simulator
 	mutex			_algoScoresMutex;
 	
 public:
-	Simulator(const Configuration& conf_, const char* housePath_ = NULL, const char* algorithmPath_ = NULL, const char* scorePath_ = NULL, const char* threadsCount_ = NULL);
+	Simulator(const Configuration& conf_, const char* housePath_ = NULL, const char* algorithmPath_ = NULL, const char* scorePath_ = NULL, const char* threadsCount_ = NULL, bool createVideos_ = false);
 	~Simulator();
 
 	bool isReady() { return _successful; }
@@ -69,7 +81,9 @@ private:
 	void score(int houseIndex_, int simulationSteps_, vector<Simulation*>& simulatios_);
 	int getActualPosition(vector<Simulation*>& allSimulatios_, Simulation& simulationToScore_) const;
 	void printScores() const;
-	void printErrors() const;
+	
+	template <class T>
+	void printErrors(const T& errors_) const;
 
 	static int CountSpaces(double avg);
 

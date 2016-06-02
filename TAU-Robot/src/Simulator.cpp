@@ -21,18 +21,25 @@ sync_cout sync_cout::_self;
 
 string Simulator::scoreFunctionFileName = "score_formula.so";
 
-Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_, const char* scorePath_, const char* threadsCount_)
+Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_, const char* scorePath_, const char* threadsCount_, bool createVideos_)
 {
 	_config = conf_;
 
+	
+	// get threads
+	size_t requestedThreadsCount = getThreadsFromString(threadsCount_);
+	if (requestedThreadsCount > 1 && createVideos_)
+	{
+		cout << "cannot create videos with more than 1 thread" << endl;
+		return;
+	}
+	
+	
 	//get score function
 	if (!getScoreFunc(scorePath_))
 	{
 		return;
 	}
-	
-	// get threads
-	size_t requestedThreadsCount = getThreadsFromString(threadsCount_);
 
 	// Handle Alogs
 	vector<string> algoErrors;
@@ -157,7 +164,7 @@ bool Simulator::getHouses(const char* housePath_)
 	if (_houses.size() == 0)
 	{
 		cout << "All house files in target folder '" << BoostUtils::getFullPath(housePath) << "' cannot be opened or are invalid: " << endl;
-		printErrors();
+		printErrors(_errors);
 		return false;
 	}
 
@@ -264,10 +271,13 @@ void Simulator::simulate()
 	{
 		_errors.push_back("Score formula could not calculate some scores, see -1 in the results table");
 	}
+
+	_errors.concat(_montageErrors); // insert montage errors
+
 	if (_errors.size() > 0)
 	{
 		cout << endl << "Errors:" << endl;
-		printErrors();
+		printErrors(_errors);
 	}
 }
 
@@ -336,6 +346,7 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
 					// Create montage for misbehaved robots too
 					currentSimulation.createMontage();
 					currentSimulation.createMontageVideo();
+					_montageErrors.concat(currentSimulation.getMontageErrors());
 
 					delete (*it);
 					it = simulations.erase(it);
@@ -392,6 +403,7 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
 		Simulation& currentSim = **it;
 		currentSim.createMontage();
 		currentSim.createMontageVideo();
+		_montageErrors.concat(currentSim.getMontageErrors());
 	}
 
 	this->score(index, stepsCount, simulations);
@@ -573,10 +585,10 @@ void Simulator::printScores() const
 	}
 }
 
-
-void Simulator::printErrors() const
+template <class T>
+void Simulator::printErrors(const T& errors_) const
 {
-	for (const string& error : _errors)
+	for (auto& error : errors_)
 	{
 		cout << error << endl;
 	}

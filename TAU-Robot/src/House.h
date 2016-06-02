@@ -2,6 +2,7 @@
 #define __HOUSE__H_
 
 #include <iostream>
+#include <vector>
 
 #include "Point.h"
 
@@ -27,8 +28,6 @@ class House
 	bool	_isValid;
 	string	_errorLine;
 
-	int		_montageCounter = 0;
-
 
 public:
 	enum { DOCKING = 'D', WALL = 'W', CLEAN = '0', EMPTY = ' ' };
@@ -48,7 +47,7 @@ public:
 	bool isClean() const { return _currentDirt == 0; }
 	char at(const Point& p) const { return (*this)[p]; }
 
-	void montage(const string& algoName_, const Point& robot_);
+	vector<string> getMontageTiles(const Point& robot_) const;
 
 	
 	// getters
