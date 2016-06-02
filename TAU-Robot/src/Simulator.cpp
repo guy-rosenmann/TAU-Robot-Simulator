@@ -24,11 +24,11 @@ string Simulator::scoreFunctionFileName = "score_formula.so";
 Simulator::Simulator(const Configuration& conf_, const char* housePath_, const char* algorithmPath_, const char* scorePath_, const char* threadsCount_, bool createVideos_)
 {
 	_config = conf_;
-
+	_createVideos = createVideos_;
 	
 	// get threads
 	size_t requestedThreadsCount = getThreadsFromString(threadsCount_);
-	if (requestedThreadsCount > 1 && createVideos_)
+	if (requestedThreadsCount > 1 && _createVideos)
 	{
 		cout << "cannot create videos with more than 1 thread" << endl;
 		return;
@@ -330,7 +330,10 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
 		{
 			Simulation& currentSimulation = **it;
 
-			currentSimulation.createMontage();
+			if (_createVideos)
+			{
+				currentSimulation.createMontage();
+			}
 
 			if (!currentSimulation.step() || currentSimulation.isDone())
 			{
@@ -343,10 +346,13 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
 					_errors.push_back("Algorithm " + currentSimulation.getAlgoName() + " when running on House " + house.getFilenameWithoutSuffix() + " went on a wall in step " + to_string(stepsCount + 1));
 					(*_algoScores[currentSimulation.getAlgoName()])[index] = 0; // score = 0 if misbehaved
 
-					// Create montage for misbehaved robots too
-					currentSimulation.createMontage();
-					currentSimulation.createMontageVideo();
-					_montageErrors.concat(currentSimulation.getMontageErrors());
+					if (_createVideos)
+					{
+						// Create montage for misbehaved robots too
+						currentSimulation.createMontage();
+						currentSimulation.createMontageVideo();
+						_montageErrors.concat(currentSimulation.getMontageErrors());
+					}
 
 					delete (*it);
 					it = simulations.erase(it);
@@ -398,12 +404,15 @@ void Simulator::simulateOnHouse(int maxStepsAfterWinner, int index)
 	simulations.insert(simulations.end(), tempStoppedSimulatios.begin(), tempStoppedSimulatios.end());
 	tempStoppedSimulatios.clear();
 
-	for (vector<Simulation*>::iterator it = simulations.begin(); it != simulations.end(); ++it)
+	if (_createVideos)
 	{
-		Simulation& currentSim = **it;
-		currentSim.createMontage();
-		currentSim.createMontageVideo();
-		_montageErrors.concat(currentSim.getMontageErrors());
+		for (vector<Simulation*>::iterator it = simulations.begin(); it != simulations.end(); ++it)
+		{
+			Simulation& currentSim = **it;
+			currentSim.createMontage();
+			currentSim.createMontageVideo();
+			_montageErrors.concat(currentSim.getMontageErrors());
+		}
 	}
 
 	this->score(index, stepsCount, simulations);
