@@ -5,7 +5,7 @@
 
 bool Encoder::encode(const string& imagesString, const string& videoOutput)
 {
-	string ffmpegCmd = "ffmpeg -y -i " + imagesString + " " + videoOutput + " &> /dev/null";
+	string ffmpegCmd = "ffmpeg -y -i " + imagesString + " " + videoOutput + " > /dev/null 2>&1";
 	int ret = system(ffmpegCmd.c_str());
 	if (ret == -1)
 	{

@@ -10,7 +10,7 @@ bool Montage::compose(const vector<string> &images, int cols, int rows, const st
 	{
 		montageCmd += "./avatars/" + path + " ";
 	}
-	montageCmd += composedImagePath + " &> /dev/null";
+	montageCmd += composedImagePath + " > /dev/null 2>&1";
 	int ret = system(montageCmd.c_str());
 	if (ret == -1)
 	{

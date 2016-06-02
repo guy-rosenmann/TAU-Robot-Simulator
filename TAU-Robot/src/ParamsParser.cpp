@@ -47,7 +47,6 @@ ParamsParser::ParamsParser(int argc, char* argv[])
 			if (!strcmp(argv[i], _flags[k]))
 			{
 				_params[argv[i]] = "true";
-				++i;
 				break;
 			}
 		}
